@@ -8,6 +8,14 @@ HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
 
+const int Global_Scale = 3;
+const int Brick_Height = 7;
+const int Brick_Width = 15;
+const int Cell_Height = 8;
+const int Cell_Width = 16;
+const int Level_X_Offset = 8;
+const int Level_Y_Offset = 6;
+
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -94,27 +102,40 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 //------------------------------------------------------------------------------------------------------------
-void Draw_Brick(HDC hdc)
+void Draw_Brick(HDC hdc, int x, int y, bool is_blue)
 {
+	HPEN pen;
+	HBRUSH brush;
+	HPEN blue_pen = CreatePen(PS_SOLID, 0, RGB(63, 72, 204));
+	HBRUSH blue_brush = CreateSolidBrush(RGB(63, 72, 204));
 	HPEN red_pen = CreatePen(PS_SOLID, 0, RGB(237, 38, 36));
 	HBRUSH red_brush = CreateSolidBrush(RGB(237, 38, 36));
 
-	HPEN blue_pen = CreatePen(PS_SOLID, 0, RGB(63, 72, 204));
-	HBRUSH blue_brush = CreateSolidBrush(RGB(63, 72, 204));
+	if (is_blue)
+	{
+		pen = blue_pen;
+		brush = blue_brush;
+	}
+	else
+	{
+		pen = red_pen;
+		brush = red_brush;
+	}
 
+	SelectObject(hdc, pen);
+	SelectObject(hdc, brush);
+	Rectangle(hdc, x * Global_Scale, y * Global_Scale, (x + Brick_Width) * Global_Scale, (y + Brick_Height) * Global_Scale);
 
-	SelectObject(hdc, red_pen);
-	SelectObject(hdc, red_brush);
-	Rectangle(hdc, 8 * 3, 6 * 3, (8 + 15) * 3, (6 + 7) * 3);
-
-	SelectObject(hdc, blue_pen);
-	SelectObject(hdc, blue_brush);
-	Rectangle(hdc, 8 * 3, (6 + 8) * 3, (8 + 15) * 3, (6 + 7 + 8) * 3);
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc)
 {
-	Draw_Brick(hdc);
+	int i, j;
+
+	for (i = 0; i < 14; ++i)
+		for (j = 0; j < 12; ++j)
+			Draw_Brick(hdc, Level_X_Offset + j * Cell_Width, Level_Y_Offset + Cell_Height * i, true);
+		
 }
 //-----------------------------------------------------------------------------------------------f-------------
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
