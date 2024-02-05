@@ -48,9 +48,9 @@ char Level_01[Level_Height][Level_Width] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
-void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN& pen, HBRUSH& brush)
+void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN& pen, HBRUSH& brush, int pen_width = 0)
 {
-	pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
+	pen = CreatePen(PS_SOLID, pen_width, RGB(r, g, b));
 	brush = CreateSolidBrush(RGB(r, g, b));
 }
 //------------------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ void Init()
 	Create_Pen_Brush(237, 38, 36, Brick_Red_Pen, Brick_Red_Brush);
 	Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
 	Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
-	Create_Pen_Brush(255, 255, 255, Platform_Highlight_Pen, Platform_Highlight_Brush);
+	Create_Pen_Brush(255, 255, 255, Platform_Highlight_Pen, Platform_Highlight_Brush, 2);
 
 }
 //------------------------------------------------------------------------------------------------------------
@@ -118,6 +118,13 @@ void Draw_Platform(HDC hdc, int x, int y)
 	SelectObject(hdc, Platform_Inner_Brush);
 	RoundRect(hdc, (x + 4) * Global_Scale, (y + 1) * Global_Scale, (x + 4 + Inner_Width) * Global_Scale, (y + 1 + Inner_Height) * Global_Scale, Inner_Height * Global_Scale, Inner_Height * Global_Scale);
 
+	//draw highlight
+	SelectObject(hdc, Platform_Highlight_Pen);
+	SelectObject(hdc, Platform_Highlight_Brush);
+	Arc(hdc, (x + 1) * Global_Scale, (y + 1) * Global_Scale,
+		(x + Circle_Size - 1) * Global_Scale,  (y + Circle_Size - 1) * Global_Scale,
+		x * Global_Scale + 8, y * Global_Scale,
+		x * Global_Scale, y * Global_Scale + 8);
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc)
