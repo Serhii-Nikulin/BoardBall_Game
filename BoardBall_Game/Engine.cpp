@@ -90,8 +90,30 @@ void Draw_Level(HDC hdc)
 			Draw_Brick(hdc, Level_X_Offset + j * Cell_Width, Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Level_01[i][j]));
 }
 //------------------------------------------------------------------------------------------------------------
+void Draw_Platform(HDC hdc)
+{
+	//approximate dimensions of platform
+	int x = 95;
+	int y = 185;
+	int width = 20;//inner part
+	int height = 5;//inner part
+	int radius = 7;
+	int full_platform_width = 28;
+	//draw side parts
+	SelectObject(hdc, Brick_Blue_Pen);
+	SelectObject(hdc, Brick_Blue_Brush);
+	Ellipse(hdc, x * Global_Scale, y * Global_Scale, (x + radius) * Global_Scale, (y + radius) * Global_Scale);
+	Ellipse(hdc, (x + full_platform_width - radius) * Global_Scale, y * Global_Scale, (x + full_platform_width) * Global_Scale, (y + radius) * Global_Scale);
+	//draw inner part
+	SelectObject(hdc, Brick_Red_Pen);
+	SelectObject(hdc, Brick_Red_Brush);
+	RoundRect(hdc, (x + 4) * Global_Scale, (y + 1) * Global_Scale, (x + 4 + width) * Global_Scale, (y + 1 + height) * Global_Scale, height * Global_Scale, height * Global_Scale);
+
+}
+//------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc)
 {
 	Draw_Level(hdc);
+	Draw_Platform(hdc);
 }
 //------------------------------------------------------------------------------------------------------------
