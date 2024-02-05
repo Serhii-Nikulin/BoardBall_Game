@@ -124,11 +124,38 @@ void Draw_Platform(HDC hdc, int x, int y)
 		x * Global_Scale, y * Global_Scale + 8);
 }
 //------------------------------------------------------------------------------------------------------------
+void Draw_Brick_Letter(HDC hdc, int x, int y, int rotation_step)
+{
+	double rotation_angle = 2.0 * M_PI / 16 * rotation_step ;
+
+	XFORM xform, prev_xform;
+	SetGraphicsMode(hdc, GM_ADVANCED);
+	GetWorldTransform(hdc, &prev_xform);
+
+	xform.eM11 = (FLOAT)1; xform.eM12 = (FLOAT)0;
+	xform.eM21 = (FLOAT)0; xform.eM22 = cos(rotation_angle);
+	xform.eDx = (FLOAT)x;
+	xform.eDy = (FLOAT)y;
+
+	SetWorldTransform(hdc, &xform);
+
+	SelectObject(hdc, Brick_Blue_Pen);
+	SelectObject(hdc, Brick_Blue_Brush);
+	Rectangle(hdc, 0, 0, Brick_Width * Global_Scale, Brick_Height * Global_Scale);
+
+	SetWorldTransform(hdc, &prev_xform);
+}
+//------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc)
 {
 	int x = 95;
 	int y = 185;
-	Draw_Level(hdc);
-	Draw_Platform(hdc, x, y);
+	int i;
+	/*Draw_Level(hdc);
+	Draw_Platform(hdc, x, y);*/
+	x = 20;
+	y = 100;
+	for (i = 0; i < 16; ++i)
+		Draw_Brick_Letter(hdc, (x + i * Cell_Width) * Global_Scale, y, i);
 }
 //------------------------------------------------------------------------------------------------------------
