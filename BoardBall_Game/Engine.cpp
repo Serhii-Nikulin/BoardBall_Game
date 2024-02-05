@@ -124,34 +124,91 @@ void Draw_Platform(HDC hdc, int x, int y)
 		x * Global_Scale, y * Global_Scale + 8);
 }
 //------------------------------------------------------------------------------------------------------------
-void Draw_Brick_Letter(HDC hdc, int x, int y, int rotation_step)
+void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, int rotation_step)
 {
 	double offset;
 	double rotation_angle = 2.0 * M_PI / 16 * rotation_step;
 	int back_part_offset;
 	int brick_half_height = Brick_Height * Global_Scale / 2;
+	HPEN front_pen, back_pen;
+	HBRUSH front_brush, back_brush;
 	XFORM xform, prev_xform;
-	SetGraphicsMode(hdc, GM_ADVANCED);
-	GetWorldTransform(hdc, &prev_xform);
 
-	xform.eM11 = (FLOAT)1; xform.eM12 = (FLOAT)0;
-	xform.eM21 = (FLOAT)0; xform.eM22 = (FLOAT)cos(rotation_angle);
-	xform.eDx = (FLOAT)x;
-	xform.eDy = (FLOAT)y + brick_half_height;
+	if (!(brick_type == EBT_Blue || brick_type == EBT_Red))
+		return;
 
-	SetWorldTransform(hdc, &xform);
+	if (rotation_step > 4 and rotation_step < 12)
+	{
+		if (brick_type == EBT_Blue)
+		{
+			front_pen = Brick_Red_Pen;
+			front_brush = Brick_Red_Brush;
+			back_pen = Brick_Blue_Pen;
+			back_brush = Brick_Blue_Brush;
+		}
+		else
+		{
+			front_pen = Brick_Blue_Pen;
+			front_brush = Brick_Blue_Brush;
+			back_pen = Brick_Red_Pen;
+			back_brush = Brick_Red_Brush;
+		}
+	}
+	else
+	{
+		if (brick_type == EBT_Blue)
+		{
+			front_pen = Brick_Blue_Pen;
+			front_brush = Brick_Blue_Brush;
+			back_pen = Brick_Red_Pen;
+			back_brush = Brick_Red_Brush;
+		}
+		else
+		{
+			front_pen = Brick_Red_Pen;
+			front_brush = Brick_Red_Brush;
+			back_pen = Brick_Blue_Pen;
+			back_brush = Brick_Blue_Brush;
+		}
+	}
 
-	offset = 3.0 * (1.0f - fabs(cos(rotation_angle))) * Global_Scale;
-	back_part_offset = (int)round(offset);
-	SelectObject(hdc, Brick_Red_Pen);
-	SelectObject(hdc, Brick_Red_Brush);
-	Rectangle(hdc, 0, -brick_half_height - back_part_offset, Brick_Width * Global_Scale, +brick_half_height - back_part_offset);
+	if (rotation_step == 4 or rotation_step == 12)
+	{
+		SelectObject(hdc, back_pen);
+		SelectObject(hdc, back_brush);
+		Rectangle(hdc, x, y + brick_half_height - Global_Scale, x + Brick_Width * Global_Scale, y + brick_half_height);
 
-	SelectObject(hdc, Brick_Blue_Pen);
-	SelectObject(hdc, Brick_Blue_Brush);
-	Rectangle(hdc, 0, -(int)brick_half_height, Brick_Width * Global_Scale, +(int)brick_half_height);
+		//Front side
+		SelectObject(hdc, front_pen);
+		SelectObject(hdc, front_brush);
+		Rectangle(hdc, x, y + brick_half_height, x + Brick_Width * Global_Scale, y + brick_half_height + Global_Scale - 1);
+	}
+	else
+	{
+		SetGraphicsMode(hdc, GM_ADVANCED);
+		GetWorldTransform(hdc, &prev_xform);
 
-	SetWorldTransform(hdc, &prev_xform);
+		xform.eM11 = (FLOAT)1; xform.eM12 = (FLOAT)0;
+		xform.eM21 = (FLOAT)0; xform.eM22 = (FLOAT)cos(rotation_angle);
+		xform.eDx = (FLOAT)x;
+		xform.eDy = (FLOAT)y + brick_half_height;
+
+		SetWorldTransform(hdc, &xform);
+
+		offset = 3.0 * (1.0f - fabs(cos(rotation_angle))) * Global_Scale;
+		back_part_offset = (int)round(offset);
+
+		SelectObject(hdc, back_pen);
+		SelectObject(hdc, back_brush);
+		Rectangle(hdc, 0, -brick_half_height - back_part_offset, Brick_Width * Global_Scale, +brick_half_height - back_part_offset);
+
+		//Front side
+		SelectObject(hdc, front_pen);
+		SelectObject(hdc, front_brush);
+		Rectangle(hdc, 0, -(int)brick_half_height, Brick_Width * Global_Scale, +(int)brick_half_height);
+
+		SetWorldTransform(hdc, &prev_xform);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc)
@@ -164,6 +221,10 @@ void Draw_Frame(HDC hdc)
 	x = 20;
 	y = 100;
 	for (i = 0; i < 16; ++i)
-		Draw_Brick_Letter(hdc, (x + i * Cell_Width) * Global_Scale, y, i);
+	{
+		Draw_Brick_Letter(hdc, (x + i * Cell_Width) * Global_Scale, y, EBT_Blue, i);
+		Draw_Brick_Letter(hdc, (x + i * Cell_Width) * Global_Scale, y + 50, EBT_Red, i);
+	}
+		
 }
 //------------------------------------------------------------------------------------------------------------
