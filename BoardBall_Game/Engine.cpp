@@ -19,6 +19,17 @@ const int Level_Y_Offset = 6;
 const int Level_Height = 14;
 const int Level_Width = 12;
 
+const int Inner_Width = 20;
+const int Inner_Height = 5;
+const int Circle_Size = 7;
+const int Full_Platform_Width = 28;
+HPEN Platform_Inner_Pen;
+HBRUSH Platform_Inner_Brush;
+HPEN Platform_Circle_Pen;
+HBRUSH Platform_Circle_Brush;
+HPEN Platform_Highlight_Pen;
+HBRUSH Platform_Highlight_Brush;
+
 char Level_01[Level_Height][Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
@@ -47,6 +58,10 @@ void Init()
 {
 	Create_Pen_Brush(63, 72, 204, Brick_Blue_Pen, Brick_Blue_Brush);
 	Create_Pen_Brush(237, 38, 36, Brick_Red_Pen, Brick_Red_Brush);
+	Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
+	Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
+	Create_Pen_Brush(255, 255, 255, Platform_Highlight_Pen, Platform_Highlight_Brush);
+
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
@@ -90,30 +105,26 @@ void Draw_Level(HDC hdc)
 			Draw_Brick(hdc, Level_X_Offset + j * Cell_Width, Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Level_01[i][j]));
 }
 //------------------------------------------------------------------------------------------------------------
-void Draw_Platform(HDC hdc)
+void Draw_Platform(HDC hdc, int x, int y)
 {
-	//approximate dimensions of platform
-	int x = 95;
-	int y = 185;
-	int width = 20;//inner part
-	int height = 5;//inner part
-	int radius = 7;
-	int full_platform_width = 28;
 	//draw side parts
-	SelectObject(hdc, Brick_Blue_Pen);
-	SelectObject(hdc, Brick_Blue_Brush);
-	Ellipse(hdc, x * Global_Scale, y * Global_Scale, (x + radius) * Global_Scale, (y + radius) * Global_Scale);
-	Ellipse(hdc, (x + full_platform_width - radius) * Global_Scale, y * Global_Scale, (x + full_platform_width) * Global_Scale, (y + radius) * Global_Scale);
+	SelectObject(hdc, Platform_Circle_Pen);
+	SelectObject(hdc, Platform_Circle_Brush);
+	Ellipse(hdc, x * Global_Scale, y * Global_Scale, (x + Circle_Size) * Global_Scale, (y + Circle_Size) * Global_Scale);
+	Ellipse(hdc, (x + Full_Platform_Width - Circle_Size) * Global_Scale, y * Global_Scale, (x + Full_Platform_Width) * Global_Scale, (y + Circle_Size) * Global_Scale);
+
 	//draw inner part
-	SelectObject(hdc, Brick_Red_Pen);
-	SelectObject(hdc, Brick_Red_Brush);
-	RoundRect(hdc, (x + 4) * Global_Scale, (y + 1) * Global_Scale, (x + 4 + width) * Global_Scale, (y + 1 + height) * Global_Scale, height * Global_Scale, height * Global_Scale);
+	SelectObject(hdc, Platform_Inner_Pen);
+	SelectObject(hdc, Platform_Inner_Brush);
+	RoundRect(hdc, (x + 4) * Global_Scale, (y + 1) * Global_Scale, (x + 4 + Inner_Width) * Global_Scale, (y + 1 + Inner_Height) * Global_Scale, Inner_Height * Global_Scale, Inner_Height * Global_Scale);
 
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc)
 {
+	int x = 95;
+	int y = 185;
 	Draw_Level(hdc);
-	Draw_Platform(hdc);
+	Draw_Platform(hdc, x, y);
 }
 //------------------------------------------------------------------------------------------------------------
