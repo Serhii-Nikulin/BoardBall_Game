@@ -126,22 +126,30 @@ void Draw_Platform(HDC hdc, int x, int y)
 //------------------------------------------------------------------------------------------------------------
 void Draw_Brick_Letter(HDC hdc, int x, int y, int rotation_step)
 {
-	double rotation_angle = 2.0 * M_PI / 16 * rotation_step ;
-
+	double offset;
+	double rotation_angle = 2.0 * M_PI / 16 * rotation_step;
+	int back_part_offset;
+	int brick_half_height = Brick_Height * Global_Scale / 2;
 	XFORM xform, prev_xform;
 	SetGraphicsMode(hdc, GM_ADVANCED);
 	GetWorldTransform(hdc, &prev_xform);
 
 	xform.eM11 = (FLOAT)1; xform.eM12 = (FLOAT)0;
-	xform.eM21 = (FLOAT)0; xform.eM22 = cos(rotation_angle);
+	xform.eM21 = (FLOAT)0; xform.eM22 = (FLOAT)cos(rotation_angle);
 	xform.eDx = (FLOAT)x;
-	xform.eDy = (FLOAT)y;
+	xform.eDy = (FLOAT)y + brick_half_height;
 
 	SetWorldTransform(hdc, &xform);
 
+	offset = 3.0 * (1.0f - fabs(cos(rotation_angle))) * Global_Scale;
+	back_part_offset = (int)round(offset);
+	SelectObject(hdc, Brick_Red_Pen);
+	SelectObject(hdc, Brick_Red_Brush);
+	Rectangle(hdc, 0, -brick_half_height - back_part_offset, Brick_Width * Global_Scale, +brick_half_height - back_part_offset);
+
 	SelectObject(hdc, Brick_Blue_Pen);
 	SelectObject(hdc, Brick_Blue_Brush);
-	Rectangle(hdc, 0, 0, Brick_Width * Global_Scale, Brick_Height * Global_Scale);
+	Rectangle(hdc, 0, -(int)brick_half_height, Brick_Width * Global_Scale, +(int)brick_half_height);
 
 	SetWorldTransform(hdc, &prev_xform);
 }
