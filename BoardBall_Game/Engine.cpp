@@ -66,6 +66,7 @@ void Init()
 //------------------------------------------------------------------------------------------------------------
 void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 {
+
 	HPEN pen;
 	HBRUSH brush;
 
