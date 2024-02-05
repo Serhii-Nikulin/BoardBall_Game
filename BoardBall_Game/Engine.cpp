@@ -68,21 +68,17 @@ void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 {
 	HPEN pen;
 	HBRUSH brush;
-	HPEN blue_pen = CreatePen(PS_SOLID, 0, RGB(63, 72, 204));
-	HBRUSH blue_brush = CreateSolidBrush(RGB(63, 72, 204));
-	HPEN red_pen = CreatePen(PS_SOLID, 0, RGB(237, 38, 36));
-	HBRUSH red_brush = CreateSolidBrush(RGB(237, 38, 36));
 
 	switch (brick_type)
 	{
 	case EBT_Blue:
-		pen = blue_pen;
-		brush = blue_brush;
+		pen = Brick_Blue_Pen;
+		brush = Brick_Blue_Brush;
 		break;
 
 	case EBT_Red:
-		pen = red_pen;
-		brush = red_brush;
+		pen = Brick_Red_Pen;
+		brush = Brick_Red_Brush;
 		break;
 
 	default:
