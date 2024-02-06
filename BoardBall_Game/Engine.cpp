@@ -39,7 +39,7 @@ RECT Level_Rect;
 
 HPEN Highlight_Pen, Letter_Pen;
 
-int Platform_X_Pos = 95;
+int Platform_X_Pos = 103 - 28 / 2;
 const int Platform_Y_Pos = 185;
 int Platform_X_Step = Global_Scale;
 
@@ -62,7 +62,7 @@ char Level_01[Level_Height][Level_Width] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
-void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN& pen, HBRUSH& brush)
+void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
 {
 	pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
 	brush = CreateSolidBrush(RGB(r, g, b));
@@ -269,18 +269,17 @@ void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, int rotati
 //------------------------------------------------------------------------------------------------------------
 void Draw_Frame(HDC hdc, RECT &paint_area)
 {
-	RECT intersection_rect;
-	int i;
-	int x = 95;
-	int y = 185;
+	RECT intersection_rect{};
 
-	if (!IntersectRect(&intersection_rect, &paint_area, &Level_Rect));
+	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 		Draw_Level(hdc);
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
 		Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
 	
-	/*for (i = 0; i < 16; ++i)
+	/*
+	int i;
+	for (i = 0; i < 16; ++i)
 	{
 		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100, EBT_Blue, i);
 		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100 + 50, EBT_Red, i);
