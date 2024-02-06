@@ -73,8 +73,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance;
 
-	Init();
-
 	RECT window_rect;
 	window_rect.left = 0;
 	window_rect.top = 0;
@@ -88,6 +86,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	if (hWnd == 0)
 		return FALSE;
+
+	Init_Engine(hWnd);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);

@@ -4,6 +4,11 @@ enum EBrick_Type {
 	EBT_None, EBT_Red, EBT_Blue
 };
 
+HWND Hwnd;
+
+HPEN BG_Pen;
+HBRUSH BG_Brush;
+
 HPEN Brick_Blue_Pen;
 HBRUSH Brick_Blue_Brush;
 HPEN Brick_Red_Pen;
@@ -21,14 +26,21 @@ const int Level_Width = 12;
 
 const int Inner_Width = 20;
 const int Inner_Height = 5;
+int Platform_Width = 28;
 const int Circle_Size = 7;
-const int Full_Platform_Width = 28;
+const int Platform_Height = 7;
 HPEN Platform_Inner_Pen;
 HBRUSH Platform_Inner_Brush;
 HPEN Platform_Circle_Pen;
 HBRUSH Platform_Circle_Brush;
+RECT Prev_Platform_Rect, Platform_Rect;
 
 HPEN Highlight_Pen, Letter_Pen;
+
+int Platform_X_Pos = 95;
+const int Platform_Y_Pos = 185;
+int Platform_X_Step = Global_Scale;
+
 
 char Level_01[Level_Height][Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
@@ -53,16 +65,34 @@ void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsign
 	pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
 	brush = CreateSolidBrush(RGB(r, g, b));
 }
+
 //------------------------------------------------------------------------------------------------------------
-void Init()
+void Redraw_Platform()
 {
+	Prev_Platform_Rect = Platform_Rect;
+
+	Platform_Rect.left = Platform_X_Pos * Global_Scale;
+	Platform_Rect.top = Platform_Y_Pos * Global_Scale;
+	Platform_Rect.right = Platform_Rect.left + Platform_Width * Global_Scale;
+	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * Global_Scale;
+
+	InvalidateRect(Hwnd, &Prev_Platform_Rect, TRUE);
+	InvalidateRect(Hwnd, &Platform_Rect, TRUE);
+}
+//------------------------------------------------------------------------------------------------------------
+void Init_Engine(HWND hwnd)
+{
+	Hwnd = hwnd;
+
 	Highlight_Pen = Letter_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
 
 	Create_Pen_Brush(63, 72, 204, Brick_Blue_Pen, Brick_Blue_Brush);
 	Create_Pen_Brush(237, 38, 36, Brick_Red_Pen, Brick_Red_Brush);
 	Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
 	Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
+	Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
 
+	Redraw_Platform();
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
@@ -105,11 +135,15 @@ void Draw_Level(HDC hdc)
 //------------------------------------------------------------------------------------------------------------
 void Draw_Platform(HDC hdc, int x, int y)
 {
+	SelectObject(hdc, BG_Pen);
+	SelectObject(hdc, BG_Brush);
+	Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
+	
 	//draw side parts
 	SelectObject(hdc, Platform_Circle_Pen);
 	SelectObject(hdc, Platform_Circle_Brush);
 	Ellipse(hdc, x * Global_Scale, y * Global_Scale, (x + Circle_Size) * Global_Scale, (y + Circle_Size) * Global_Scale);
-	Ellipse(hdc, (x + Full_Platform_Width - Circle_Size) * Global_Scale, y * Global_Scale, (x + Full_Platform_Width) * Global_Scale, (y + Circle_Size) * Global_Scale);
+	Ellipse(hdc, (x + Platform_Width - Circle_Size) * Global_Scale, y * Global_Scale, (x + Platform_Width) * Global_Scale, (y + Circle_Size) * Global_Scale);
 
 	//draw inner part
 	SelectObject(hdc, Platform_Inner_Pen);
@@ -236,7 +270,7 @@ void Draw_Frame(HDC hdc)
 	int x = 95;
 	int y = 185;
 	Draw_Level(hdc);
-	Draw_Platform(hdc, x, y);
+	Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
 	
 	/*for (i = 0; i < 16; ++i)
 	{
@@ -251,11 +285,13 @@ int On_Key_Down(EKey_Type key_type)
 	switch (key_type)
 	{
 	case EKT_Left:
-
+		Platform_X_Pos -= Platform_X_Step;
+		Redraw_Platform();
 		break;
 
 	case EKT_Right:
-
+		Platform_X_Pos += Platform_X_Step;
+		Redraw_Platform();
 		break;
 
 	case EKT_Space:
