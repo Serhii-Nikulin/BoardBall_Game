@@ -35,6 +35,8 @@ HPEN Platform_Circle_Pen;
 HBRUSH Platform_Circle_Brush;
 RECT Prev_Platform_Rect, Platform_Rect;
 
+RECT Level_Rect;
+
 HPEN Highlight_Pen, Letter_Pen;
 
 int Platform_X_Pos = 95;
@@ -92,6 +94,11 @@ void Init_Engine(HWND hwnd)
 	Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
 	Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
 
+	Level_Rect.left = Level_X_Offset * Global_Scale;
+	Level_Rect.top = Level_Y_Offset * Global_Scale;
+	Level_Rect.right = Level_Rect.left + Cell_Width * Level_Width * Global_Scale;
+	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * Global_Scale;
+
 	Redraw_Platform();
 }
 //------------------------------------------------------------------------------------------------------------
@@ -134,11 +141,7 @@ void Draw_Level(HDC hdc)
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Platform(HDC hdc, int x, int y)
-{
-	SelectObject(hdc, BG_Pen);
-	SelectObject(hdc, BG_Brush);
-	Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
-	
+{	
 	//draw side parts
 	SelectObject(hdc, Platform_Circle_Pen);
 	SelectObject(hdc, Platform_Circle_Brush);
@@ -264,13 +267,18 @@ void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, int rotati
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void Draw_Frame(HDC hdc)
+void Draw_Frame(HDC hdc, RECT &paint_area)
 {
+	RECT intersection_rect;
 	int i;
 	int x = 95;
 	int y = 185;
-	Draw_Level(hdc);
-	Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
+
+	if (!IntersectRect(&intersection_rect, &paint_area, &Level_Rect));
+		Draw_Level(hdc);
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+		Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
 	
 	/*for (i = 0; i < 16; ++i)
 	{
@@ -286,11 +294,17 @@ int On_Key_Down(EKey_Type key_type)
 	{
 	case EKT_Left:
 		Platform_X_Pos -= Platform_X_Step;
+		if (Platform_X_Pos < 7)
+			Platform_X_Pos = 7;
+
 		Redraw_Platform();
 		break;
 
 	case EKT_Right:
 		Platform_X_Pos += Platform_X_Step;
+		if (Platform_X_Pos > 200 - Platform_Width - 1)
+			Platform_X_Pos = 200 - Platform_Width - 1;
+
 		Redraw_Platform();
 		break;
 
