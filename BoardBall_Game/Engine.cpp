@@ -235,14 +235,14 @@ void Draw_Frame(HDC hdc)
 	int i;
 	int x = 95;
 	int y = 185;
-	//Draw_Level(hdc);
-	//Draw_Platform(hdc, x, y);
+	Draw_Level(hdc);
+	Draw_Platform(hdc, x, y);
 	
-	for (i = 0; i < 16; ++i)
+	/*for (i = 0; i < 16; ++i)
 	{
 		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100, EBT_Blue, i);
 		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100 + 50, EBT_Red, i);
-	}
+	}*/
 		
 }
 //------------------------------------------------------------------------------------------------------------
