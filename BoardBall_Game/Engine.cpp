@@ -473,7 +473,7 @@ void Move_Ball()
 	Ball_Rect.right = Ball_Rect.left + Ball_Size * Global_Scale;
 	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * Global_Scale;
 
-	InvalidateRect(Hwnd, &Prev_Ball_Rect, FALSE);
+	InvalidateRect(Hwnd, &Prev_Ball_Rect, TRUE);
 	InvalidateRect(Hwnd, &Ball_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
