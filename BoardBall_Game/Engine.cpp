@@ -16,9 +16,9 @@ HBRUSH Brick_Red_Brush;
 
 const int Global_Scale = 3;
 
-const int Min_X_Pos = 6;
+const int Border_X_Offset = 6;//Min_X
 const int Max_X_Pos = 200;
-const int Min_Y_Pos = 4;
+const int Border_Y_Offset = 4;//Min_Y
 const int Max_Y_Pos = 199;
 
 const int Brick_Height = 7;
@@ -371,14 +371,16 @@ int On_Key_Down(EKey_Type key_type)
 	{
 	case EKT_Left:
 		Platform_X_Pos -= Platform_X_Step;
-		if (Platform_X_Pos < Min_X_Pos)
-			Platform_X_Pos = Min_X_Pos;
+
+		if (Platform_X_Pos < Border_X_Offset)
+			Platform_X_Pos = Border_X_Offset;
 
 		Redraw_Platform();
 		break;
 
 	case EKT_Right:
 		Platform_X_Pos += Platform_X_Step;
+
 		if (Platform_X_Pos > Max_X_Pos - Platform_Width + 1)
 			Platform_X_Pos = Max_X_Pos - Platform_Width + 1;
 
@@ -396,34 +398,47 @@ int On_Key_Down(EKey_Type key_type)
 void Move_Ball()
 {
 	Prev_Ball_Rect = Ball_Rect;
-
+	
 	int next_x_pos = Ball_X_Pos + int(Ball_Speed * cos(Ball_Direction));
 	int next_y_pos = Ball_Y_Pos - int(Ball_Speed * sin(Ball_Direction));
+	int max_x_pos = Max_X_Pos - Ball_Size;
+	int max_y_pos = Max_Y_Pos - Ball_Size;
+	int platform_y_pos = Platform_Y_Pos - Ball_Size;
 
-
-	if (next_x_pos < Min_X_Pos)
+	if (next_x_pos < Border_X_Offset)
 	{
-		next_x_pos = Min_X_Pos + (Min_X_Pos - next_x_pos);
+		next_x_pos = Border_X_Offset + (Border_X_Offset - next_x_pos);
 		Ball_Direction = M_PI - Ball_Direction;
 	}
 
-	if (next_y_pos < Min_Y_Pos)
+	if (next_y_pos < Border_Y_Offset)
 	{
-		next_y_pos = Min_Y_Pos + (Min_Y_Pos - next_y_pos);
+		next_y_pos = Border_Y_Offset + (Border_Y_Offset - next_y_pos);
 		Ball_Direction = -Ball_Direction;
 	}
 
-	if (next_x_pos + Ball_Size > Max_X_Pos)
+	if (next_x_pos > max_x_pos)
 	{
-		//next_x_pos = Max_X_Pos - (Max_X_Pos - next_x_pos);
+		Ball_X_Pos = Max_X_Pos - Ball_Size;
+		//next_x_pos = max_x_pos - (next_x_pos - max_x_pos);
 		Ball_Direction = -Ball_Direction + M_PI;
 	}
 
-	if (next_y_pos + Ball_Size > Max_Y_Pos)
+	if (next_y_pos > max_y_pos)
 	{
-		//next_y_pos = Max_Y_Pos - (Max_Y_Pos - next_y_pos);
+		Ball_Y_Pos = Max_Y_Pos - Ball_Size;
+		//next_y_pos = max_y_pos - (next_y_pos - max_y_pos);
 		Ball_Direction = -Ball_Direction;
 	}
+
+	if (next_y_pos > platform_y_pos)
+		if (next_x_pos >= Platform_X_Pos - Ball_Size
+			and 
+			next_x_pos <= Platform_X_Pos + Platform_Width)
+		{
+			Ball_Direction = -Ball_Direction;
+			next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
+		}
 
 	Ball_X_Pos = next_x_pos;
 	Ball_Y_Pos = next_y_pos;
@@ -433,7 +448,7 @@ void Move_Ball()
 	Ball_Rect.right = Ball_Rect.left + Ball_Size * Global_Scale;
 	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * Global_Scale;
 
-	InvalidateRect(Hwnd, &Prev_Ball_Rect, true);
+	InvalidateRect(Hwnd, &Prev_Ball_Rect, FALSE);
 	InvalidateRect(Hwnd, &Ball_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
