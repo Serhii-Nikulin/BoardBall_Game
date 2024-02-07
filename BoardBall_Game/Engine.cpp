@@ -395,6 +395,29 @@ int On_Key_Down(EKey_Type key_type)
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------
+void Check_Level_Brick_Hit(int &next_y_pos)
+{
+	int i, j;
+	int brick_y_pos = Level_Y_Offset + (Level_Height - 1) * Cell_Height + Brick_Height;
+
+	for (i = Level_Height - 1; i >= 0; --i)
+	{
+		for (j = 0; j < Level_Width; ++j)
+		{
+			if (Level_01[i][j] == 0)
+				continue;
+
+			if (brick_y_pos > next_y_pos)
+			{
+				Ball_Direction = -Ball_Direction;
+				next_y_pos = brick_y_pos + (brick_y_pos - next_y_pos);
+				break;
+			}
+		}
+		brick_y_pos -= Cell_Height;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 void Move_Ball()
 {
 	Prev_Ball_Rect = Ball_Rect;
@@ -439,6 +462,8 @@ void Move_Ball()
 			Ball_Direction = -Ball_Direction;
 			next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
 		}
+
+	Check_Level_Brick_Hit(next_y_pos);
 
 	Ball_X_Pos = next_x_pos;
 	Ball_Y_Pos = next_y_pos;
