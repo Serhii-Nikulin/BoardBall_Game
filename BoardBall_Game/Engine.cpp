@@ -15,6 +15,8 @@ HPEN Brick_Red_Pen;
 HBRUSH Brick_Red_Brush;
 
 const int Global_Scale = 3;
+
+
 const int Brick_Height = 7;
 const int Brick_Width = 15;
 const int Cell_Height = 8;
@@ -79,7 +81,7 @@ void Redraw_Platform()
 	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * Global_Scale;
 
 	InvalidateRect(Hwnd, &Prev_Platform_Rect, TRUE);
-	InvalidateRect(Hwnd, &Platform_Rect, TRUE);
+	InvalidateRect(Hwnd, &Platform_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void Init_Engine(HWND hwnd)
@@ -100,6 +102,7 @@ void Init_Engine(HWND hwnd)
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * Global_Scale;
 
 	Redraw_Platform();
+	SetTimer(Hwnd, Timer_ID, 1000 / 20, NULL);
 }
 //------------------------------------------------------------------------------------------------------------
 void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
@@ -301,8 +304,8 @@ int On_Key_Down(EKey_Type key_type)
 
 	case EKT_Right:
 		Platform_X_Pos += Platform_X_Step;
-		if (Platform_X_Pos > 200 - Platform_Width - 1)
-			Platform_X_Pos = 200 - Platform_Width - 1;
+		if (Platform_X_Pos > 200 - Platform_Width + 1)
+			Platform_X_Pos = 200 - Platform_Width + 1;
 
 		Redraw_Platform();
 		break;
@@ -311,6 +314,12 @@ int On_Key_Down(EKey_Type key_type)
 
 		break;
 	}
+
+	return 0;
+}
+//------------------------------------------------------------------------------------------------------------
+int On_Timer()
+{
 
 	return 0;
 }
