@@ -54,8 +54,8 @@ RECT Ball_Rect, Prev_Ball_Rect;
 const int Ball_Size = 4;
 int Ball_X_Pos = Platform_X_Pos + (Platform_Width - Ball_Size) / 2;
 int Ball_Y_Pos = Platform_Y_Pos + 1 - Ball_Size;
-int Ball_Speed = 2 * Global_Scale;
-double Ball_Direction = -M_PI_4 - M_PI_4 / 3;
+int Ball_Speed = Global_Scale;
+double Ball_Direction = M_PI_4;
 
 char Level_01[Level_Height][Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
@@ -347,18 +347,15 @@ int On_Key_Down(EKey_Type key_type)
 //------------------------------------------------------------------------------------------------------------
 void Move_Ball()
 {
-	int ball_x_offset = Ball_Speed * cos(Ball_Direction);
-	int ball_y_offset = Ball_Speed * sin(Ball_Direction);
-
-	Ball_X_Pos += ball_x_offset;
-	Ball_Y_Pos += ball_y_offset;
+	Ball_X_Pos += int(Ball_Speed * cos(Ball_Direction));
+	Ball_Y_Pos -= int(Ball_Speed * sin(Ball_Direction));
 
 	Prev_Ball_Rect = Ball_Rect;
 
-	Ball_Rect.left += ball_x_offset;
-	Ball_Rect.top += ball_y_offset;
-	Ball_Rect.right += ball_x_offset;
-	Ball_Rect.bottom += ball_y_offset;
+	Ball_Rect.left = Ball_X_Pos * Global_Scale;
+	Ball_Rect.top = Ball_Y_Pos * Global_Scale;
+	Ball_Rect.right = Ball_Rect.left + Ball_Size * Global_Scale;
+	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * Global_Scale;
 
 	InvalidateRect(Hwnd, &Prev_Ball_Rect, TRUE);
 	InvalidateRect(Hwnd, &Ball_Rect, FALSE);
