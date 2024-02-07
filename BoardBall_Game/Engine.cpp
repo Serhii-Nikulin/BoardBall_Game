@@ -368,13 +368,13 @@ void Move_Ball()
 
 	if (next_x_pos + Ball_Size > Max_X_Pos)
 	{
-		//next_x_pos = next_x_pos - (Max_X_Pos - next_x_pos);
+		next_x_pos = next_x_pos - (Max_X_Pos - next_x_pos);
 		Ball_Direction = -Ball_Direction + M_PI;
 	}
 
 	if (next_y_pos + Ball_Size > Max_Y_Pos)
 	{
-		//next_y_pos = next_y_pos - (Max_Y_Pos - next_y_pos);
+		next_y_pos = next_y_pos - (Max_Y_Pos - next_y_pos);
 		Ball_Direction = -Ball_Direction;
 	}
 	
