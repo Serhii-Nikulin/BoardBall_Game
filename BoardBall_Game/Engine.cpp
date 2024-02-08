@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-char AsEngine::Level_01[Level_Height][Level_Width] = {
+char Level_01[AsEngine::Level_Height][AsEngine::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
@@ -17,6 +17,11 @@ char AsEngine::Level_01[Level_Height][Level_Width] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
+//------------------------------------------------------------------------------------------------------------
+AsEngine::AsEngine() :
+	Inner_Width(20), Platform_Width(28), Platform_X_Pos(103 - Platform_Width / 2), Platform_X_Step(2 * Global_Scale),
+	Ball_X_Pos(Platform_X_Pos + (Platform_Width - Ball_Size) / 2), Ball_Y_Pos(Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(Global_Scale), Ball_Direction(M_PI - M_PI_4)
+{}
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Init_Engine(HWND hwnd)
 {
@@ -63,12 +68,11 @@ void AsEngine::Draw_Frame(HDC hdc, RECT& paint_area)
 
 	Draw_Bounds(hdc, paint_area);
 
-	/*
-	int i;
+	/*int i;
 	for (i = 0; i < 16; ++i)
 	{
-	Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100, EBT_Blue, i);
-	Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100 + 50, EBT_Red, i);
+		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100, EBT_Blue, ELT_O, i);
+		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100 + 50, EBT_Red, ELT_O, i);
 	}*/
 }
 //------------------------------------------------------------------------------------------------------------
@@ -314,7 +318,7 @@ void AsEngine::Draw_Border(HDC hdc, int x, int y, bool top_border)
 		Rectangle(hdc, (x + 2) * Global_Scale, (y + 1) * Global_Scale, (x + 3) * Global_Scale, (y + 2) * Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
-void AsEngine::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, int rotation_step)
+void AsEngine::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step)
 {
 	bool switch_color;
 	double offset;
@@ -389,13 +393,15 @@ void AsEngine::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, 
 
 		if (rotation_step > 4 and rotation_step < 12)
 		{
-			SelectObject(hdc, Letter_Pen);
-
-			Ellipse(hdc,
-				(Brick_Width - (Brick_Height - 2)) * Global_Scale / 2,
-				-(Brick_Height - 2) * Global_Scale / 2,
-				(Brick_Width + (Brick_Height - 2)) * Global_Scale / 2,
-				+(Brick_Height - 2) * Global_Scale / 2);
+			if (letter_type == ELT_O)
+			{
+				SelectObject(hdc, Letter_Pen);
+				Ellipse(hdc,
+					(Brick_Width - (Brick_Height - 2)) * Global_Scale / 2,
+					-(Brick_Height - 2) * Global_Scale / 2,
+					(Brick_Width + (Brick_Height - 2)) * Global_Scale / 2,
+					+(Brick_Height - 2) * Global_Scale / 2);
+			}
 		}
 
 		SetWorldTransform(hdc, &prev_xform);
