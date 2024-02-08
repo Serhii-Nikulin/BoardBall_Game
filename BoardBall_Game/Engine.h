@@ -16,20 +16,21 @@ enum EKey_Type {
 const int Timer_ID = WM_USER + 1;
 //------------------------------------------------------------------------------------------------------------
 class AsEngine;
+class ALevel;
 class ABall
 {
 public:
 	ABall();
-	void Ball_Init();
+	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
-	void Move_Ball(AsEngine *engine);
+	void Move_Ball(AsEngine *engine, ALevel *level);
 
-	HPEN Ball_Pen;
-	HBRUSH Ball_Brush;
 	double Ball_Direction;
 	static const int Ball_Size = 4;
 
 private:
+	HPEN Ball_Pen;
+	HBRUSH Ball_Brush;
 	RECT Ball_Rect, Prev_Ball_Rect;
 	int Ball_Speed;
 	int Ball_X_Pos;
@@ -40,14 +41,12 @@ class ALevel
 {
 public:
 	ALevel();
-	void Level_Init();
+	void Init();
 	void Draw_Level(HDC hdc, RECT &paint_area);
+	void Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction);
 
 	static const int Level_Height = 14;
 	static const int Level_Width = 12;
-	static const int Level_Y_Offset = 6;
-	static const int Brick_Height = 7;
-	static const int Cell_Height = 8;
 
 private:
 	void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type);
@@ -60,10 +59,13 @@ private:
 	HBRUSH Brick_Red_Brush;
 	HPEN Letter_Pen;
 	RECT Level_Rect;
-	
+
 	static const int Level_X_Offset = 8;
+	static const int Level_Y_Offset = 6;
 	static const int Brick_Width = 15;
+	static const int Brick_Height = 7;
 	static const int Cell_Width = 16;
+	static const int Cell_Height = 8;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
@@ -75,6 +77,7 @@ public:
 	void Draw_Frame(HDC hdc, RECT &paint_area);
 	int On_Key_Down(EKey_Type key_type);
 	int On_Timer();
+
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
 	HWND Hwnd;
 
@@ -88,8 +91,6 @@ public:
 	int Platform_X_Pos;
 	int Platform_Width;
 	static const int Platform_Y_Pos = 185;
-
-	void Check_Level_Brick_Hit(int &next_y_pos);
 
 private:
 	void Draw_Platform(HDC hdc, int x, int y);

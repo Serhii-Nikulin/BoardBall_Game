@@ -25,7 +25,7 @@ ABall::ABall():
 	//Ball_X_Pos(Platform_X_Pos + (Platform_Width - Ball_Size) / 2), Ball_Y_Pos(Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Ball_Init()
+void ABall::Init()
 {
 	AsEngine::Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
 
@@ -48,7 +48,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	Ellipse(hdc, Ball_Rect.left, Ball_Rect.top, Ball_Rect.right - 1, Ball_Rect.bottom - 1);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Move_Ball(AsEngine *engine)
+void ABall::Move_Ball(AsEngine *engine, ALevel *level)
 {
 	Prev_Ball_Rect = Ball_Rect;
 
@@ -93,7 +93,7 @@ void ABall::Move_Ball(AsEngine *engine)
 			next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
 		}
 
-	engine->Check_Level_Brick_Hit(next_y_pos);
+	level->Check_Level_Brick_Hit(next_y_pos, Ball_Direction);
 
 	Ball_X_Pos = next_x_pos;
 	Ball_Y_Pos = next_y_pos;
@@ -116,7 +116,7 @@ ALevel::ALevel():
 	Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}
 {}
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Level_Init()
+void ALevel::Init()
 {
 	Letter_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
 
@@ -276,7 +276,29 @@ void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRU
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void ALevel::Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction)
+{
+	int i, j;
+	int brick_y_pos = ALevel::Level_Y_Offset + (ALevel::Level_Height - 1) * ALevel::Cell_Height + ALevel::Brick_Height;
 
+	for (i = ALevel::Level_Height - 1; i >= 0; --i)
+	{
+		for (j = 0; j < ALevel::Level_Width; ++j)
+		{
+			if (Level_01[i][j] == 0)
+				continue;
+
+			if (brick_y_pos > next_y_pos)
+			{
+				ball_direction = -ball_direction;
+				next_y_pos = brick_y_pos + (brick_y_pos - next_y_pos);
+				break;
+			}
+		}
+		brick_y_pos -= ALevel::Cell_Height;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 
 
 
@@ -298,8 +320,8 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
 	Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
 
-	Ball.Ball_Init();
-	Level.Level_Init();
+	Ball.Init();
+	Level.Init();
 
 	Redraw_Platform();
 	SetTimer(Hwnd, Timer_ID, 1000 / 20, NULL);
@@ -359,7 +381,7 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Timer()
 {
-	Ball.Move_Ball(this);
+	Ball.Move_Ball(this, &Level);
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -401,29 +423,6 @@ void AsEngine::Redraw_Platform()
 
 	InvalidateRect(Hwnd, &Prev_Platform_Rect, TRUE);
 	InvalidateRect(Hwnd, &Platform_Rect, FALSE);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsEngine::Check_Level_Brick_Hit(int &next_y_pos)
-{
-	int i, j;
-	int brick_y_pos = ALevel::Level_Y_Offset + (ALevel::Level_Height - 1) * ALevel::Cell_Height + ALevel::Brick_Height;
-
-	for (i = ALevel::Level_Height - 1; i >= 0; --i)
-	{
-		for (j = 0; j < ALevel::Level_Width; ++j)
-		{
-			if (Level_01[i][j] == 0)
-				continue;
-
-			if (brick_y_pos > next_y_pos)
-			{
-				Ball.Ball_Direction = -Ball.Ball_Direction;
-				next_y_pos = brick_y_pos + (brick_y_pos - next_y_pos);
-				break;
-			}
-		}
-		brick_y_pos -= ALevel::Cell_Height;
-	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Bounds(HDC hdc, RECT &paint_area)
