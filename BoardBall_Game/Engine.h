@@ -45,13 +45,14 @@ public:
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
 	void Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction);
+	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
 
 	static const int Level_Height = 14;
 	static const int Level_Width = 12;
+	static const int Cell_Width = 16;
 
 private:
 	void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type);
-	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
 	void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush);
 
 	HPEN Brick_Blue_Pen;
@@ -65,7 +66,6 @@ private:
 	static const int Level_Y_Offset = 6;
 	static const int Brick_Width = 15;
 	static const int Brick_Height = 7;
-	static const int Cell_Width = 16;
 	static const int Cell_Height = 8;
 };
 //------------------------------------------------------------------------------------------------------------
@@ -95,6 +95,27 @@ private:
 	static const int Platform_Height = 7;
 };
 //------------------------------------------------------------------------------------------------------------
+class AsBorder
+{
+public:
+	AsBorder();
+	void Init();
+	void Draw(HDC hdc, RECT& paint_area);
+
+	static const int Border_X_Offset = 6;//Min_X
+	static const int Border_Y_Offset = 4;//Min_Y
+	static const int Max_X_Pos = 200;
+	static const int Max_Y_Pos = 199;
+private:
+	void Draw_Element(HDC hdc, int x, int y, bool top_border);
+
+	HPEN BG_Pen;
+	HBRUSH BG_Brush;
+
+	HPEN Border_Blue_Pen, Border_White_Pen;
+	HBRUSH Border_Blue_Brush, Border_White_Brush;
+};
+//------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
 public:
@@ -110,25 +131,12 @@ public:
 
 	static const int Global_Scale = 3;
 
-	static const int Border_X_Offset = 6;//Min_X
-	static const int Border_Y_Offset = 4;//Min_Y
-	static const int Max_X_Pos = 200;
-	static const int Max_Y_Pos = 199;
-
 private:
-	void Draw_Bounds(HDC hdc, RECT& paint_area);
-	void Draw_Border(HDC hdc, int x, int y, bool top_border);
-
+	
 	ABall Ball;
 	ALevel Level;
 	AsPlatform Platform;
-
-	//Config
-	HPEN BG_Pen;
-	HBRUSH BG_Brush;
-	//Border
-	HPEN Border_Blue_Pen, Border_White_Pen;
-	HBRUSH Border_Blue_Brush, Border_White_Brush;
+	AsBorder Border;
 };
 //------------------------------------------------------------------------------------------------------------
 

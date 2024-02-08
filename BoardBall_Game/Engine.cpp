@@ -54,32 +54,32 @@ void ABall::Move(AsEngine *engine, ALevel *level, AsPlatform *platform)
 
 	int next_x_pos = Ball_X_Pos + int(Ball_Speed * cos(Ball_Direction));
 	int next_y_pos = Ball_Y_Pos - int(Ball_Speed * sin(Ball_Direction));
-	int max_x_pos = AsEngine::Max_X_Pos - Ball_Size;
-	int max_y_pos = AsEngine::Max_Y_Pos - Ball_Size;
+	int max_x_pos = AsBorder::Max_X_Pos - Ball_Size;
+	int max_y_pos = AsBorder::Max_Y_Pos - Ball_Size;
 	int platform_y_pos = AsPlatform::Y_Pos - Ball_Size;
 
-	if (next_x_pos < AsEngine::Border_X_Offset)
+	if (next_x_pos < AsBorder::Border_X_Offset)
 	{
-		next_x_pos = AsEngine::Border_X_Offset + (AsEngine::Border_X_Offset - next_x_pos);
+		next_x_pos = AsBorder::Border_X_Offset + (AsBorder::Border_X_Offset - next_x_pos);
 		Ball_Direction = M_PI - Ball_Direction;
 	}
 
-	if (next_y_pos < AsEngine::Border_Y_Offset)
+	if (next_y_pos < AsBorder::Border_Y_Offset)
 	{
-		next_y_pos = AsEngine::Border_Y_Offset + (AsEngine::Border_Y_Offset - next_y_pos);
+		next_y_pos = AsBorder::Border_Y_Offset + (AsBorder::Border_Y_Offset - next_y_pos);
 		Ball_Direction = -Ball_Direction;
 	}
 
 	if (next_x_pos > max_x_pos)
 	{
-		Ball_X_Pos = AsEngine::Max_X_Pos - Ball_Size;
+		Ball_X_Pos = AsBorder::Max_X_Pos - Ball_Size;
 		//next_x_pos = max_x_pos - (next_x_pos - max_x_pos);
 		Ball_Direction = -Ball_Direction + M_PI;
 	}
 
 	if (next_y_pos > max_y_pos)
 	{
-		Ball_Y_Pos = AsEngine::Max_Y_Pos - Ball_Size;
+		Ball_Y_Pos = AsBorder::Max_Y_Pos - Ball_Size;
 		//next_y_pos = max_y_pos - (next_y_pos - max_y_pos);
 		Ball_Direction = -Ball_Direction;
 	}
@@ -363,6 +363,64 @@ void AsPlatform::Redraw(AsEngine* engine)
 
 
 //------------------------------------------------------------------------------------------------------------
+AsBorder::AsBorder()
+	: BG_Pen{}, BG_Brush{}, Border_Blue_Pen{}, Border_White_Pen{}, Border_Blue_Brush{}, Border_White_Brush{}
+{}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Init()
+{
+	AsEngine::Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
+
+	AsEngine::Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
+	AsEngine::Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Draw(HDC hdc, RECT &paint_area)
+{
+	int i;
+
+	for (i = 0; i < 50; ++i)
+		Draw_Element(hdc, 3 + i * 4, 0, true);//top horizontal part
+
+	for (i = 0; i < 50; ++i)
+		Draw_Element(hdc, 2, 1 + i * 4, false);//left part
+
+	for (i = 0; i < 50; ++i)
+		Draw_Element(hdc, 201, 1 + i * 4, false);//right part
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border)
+{
+	SelectObject(hdc, Border_White_Pen);
+	SelectObject(hdc, Border_White_Brush);
+
+	if (top_border)
+		Rectangle(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + 4) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale);
+	else
+		Rectangle(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + 1) * AsEngine::Global_Scale, (y + 4) * AsEngine::Global_Scale);
+
+	SelectObject(hdc, Border_Blue_Pen);
+	SelectObject(hdc, Border_Blue_Brush);
+
+	if (top_border)
+		Rectangle(hdc, x * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale, (x + 4) * AsEngine::Global_Scale, (y + 1 + 3) * AsEngine::Global_Scale);
+	else
+		Rectangle(hdc, (x + 1) * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + 1 + 3) * AsEngine::Global_Scale, (y + 4) * AsEngine::Global_Scale);
+
+	SelectObject(hdc, BG_Pen);
+	SelectObject(hdc, BG_Brush);
+
+	if (top_border)
+		Rectangle(hdc, (x + 2) * AsEngine::Global_Scale, (y + 2) * AsEngine::Global_Scale, (x + 3) * AsEngine::Global_Scale, (y + 3) * AsEngine::Global_Scale);
+	else
+		Rectangle(hdc, (x + 2) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale, (x + 3) * AsEngine::Global_Scale, (y + 2) * AsEngine::Global_Scale);
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
 	:Hwnd{}
 {}
@@ -371,14 +429,10 @@ void AsEngine::Init_Engine(HWND hwnd)
 {
 	Hwnd = hwnd;
 
-	Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
-
-	Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
-	Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
-
 	Ball.Init();
 	Level.Init();
 	Platform.Init();
+	Border.Init();
 
 	Platform.Redraw(this);
 	SetTimer(Hwnd, Timer_ID, 1000 / 20, NULL);
@@ -394,13 +448,13 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 
 	Ball.Draw(hdc, paint_area);
 
-	Draw_Bounds(hdc, paint_area);
+	Border.Draw(hdc, paint_area);
 
 	/*int i;
 	for (i = 0; i < 16; ++i)
 	{
-		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100, EBT_Blue, ELT_O, i);
-		Draw_Brick_Letter(hdc, (20 + i * Cell_Width) * Global_Scale, 100 + 50, EBT_Red, ELT_O, i);
+		Level.Draw_Brick_Letter(hdc, (20 + i * ALevel::Cell_Width) * Global_Scale, 100, EBT_Blue, ELT_O, i);
+		Level.Draw_Brick_Letter(hdc, (20 + i * ALevel::Cell_Width) * Global_Scale, 100 + 50, EBT_Red, ELT_O, i);
 	}*/
 }
 //------------------------------------------------------------------------------------------------------------
@@ -411,8 +465,8 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 	case EKT_Left:
 		Platform.X_Pos -= Platform.X_Step;
 
-		if (Platform.X_Pos < Border_X_Offset)
-			Platform.X_Pos = Border_X_Offset;
+		if (Platform.X_Pos < AsBorder::Border_X_Offset)
+			Platform.X_Pos = AsBorder::Border_X_Offset;
 
 		Platform.Redraw(this);
 		break;
@@ -420,8 +474,8 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 	case EKT_Right:
 		Platform.X_Pos += Platform.X_Step;
 
-		if (Platform.X_Pos > Max_X_Pos - Platform.Width + 1)
-			Platform.X_Pos = Max_X_Pos - Platform.Width + 1;
+		if (Platform.X_Pos > AsBorder::Max_X_Pos - Platform.Width + 1)
+			Platform.X_Pos = AsBorder::Max_X_Pos - Platform.Width + 1;
 
 		Platform.Redraw(this);
 		break;
@@ -444,46 +498,5 @@ void AsEngine::Create_Pen_Brush(const unsigned char r, const unsigned char g, co
 {
 	pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
 	brush = CreateSolidBrush(RGB(r, g, b));
-}
-//------------------------------------------------------------------------------------------------------------
-void AsEngine::Draw_Bounds(HDC hdc, RECT &paint_area)
-{
-	int i;
-
-	for (i = 0; i < 50; ++i)
-		Draw_Border(hdc, 3 + i * 4, 0, true);//top horizontal part
-
-	for (i = 0; i < 50; ++i)
-		Draw_Border(hdc, 2, 1 + i * 4, false);//left part
-
-	for (i = 0; i < 50; ++i)
-		Draw_Border(hdc, 201, 1 + i * 4, false);//right part
-}
-//------------------------------------------------------------------------------------------------------------
-void AsEngine::Draw_Border(HDC hdc, int x, int y, bool top_border)
-{
-	SelectObject(hdc, Border_White_Pen);
-	SelectObject(hdc, Border_White_Brush);
-
-	if (top_border)
-		Rectangle(hdc, x * Global_Scale, y * Global_Scale, (x + 4) * Global_Scale, (y + 1) * Global_Scale);
-	else
-		Rectangle(hdc, x * Global_Scale, y * Global_Scale, (x + 1) * Global_Scale, (y + 4) * Global_Scale);
-
-	SelectObject(hdc, Border_Blue_Pen);
-	SelectObject(hdc, Border_Blue_Brush);
-
-	if (top_border)
-		Rectangle(hdc, x * Global_Scale, (y + 1) * Global_Scale, (x + 4) * Global_Scale, (y + 1 + 3) * Global_Scale);
-	else
-		Rectangle(hdc, (x + 1) * Global_Scale, y * Global_Scale, (x + 1 + 3) * Global_Scale, (y + 4) * Global_Scale);
-
-	SelectObject(hdc, BG_Pen);
-	SelectObject(hdc, BG_Brush);
-
-	if (top_border)
-		Rectangle(hdc, (x + 2) * Global_Scale, (y + 2) * Global_Scale, (x + 3) * Global_Scale, (y + 3) * Global_Scale);
-	else
-		Rectangle(hdc, (x + 2) * Global_Scale, (y + 1) * Global_Scale, (x + 3) * Global_Scale, (y + 2) * Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
