@@ -19,13 +19,27 @@ char Level_01[AsEngine::Level_Height][AsEngine::Level_Width] = {
 };
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall():
+	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
 	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsEngine::Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 {
 	//Ball_X_Pos(Platform_X_Pos + (Platform_Width - Ball_Size) / 2), Ball_Y_Pos(Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Draw_Ball(HDC hdc, RECT &paint_area)
+void ABall::Ball_Init()
 {
+	Ball_Rect.left = Ball_X_Pos * AsEngine::Global_Scale;
+	Ball_Rect.top = Ball_Y_Pos * AsEngine::Global_Scale;
+	Ball_Rect.right = Ball_Rect.left + Ball_Size * AsEngine::Global_Scale;
+	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * AsEngine::Global_Scale;
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Draw(HDC hdc, RECT &paint_area)
+{
+	RECT intersection_rect;
+
+	if (!IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
+		return;
+
 	SelectObject(hdc, Ball_Pen);
 	SelectObject(hdc, Ball_Brush);
 
@@ -111,7 +125,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
 	Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
 	Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
-	Create_Pen_Brush(255, 255, 255, Ball.Ball_Pen,Ball. Ball_Brush);
+	Create_Pen_Brush(255, 255, 255, Ball.Ball_Pen, Ball.Ball_Brush);
 
 	Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
 	Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
@@ -121,10 +135,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Level_Rect.right = Level_Rect.left + Cell_Width * Level_Width * Global_Scale;
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * Global_Scale;
 
-	Ball.Ball_Rect.left = Ball.Ball_X_Pos * Global_Scale;
-	Ball.Ball_Rect.top = Ball.Ball_Y_Pos * Global_Scale;
-	Ball.Ball_Rect.right = Ball.Ball_Rect.left + Ball.Ball_Size * Global_Scale;
-	Ball.Ball_Rect.bottom = Ball.Ball_Rect.top + Ball.Ball_Size * Global_Scale;
+	Ball.Ball_Init();
 
 	Redraw_Platform();
 	SetTimer(Hwnd, Timer_ID, 1000 / 20, NULL);
@@ -140,8 +151,8 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 	if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
 		Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
 
-	if (IntersectRect(&intersection_rect, &paint_area, &Ball.Ball_Rect))
-		Ball.Draw_Ball(hdc, paint_area);
+	
+	Ball.Draw(hdc, paint_area);
 
 	Draw_Bounds(hdc, paint_area);
 

@@ -20,19 +20,20 @@ class ABall
 {
 public:
 	ABall();
-	void Draw_Ball(HDC hdc, RECT &paint_area);
+	void Ball_Init();
+	void Draw(HDC hdc, RECT &paint_area);
 	void Move_Ball(AsEngine *engine);
 
 	HPEN Ball_Pen;
 	HBRUSH Ball_Brush;
-	RECT Ball_Rect, Prev_Ball_Rect;
-	int Ball_X_Pos;
-	int Ball_Y_Pos;
 	double Ball_Direction;
 	static const int Ball_Size = 4;
 
 private:
+	RECT Ball_Rect, Prev_Ball_Rect;
 	int Ball_Speed;
+	int Ball_X_Pos;
+	int Ball_Y_Pos;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
