@@ -20,9 +20,9 @@ char Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall():
 	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
-	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsEngine::Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
+	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsPlatform::Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 {
-	//Ball_X_Pos(Platform_X_Pos + (Platform_Width - Ball_Size) / 2), Ball_Y_Pos(Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
+	//Ball_X_Pos(X_Pos + (Width - Ball_Size) / 2), Ball_Y_Pos(Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Init()
@@ -48,7 +48,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	Ellipse(hdc, Ball_Rect.left, Ball_Rect.top, Ball_Rect.right - 1, Ball_Rect.bottom - 1);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Move_Ball(AsEngine *engine, ALevel *level)
+void ABall::Move(AsEngine *engine, ALevel *level, AsPlatform *platform)
 {
 	Prev_Ball_Rect = Ball_Rect;
 
@@ -56,7 +56,7 @@ void ABall::Move_Ball(AsEngine *engine, ALevel *level)
 	int next_y_pos = Ball_Y_Pos - int(Ball_Speed * sin(Ball_Direction));
 	int max_x_pos = AsEngine::Max_X_Pos - Ball_Size;
 	int max_y_pos = AsEngine::Max_Y_Pos - Ball_Size;
-	int platform_y_pos = AsEngine::Platform_Y_Pos - Ball_Size;
+	int platform_y_pos = AsPlatform::Y_Pos - Ball_Size;
 
 	if (next_x_pos < AsEngine::Border_X_Offset)
 	{
@@ -85,9 +85,9 @@ void ABall::Move_Ball(AsEngine *engine, ALevel *level)
 	}
 
 	if (next_y_pos > platform_y_pos)
-		if (next_x_pos >= engine->Platform_X_Pos - Ball_Size
+		if (next_x_pos >= platform->X_Pos - Ball_Size
 			and 
-			next_x_pos <= engine->Platform_X_Pos + engine->Platform_Width)
+			next_x_pos <= platform->X_Pos + platform->Width)
 		{
 			Ball_Direction = -Ball_Direction;
 			next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
@@ -129,7 +129,7 @@ void ALevel::Init()
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsEngine::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Draw_Level(HDC hdc, RECT &paint_area)
+void ALevel::Draw(HDC hdc, RECT &paint_area)
 {
 	int i, j;
 	RECT intersection_rect;
@@ -302,19 +302,75 @@ void ALevel::Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction)
 
 
 
+
 //------------------------------------------------------------------------------------------------------------
-AsEngine::AsEngine():
-	Inner_Width(20), Platform_Width(28), Platform_X_Pos(103 - Platform_Width / 2), Platform_X_Step(2 * Global_Scale)
+AsPlatform::AsPlatform():
+	Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsEngine::Global_Scale),
+	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
+{}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Init()
+{
+	Highlight_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
+
+	AsEngine::Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
+	AsEngine::Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Draw(HDC hdc, RECT &paint_area)
+{
+	int x = X_Pos;
+	int y = Y_Pos;
+
+	RECT intersection_rect{};
+	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+		return;
+
+	//draw side parts
+	SelectObject(hdc, Platform_Circle_Pen);
+	SelectObject(hdc, Platform_Circle_Brush);
+	Ellipse(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + Circle_Size) * AsEngine::Global_Scale, (y + Circle_Size) * AsEngine::Global_Scale);
+	Ellipse(hdc, (x + Width - Circle_Size) * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + Width) * AsEngine::Global_Scale, (y + Circle_Size) * AsEngine::Global_Scale);
+
+	//draw inner part
+	SelectObject(hdc, Platform_Inner_Pen);
+	SelectObject(hdc, Platform_Inner_Brush);
+	RoundRect(hdc, (x + 4) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale, (x + 4 + Inner_Width) * AsEngine::Global_Scale, (y + 1 + Inner_Height) * AsEngine::Global_Scale, Inner_Height * AsEngine::Global_Scale, Inner_Height * AsEngine::Global_Scale);
+
+	//draw highlight
+	SelectObject(hdc, Highlight_Pen);
+	Arc(hdc, (x + 1) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale,
+		(x + Circle_Size - 1) * AsEngine::Global_Scale, (y + Circle_Size - 1) * AsEngine::Global_Scale,
+		x * AsEngine::Global_Scale + 8, y * AsEngine::Global_Scale,
+		x * AsEngine::Global_Scale, y * AsEngine::Global_Scale + 8);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Redraw(AsEngine* engine)
+{
+	Prev_Platform_Rect = Platform_Rect;
+
+	Platform_Rect.left = X_Pos * AsEngine::Global_Scale;
+	Platform_Rect.top = Y_Pos * AsEngine::Global_Scale;
+	Platform_Rect.right = Platform_Rect.left + Width * AsEngine::Global_Scale;
+	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * AsEngine::Global_Scale;
+
+	InvalidateRect(engine->Hwnd, &Prev_Platform_Rect, TRUE);
+	InvalidateRect(engine->Hwnd, &Platform_Rect, FALSE);
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+AsEngine::AsEngine()
+	:Hwnd{}
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Init_Engine(HWND hwnd)
 {
 	Hwnd = hwnd;
 
-	Highlight_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
-
-	Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
-	Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
 	Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
 
 	Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
@@ -322,8 +378,9 @@ void AsEngine::Init_Engine(HWND hwnd)
 
 	Ball.Init();
 	Level.Init();
+	Platform.Init();
 
-	Redraw_Platform();
+	Platform.Redraw(this);
 	SetTimer(Hwnd, Timer_ID, 1000 / 20, NULL);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -331,12 +388,10 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect{};
 
-	Level.Draw_Level(hdc, paint_area);
+	Level.Draw(hdc, paint_area);
 
-	if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
-		Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
+	Platform.Draw(hdc, paint_area);
 
-	
 	Ball.Draw(hdc, paint_area);
 
 	Draw_Bounds(hdc, paint_area);
@@ -354,21 +409,21 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 	switch (key_type)
 	{
 	case EKT_Left:
-		Platform_X_Pos -= Platform_X_Step;
+		Platform.X_Pos -= Platform.X_Step;
 
-		if (Platform_X_Pos < Border_X_Offset)
-			Platform_X_Pos = Border_X_Offset;
+		if (Platform.X_Pos < Border_X_Offset)
+			Platform.X_Pos = Border_X_Offset;
 
-		Redraw_Platform();
+		Platform.Redraw(this);
 		break;
 
 	case EKT_Right:
-		Platform_X_Pos += Platform_X_Step;
+		Platform.X_Pos += Platform.X_Step;
 
-		if (Platform_X_Pos > Max_X_Pos - Platform_Width + 1)
-			Platform_X_Pos = Max_X_Pos - Platform_Width + 1;
+		if (Platform.X_Pos > Max_X_Pos - Platform.Width + 1)
+			Platform.X_Pos = Max_X_Pos - Platform.Width + 1;
 
-		Redraw_Platform();
+		Platform.Redraw(this);
 		break;
 
 	case EKT_Space:
@@ -381,7 +436,7 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Timer()
 {
-	Ball.Move_Ball(this, &Level);
+	Ball.Move(this, &Level, &Platform);
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -389,40 +444,6 @@ void AsEngine::Create_Pen_Brush(const unsigned char r, const unsigned char g, co
 {
 	pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
 	brush = CreateSolidBrush(RGB(r, g, b));
-}
-//------------------------------------------------------------------------------------------------------------
-void AsEngine::Draw_Platform(HDC hdc, int x, int y)
-{
-	//draw side parts
-	SelectObject(hdc, Platform_Circle_Pen);
-	SelectObject(hdc, Platform_Circle_Brush);
-	Ellipse(hdc, x * Global_Scale, y * Global_Scale, (x + Circle_Size) * Global_Scale, (y + Circle_Size) * Global_Scale);
-	Ellipse(hdc, (x + Platform_Width - Circle_Size) * Global_Scale, y * Global_Scale, (x + Platform_Width) * Global_Scale, (y + Circle_Size) * Global_Scale);
-
-	//draw inner part
-	SelectObject(hdc, Platform_Inner_Pen);
-	SelectObject(hdc, Platform_Inner_Brush);
-	RoundRect(hdc, (x + 4) * Global_Scale, (y + 1) * Global_Scale, (x + 4 + Inner_Width) * Global_Scale, (y + 1 + Inner_Height) * Global_Scale, Inner_Height * Global_Scale, Inner_Height * Global_Scale);
-
-	//draw highlight
-	SelectObject(hdc, Highlight_Pen);
-	Arc(hdc, (x + 1) * Global_Scale, (y + 1) * Global_Scale,
-		(x + Circle_Size - 1) * Global_Scale, (y + Circle_Size - 1) * Global_Scale,
-		x * Global_Scale + 8, y * Global_Scale,
-		x * Global_Scale, y * Global_Scale + 8);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsEngine::Redraw_Platform()
-{
-	Prev_Platform_Rect = Platform_Rect;
-
-	Platform_Rect.left = Platform_X_Pos * Global_Scale;
-	Platform_Rect.top = Platform_Y_Pos * Global_Scale;
-	Platform_Rect.right = Platform_Rect.left + Platform_Width * Global_Scale;
-	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * Global_Scale;
-
-	InvalidateRect(Hwnd, &Prev_Platform_Rect, TRUE);
-	InvalidateRect(Hwnd, &Platform_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Bounds(HDC hdc, RECT &paint_area)
