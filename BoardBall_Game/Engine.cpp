@@ -20,19 +20,19 @@ char Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall():
 	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
-	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsPlatform::Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
+	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsPlatform::Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 {
-	//Ball_X_Pos(X_Pos + (Width - Ball_Size) / 2), Ball_Y_Pos(Y_Pos + 1 - Ball_Size), Ball_Speed(AsEngine::Global_Scale), Ball_Direction(M_PI - M_PI_4)
+	//Ball_X_Pos(X_Pos + (Width - Ball_Size) / 2), Ball_Y_Pos(Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Init()
 {
-	AsEngine::Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
+	AsConfig::Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
 
-	Ball_Rect.left = Ball_X_Pos * AsEngine::Global_Scale;
-	Ball_Rect.top = Ball_Y_Pos * AsEngine::Global_Scale;
-	Ball_Rect.right = Ball_Rect.left + Ball_Size * AsEngine::Global_Scale;
-	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * AsEngine::Global_Scale;
+	Ball_Rect.left = Ball_X_Pos * AsConfig::Global_Scale;
+	Ball_Rect.top = Ball_Y_Pos * AsConfig::Global_Scale;
+	Ball_Rect.right = Ball_Rect.left + Ball_Size * AsConfig::Global_Scale;
+	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Draw(HDC hdc, RECT &paint_area)
@@ -98,10 +98,10 @@ void ABall::Move(AsEngine *engine, ALevel *level, AsPlatform *platform)
 	Ball_X_Pos = next_x_pos;
 	Ball_Y_Pos = next_y_pos;
 
-	Ball_Rect.left = Ball_X_Pos * AsEngine::Global_Scale;
-	Ball_Rect.top = Ball_Y_Pos * AsEngine::Global_Scale;
-	Ball_Rect.right = Ball_Rect.left + Ball_Size * AsEngine::Global_Scale;
-	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * AsEngine::Global_Scale;
+	Ball_Rect.left = Ball_X_Pos * AsConfig::Global_Scale;
+	Ball_Rect.top = Ball_Y_Pos * AsConfig::Global_Scale;
+	Ball_Rect.right = Ball_Rect.left + Ball_Size * AsConfig::Global_Scale;
+	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * AsConfig::Global_Scale;
 
 	InvalidateRect(engine->Hwnd, &Prev_Ball_Rect, TRUE);
 	InvalidateRect(engine->Hwnd, &Ball_Rect, FALSE);
@@ -120,13 +120,13 @@ void ALevel::Init()
 {
 	Letter_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
 
-	AsEngine::Create_Pen_Brush(63, 72, 204, Brick_Blue_Pen, Brick_Blue_Brush);
-	AsEngine::Create_Pen_Brush(237, 38, 36, Brick_Red_Pen, Brick_Red_Brush);
+	AsConfig::Create_Pen_Brush(63, 72, 204, Brick_Blue_Pen, Brick_Blue_Brush);
+	AsConfig::Create_Pen_Brush(237, 38, 36, Brick_Red_Pen, Brick_Red_Brush);
 
-	Level_Rect.left = Level_X_Offset * AsEngine::Global_Scale;
-	Level_Rect.top = Level_Y_Offset * AsEngine::Global_Scale;
-	Level_Rect.right = Level_Rect.left + Cell_Width * Level_Width * AsEngine::Global_Scale;
-	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsEngine::Global_Scale;
+	Level_Rect.left = Level_X_Offset * AsConfig::Global_Scale;
+	Level_Rect.top = Level_Y_Offset * AsConfig::Global_Scale;
+	Level_Rect.right = Level_Rect.left + Cell_Width * Level_Width * AsConfig::Global_Scale;
+	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Draw(HDC hdc, RECT &paint_area)
@@ -165,7 +165,7 @@ void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 
 	SelectObject(hdc, pen);
 	SelectObject(hdc, brush);
-	RoundRect(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + Brick_Width) * AsEngine::Global_Scale, (y + Brick_Height) * AsEngine::Global_Scale, 2 * AsEngine::Global_Scale, 2 * AsEngine::Global_Scale);
+	RoundRect(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Brick_Width) * AsConfig::Global_Scale, (y + Brick_Height) * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step)
@@ -174,7 +174,7 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 	double offset;
 	double rotation_angle;
 	int back_part_offset;
-	int brick_half_height = Brick_Height * AsEngine::Global_Scale / 2;
+	int brick_half_height = Brick_Height * AsConfig::Global_Scale / 2;
 	HPEN front_pen, back_pen;
 	HBRUSH front_brush, back_brush;
 	XFORM xform, prev_xform;
@@ -210,12 +210,12 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 	{
 		SelectObject(hdc, back_pen);
 		SelectObject(hdc, back_brush);
-		Rectangle(hdc, x, y + brick_half_height - AsEngine::Global_Scale, x + Brick_Width * AsEngine::Global_Scale, y + brick_half_height);
+		Rectangle(hdc, x, y + brick_half_height - AsConfig::Global_Scale, x + Brick_Width * AsConfig::Global_Scale, y + brick_half_height);
 
 		//Front side
 		SelectObject(hdc, front_pen);
 		SelectObject(hdc, front_brush);
-		Rectangle(hdc, x, y + brick_half_height, x + Brick_Width * AsEngine::Global_Scale, y + brick_half_height + AsEngine::Global_Scale - 1);
+		Rectangle(hdc, x, y + brick_half_height, x + Brick_Width * AsConfig::Global_Scale, y + brick_half_height + AsConfig::Global_Scale - 1);
 	}
 	else
 	{
@@ -229,17 +229,17 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 
 		SetWorldTransform(hdc, &xform);
 
-		offset = 3.0 * (1.0f - fabs(cos(rotation_angle))) * AsEngine::Global_Scale;
+		offset = 3.0 * (1.0f - fabs(cos(rotation_angle))) * AsConfig::Global_Scale;
 		back_part_offset = (int)round(offset);
 
 		SelectObject(hdc, back_pen);
 		SelectObject(hdc, back_brush);
-		Rectangle(hdc, 0, -brick_half_height - back_part_offset, Brick_Width * AsEngine::Global_Scale, +brick_half_height - back_part_offset);
+		Rectangle(hdc, 0, -brick_half_height - back_part_offset, Brick_Width * AsConfig::Global_Scale, +brick_half_height - back_part_offset);
 
 		//Front side
 		SelectObject(hdc, front_pen);
 		SelectObject(hdc, front_brush);
-		Rectangle(hdc, 0, -(int)brick_half_height, Brick_Width * AsEngine::Global_Scale, +(int)brick_half_height);
+		Rectangle(hdc, 0, -(int)brick_half_height, Brick_Width * AsConfig::Global_Scale, +(int)brick_half_height);
 
 		if (rotation_step > 4 and rotation_step < 12)
 		{
@@ -247,10 +247,10 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 			{
 				SelectObject(hdc, Letter_Pen);
 				Ellipse(hdc,
-					(Brick_Width - (Brick_Height - 2)) * AsEngine::Global_Scale / 2,
-					-(Brick_Height - 2) * AsEngine::Global_Scale / 2,
-					(Brick_Width + (Brick_Height - 2)) * AsEngine::Global_Scale / 2,
-					+(Brick_Height - 2) * AsEngine::Global_Scale / 2);
+					(Brick_Width - (Brick_Height - 2)) * AsConfig::Global_Scale / 2,
+					-(Brick_Height - 2) * AsConfig::Global_Scale / 2,
+					(Brick_Width + (Brick_Height - 2)) * AsConfig::Global_Scale / 2,
+					+(Brick_Height - 2) * AsConfig::Global_Scale / 2);
 			}
 		}
 
@@ -305,7 +305,7 @@ void ALevel::Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction)
 
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform():
-	Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsEngine::Global_Scale),
+	Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
 	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -313,8 +313,8 @@ void AsPlatform::Init()
 {
 	Highlight_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
 
-	AsEngine::Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
-	AsEngine::Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
+	AsConfig::Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
+	AsConfig::Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw(HDC hdc, RECT &paint_area)
@@ -329,91 +329,33 @@ void AsPlatform::Draw(HDC hdc, RECT &paint_area)
 	//draw side parts
 	SelectObject(hdc, Platform_Circle_Pen);
 	SelectObject(hdc, Platform_Circle_Brush);
-	Ellipse(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + Circle_Size) * AsEngine::Global_Scale, (y + Circle_Size) * AsEngine::Global_Scale);
-	Ellipse(hdc, (x + Width - Circle_Size) * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + Width) * AsEngine::Global_Scale, (y + Circle_Size) * AsEngine::Global_Scale);
+	Ellipse(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Circle_Size) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
+	Ellipse(hdc, (x + Width - Circle_Size) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Width) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
 
 	//draw inner part
 	SelectObject(hdc, Platform_Inner_Pen);
 	SelectObject(hdc, Platform_Inner_Brush);
-	RoundRect(hdc, (x + 4) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale, (x + 4 + Inner_Width) * AsEngine::Global_Scale, (y + 1 + Inner_Height) * AsEngine::Global_Scale, Inner_Height * AsEngine::Global_Scale, Inner_Height * AsEngine::Global_Scale);
+	RoundRect(hdc, (x + 4) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 4 + Inner_Width) * AsConfig::Global_Scale, (y + 1 + Inner_Height) * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale);
 
 	//draw highlight
 	SelectObject(hdc, Highlight_Pen);
-	Arc(hdc, (x + 1) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale,
-		(x + Circle_Size - 1) * AsEngine::Global_Scale, (y + Circle_Size - 1) * AsEngine::Global_Scale,
-		x * AsEngine::Global_Scale + 8, y * AsEngine::Global_Scale,
-		x * AsEngine::Global_Scale, y * AsEngine::Global_Scale + 8);
+	Arc(hdc, (x + 1) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale,
+		(x + Circle_Size - 1) * AsConfig::Global_Scale, (y + Circle_Size - 1) * AsConfig::Global_Scale,
+		x * AsConfig::Global_Scale + 8, y * AsConfig::Global_Scale,
+		x * AsConfig::Global_Scale, y * AsConfig::Global_Scale + 8);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Redraw(AsEngine* engine)
 {
 	Prev_Platform_Rect = Platform_Rect;
 
-	Platform_Rect.left = X_Pos * AsEngine::Global_Scale;
-	Platform_Rect.top = Y_Pos * AsEngine::Global_Scale;
-	Platform_Rect.right = Platform_Rect.left + Width * AsEngine::Global_Scale;
-	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * AsEngine::Global_Scale;
+	Platform_Rect.left = X_Pos * AsConfig::Global_Scale;
+	Platform_Rect.top = Y_Pos * AsConfig::Global_Scale;
+	Platform_Rect.right = Platform_Rect.left + Width * AsConfig::Global_Scale;
+	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * AsConfig::Global_Scale;
 
 	InvalidateRect(engine->Hwnd, &Prev_Platform_Rect, TRUE);
 	InvalidateRect(engine->Hwnd, &Platform_Rect, FALSE);
-}
-//------------------------------------------------------------------------------------------------------------
-
-
-
-
-//------------------------------------------------------------------------------------------------------------
-AsBorder::AsBorder()
-	: BG_Pen{}, BG_Brush{}, Border_Blue_Pen{}, Border_White_Pen{}, Border_Blue_Brush{}, Border_White_Brush{}
-{}
-//------------------------------------------------------------------------------------------------------------
-void AsBorder::Init()
-{
-	AsEngine::Create_Pen_Brush(0, 0, 0, BG_Pen, BG_Brush);
-
-	AsEngine::Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
-	AsEngine::Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsBorder::Draw(HDC hdc, RECT &paint_area)
-{
-	int i;
-
-	for (i = 0; i < 50; ++i)
-		Draw_Element(hdc, 3 + i * 4, 0, true);//top horizontal part
-
-	for (i = 0; i < 50; ++i)
-		Draw_Element(hdc, 2, 1 + i * 4, false);//left part
-
-	for (i = 0; i < 50; ++i)
-		Draw_Element(hdc, 201, 1 + i * 4, false);//right part
-}
-//------------------------------------------------------------------------------------------------------------
-void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border)
-{
-	SelectObject(hdc, Border_White_Pen);
-	SelectObject(hdc, Border_White_Brush);
-
-	if (top_border)
-		Rectangle(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + 4) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale);
-	else
-		Rectangle(hdc, x * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + 1) * AsEngine::Global_Scale, (y + 4) * AsEngine::Global_Scale);
-
-	SelectObject(hdc, Border_Blue_Pen);
-	SelectObject(hdc, Border_Blue_Brush);
-
-	if (top_border)
-		Rectangle(hdc, x * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale, (x + 4) * AsEngine::Global_Scale, (y + 1 + 3) * AsEngine::Global_Scale);
-	else
-		Rectangle(hdc, (x + 1) * AsEngine::Global_Scale, y * AsEngine::Global_Scale, (x + 1 + 3) * AsEngine::Global_Scale, (y + 4) * AsEngine::Global_Scale);
-
-	SelectObject(hdc, BG_Pen);
-	SelectObject(hdc, BG_Brush);
-
-	if (top_border)
-		Rectangle(hdc, (x + 2) * AsEngine::Global_Scale, (y + 2) * AsEngine::Global_Scale, (x + 3) * AsEngine::Global_Scale, (y + 3) * AsEngine::Global_Scale);
-	else
-		Rectangle(hdc, (x + 2) * AsEngine::Global_Scale, (y + 1) * AsEngine::Global_Scale, (x + 3) * AsEngine::Global_Scale, (y + 2) * AsEngine::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -492,11 +434,5 @@ int AsEngine::On_Timer()
 {
 	Ball.Move(this, &Level, &Platform);
 	return 0;
-}
-//------------------------------------------------------------------------------------------------------------
-void AsEngine::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
-{
-	pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
-	brush = CreateSolidBrush(RGB(r, g, b));
 }
 //------------------------------------------------------------------------------------------------------------
