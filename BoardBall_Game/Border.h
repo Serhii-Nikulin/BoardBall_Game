@@ -1,6 +1,7 @@
 #pragma once
 #include "Config.h"
 
+//------------------------------------------------------------------------------------------------------------
 class AsBorder
 {
 public:
@@ -17,3 +18,4 @@ private:
 	HPEN Border_Blue_Pen, Border_White_Pen;
 	HBRUSH Border_Blue_Brush, Border_White_Brush;
 };
+//------------------------------------------------------------------------------------------------------------

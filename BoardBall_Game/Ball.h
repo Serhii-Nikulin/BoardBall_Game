@@ -3,7 +3,7 @@
 #include "Level.h"
 #include "Ball.h"
 
-//class AsEngine;
+//------------------------------------------------------------------------------------------------------------
 class ABall
 {
 public:
@@ -14,7 +14,6 @@ public:
 
 	double Ball_Direction;
 	static const int Ball_Size = 4;
-
 
 private:
 	HPEN Ball_Pen;
