@@ -1,6 +1,6 @@
 #pragma once
 #include "Border.h"
-#include "Level.h"
+#include "Ball.h"
 
 enum EKey_Type {
 	EKT_Left, EKT_Right, EKT_Space
@@ -9,28 +9,6 @@ enum EKey_Type {
 const int Timer_ID = WM_USER + 1;
 //------------------------------------------------------------------------------------------------------------
 class AsEngine;
-
-class AsPlatform;
-class ABall
-{
-public:
-	ABall();
-	void Init();
-	void Draw(HDC hdc, RECT &paint_area);
-	void Move(AsEngine *engine, ALevel *level, AsPlatform *platform);
-
-	double Ball_Direction;
-	static const int Ball_Size = 4;
-
-private:
-	HPEN Ball_Pen;
-	HBRUSH Ball_Brush;
-	RECT Ball_Rect, Prev_Ball_Rect;
-	int Ball_Speed;
-	int Ball_X_Pos;
-	int Ball_Y_Pos;
-};
-//------------------------------------------------------------------------------------------------------------
 class AsPlatform
 {
 public:
@@ -41,7 +19,6 @@ public:
 	void Redraw(AsEngine *engine);
 	int Width;
 	int X_Pos;
-	static const int Y_Pos = 185;
 	int X_Step;
 private:
 	
@@ -72,7 +49,6 @@ public:
 
 
 private:
-	
 	ABall Ball;
 	ALevel Level;
 	AsPlatform Platform;
