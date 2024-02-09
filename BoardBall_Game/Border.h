@@ -1,13 +1,6 @@
 #pragma once
-#include <Windows.h>
+#include "Config.h"
 
-class AsConfig
-{
-public:
-	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
-	static const int Global_Scale = 3;
-};
-//------------------------------------------------------------------------------------------------------------
 class AsBorder
 {
 public:
