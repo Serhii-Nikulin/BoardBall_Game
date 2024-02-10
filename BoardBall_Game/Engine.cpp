@@ -8,21 +8,22 @@ AsEngine::AsEngine()
 void AsEngine::Init_Engine(HWND hwnd)
 {
 	Hwnd = hwnd;
-
 	Ball.Init();
 	Level.Init();
 	Platform.Init();
 	Border.Init();
+	AActive_Brick::Setup_Colors();
+	AsConfig::Setup_Colors();
 
 	Platform.Redraw(Hwnd);
-	SetTimer(Hwnd, Timer_ID, 1000 / 20, NULL);
+	SetTimer(Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect{};
 
-	Level.Draw(hdc, paint_area);
+	Level.Draw(Hwnd, hdc, paint_area);
 
 	Platform.Draw(hdc, paint_area);
 
@@ -71,6 +72,7 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 int AsEngine::On_Timer()
 {
 	Ball.Move(Hwnd, &Level, Platform.X_Pos, Platform.Width);
+	Level.Active_Brick.Act(Hwnd);
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------
