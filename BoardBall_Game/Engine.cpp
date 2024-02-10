@@ -8,11 +8,12 @@ AsEngine::AsEngine()
 void AsEngine::Init_Engine(HWND hwnd)
 {
 	Hwnd = hwnd;
-
 	Ball.Init();
 	Level.Init();
 	Platform.Init();
 	Border.Init();
+	AActive_Brick::Setup_Colors();
+	AsConfig::Setup_Colors();
 
 	Platform.Redraw(Hwnd);
 	SetTimer(Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);

@@ -4,9 +4,7 @@
 //------------------------------------------------------------------------------------------------------------
 class ALevel
 {
-	enum EBrick_Type {
-		EBT_None, EBT_Red, EBT_Blue
-	};
+	
 	enum ELetter_Type {
 		ELT_None, ELT_O
 	};

@@ -1,6 +1,6 @@
 #include "Config.h"
 
-
+const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Brick_Color(237, 38, 36);
 const AColor AsConfig::Blue_Brick_Color(63, 72, 204);
 //------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,13 @@ AColor::AColor(unsigned char r, unsigned char g, unsigned char b)
 
 
 
-
+HPEN AsConfig::BG_Pen;
+HBRUSH AsConfig::BG_Brush;
+//------------------------------------------------------------------------------------------------------------
+void AsConfig::Setup_Colors()
+{
+	Create_Pen_Brush(AsConfig::BG_Color, AsConfig::BG_Pen, AsConfig::BG_Brush);
+}
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
 {
