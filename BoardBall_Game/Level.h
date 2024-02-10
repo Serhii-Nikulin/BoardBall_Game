@@ -1,25 +1,22 @@
 #pragma once
 #include "Config.h"
 
-enum EBrick_Type {
-	EBT_None, EBT_Red, EBT_Blue
-};
-enum ELetter_Type {
-	ELT_None, ELT_O
-};
 //------------------------------------------------------------------------------------------------------------
 class ALevel
 {
+	enum EBrick_Type {
+		EBT_None, EBT_Red, EBT_Blue
+	};
+	enum ELetter_Type {
+		ELT_None, ELT_O
+	};
+
 public:
 	ALevel();
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
 	void Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction);
 	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
-
-	static const int Level_Height = 14;
-	static const int Level_Width = 12;
-	static const int Cell_Width = 16;
 
 private:
 	void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type);
@@ -32,6 +29,10 @@ private:
 	HPEN Letter_Pen;
 	RECT Level_Rect;
 
+	static const int Level_Height = 14;
+	static const int Level_Width = 12;
+	static char Level_01[ALevel::Level_Height][ALevel::Level_Width];
+	static const int Cell_Width = 16;
 	static const int Level_X_Offset = 8;
 	static const int Level_Y_Offset = 6;
 	static const int Brick_Width = 15;

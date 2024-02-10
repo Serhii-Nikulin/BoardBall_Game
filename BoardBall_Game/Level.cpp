@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include "Level.h"
 
-char Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
+char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1

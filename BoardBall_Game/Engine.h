@@ -3,15 +3,16 @@
 #include "Ball.h"
 #include "Platform.h"
 
-enum EKey_Type {
-	EKT_Left, EKT_Right, EKT_Space
-};
 //------------------------------------------------------------------------------------------------------------
 const int Timer_ID = WM_USER + 1;
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
 public:
+	static enum EKey_Type {
+		EKT_Left, EKT_Right, EKT_Space
+	};
+
 	AsEngine();
 
 	void Init_Engine(HWND hwnd);
@@ -20,9 +21,10 @@ public:
 	int On_Timer();
 
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
-	HWND Hwnd;
 
+	
 private:
+	HWND Hwnd;
 	ABall Ball;
 	ALevel Level;
 	AsPlatform Platform;

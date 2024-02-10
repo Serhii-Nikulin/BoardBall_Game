@@ -17,7 +17,7 @@ void AsPlatform::Init()
 void AsPlatform::Draw(HDC hdc, RECT &paint_area)
 {
 	int x = X_Pos;
-	int y = AsConfig::Y_Pos;
+	int y = AsConfig::Platform_Y_Pos;
 
 	RECT intersection_rect{};
 	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
@@ -47,7 +47,7 @@ void AsPlatform::Redraw(HWND hwnd)
 	Prev_Platform_Rect = Platform_Rect;
 
 	Platform_Rect.left = X_Pos * AsConfig::Global_Scale;
-	Platform_Rect.top = AsConfig::Y_Pos * AsConfig::Global_Scale;
+	Platform_Rect.top = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
 	Platform_Rect.right = Platform_Rect.left + Width * AsConfig::Global_Scale;
 	Platform_Rect.bottom = Platform_Rect.top + Platform_Height * AsConfig::Global_Scale;
 

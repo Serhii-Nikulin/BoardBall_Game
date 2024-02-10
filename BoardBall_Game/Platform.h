@@ -13,8 +13,8 @@ public:
 	int Width;
 	int X_Pos;
 	int X_Step;
-private:
 
+private:
 	HBRUSH Platform_Inner_Brush;
 	HPEN Platform_Inner_Pen;
 	HPEN Platform_Circle_Pen;

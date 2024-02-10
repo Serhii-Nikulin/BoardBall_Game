@@ -15,6 +15,6 @@ public:
 	static const int Max_X_Pos = 200;
 	static const int Max_Y_Pos = 199;
 
-	static const int Y_Pos = 185;
+	static const int Platform_Y_Pos = 185;
 };
 //------------------------------------------------------------------------------------------------------------

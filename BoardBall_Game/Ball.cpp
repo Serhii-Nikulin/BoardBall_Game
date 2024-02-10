@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall():
 	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
-	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsConfig::Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
+	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsConfig::Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 {
 	//Ball_X_Pos(X_Pos + (Width - Ball_Size) / 2), Ball_Y_Pos(Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
 }
@@ -39,7 +39,7 @@ void ABall::Move(HWND hwnd, ALevel *level, int platform_x_pos, int platform_widt
 	int next_y_pos = Ball_Y_Pos - int(Ball_Speed * sin(Ball_Direction));
 	int max_x_pos = AsConfig::Max_X_Pos - Ball_Size;
 	int max_y_pos = AsConfig::Max_Y_Pos - Ball_Size;
-	int platform_y_pos = AsConfig::Y_Pos - Ball_Size;
+	int platform_y_pos = AsConfig::Platform_Y_Pos - Ball_Size;
 
 	if (next_x_pos < AsConfig::Border_X_Offset)
 	{

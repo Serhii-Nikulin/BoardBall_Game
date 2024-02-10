@@ -9,15 +9,12 @@ HINSTANCE hInst;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
 
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+ATOM MyRegisterClass(HINSTANCE hInstance);
+BOOL InitInstance(HINSTANCE, int);
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 //------------------------------------------------------------------------------------------------------------
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR    lpCmdLine,
-	_In_ int       nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
@@ -98,12 +95,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	int wmId;
+	PAINTSTRUCT ps;
+	HDC hdc;
+
 	switch (message)
 	{
 	case WM_COMMAND:
-	{
-		int wmId = LOWORD(wParam);
-
+		wmId = LOWORD(wParam);
 		switch (wmId)
 		{
 		case IDM_ABOUT:
@@ -115,19 +114,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
-	}
-	break;
+		break;
 
 	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
+		hdc = BeginPaint(hWnd, &ps);
 		// TODO: Add any drawing code that uses hdc here...
 		Engine.Draw_Frame(hdc, ps.rcPaint);
-
 		EndPaint(hWnd, &ps);
-	}
-	break;
+		break;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -137,13 +131,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_LEFT:
-			return Engine.On_Key_Down(EKT_Left);
+			return Engine.On_Key_Down(AsEngine::EKT_Left);
 
 		case VK_RIGHT:
-			return Engine.On_Key_Down(EKT_Right);
+			return Engine.On_Key_Down(AsEngine::EKT_Right);
 
 		case VK_SPACE:
-			return Engine.On_Key_Down(EKT_Space);
+			return Engine.On_Key_Down(AsEngine::EKT_Space);
 		}
 		break;
 
