@@ -54,18 +54,23 @@ void AActive_Brick::Setup_Colors()
 
 	for (i = 0; i < Max_Fade_Step; i++)
 	{
-		r = AsConfig::Red_Brick_Color.R - AsConfig::Red_Brick_Color.R * i / max_step + AsConfig::BG_Color.R * i / max_step;
-		g = AsConfig::Red_Brick_Color.G - i * (AsConfig::Red_Brick_Color.G - AsConfig::BG_Color.G) / max_step;
-		b = AsConfig::Red_Brick_Color.B - i * (AsConfig::Red_Brick_Color.B - AsConfig::BG_Color.B) / max_step;
-																		 
-		AsConfig::Create_Pen_Brush(r, g, b, Fading_Red_Brick_Pens[i], Fading_Red_Brick_Brushes[i]);							 
-																		 
-		r = AsConfig::Blue_Brick_Color.R - i * (AsConfig::Blue_Brick_Color.G - AsConfig::BG_Color.R) / max_step;
-		g = AsConfig::Blue_Brick_Color.G - i * (AsConfig::Blue_Brick_Color.G - AsConfig::BG_Color.G) / max_step;
-		b = AsConfig::Blue_Brick_Color.B - i * (AsConfig::Blue_Brick_Color.G - AsConfig::BG_Color.B) / max_step;
-
-		AsConfig::Create_Pen_Brush(r, g, b, Fading_Blue_Brick_Pens[i], Fading_Blue_Brick_Brushes[i]);
+		Get_Fading_Color(AsConfig::Red_Brick_Color, i, AActive_Brick::Fading_Red_Brick_Pens[i], AActive_Brick::Fading_Red_Brick_Brushes[i]);
+		Get_Fading_Color(AsConfig::Blue_Brick_Color, i, AActive_Brick::Fading_Blue_Brick_Pens[i], AActive_Brick::Fading_Blue_Brick_Brushes[i]);
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+unsigned char AActive_Brick::Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step)
+{
+	return color - color * step / (Max_Fade_Step - 1) + bg_color * step / (Max_Fade_Step - 1);
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick::Get_Fading_Color(const AColor &color, int step, HPEN &pen, HBRUSH &brush)
+{
+	unsigned char r, g, b;
+	r = Get_Fading_Channel(color.R, AsConfig::BG_Color.R, step);
+	g = Get_Fading_Channel(color.G, AsConfig::BG_Color.G, step);
+	b = Get_Fading_Channel(color.B, AsConfig::BG_Color.B, step);
+	AsConfig::Create_Pen_Brush(r, g, b, pen, brush);
 }
 //------------------------------------------------------------------------------------------------------------
 
