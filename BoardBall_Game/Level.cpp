@@ -41,13 +41,27 @@ void ALevel::Draw(HDC hdc, RECT &paint_area)
 {
 	int i, j;
 	RECT intersection_rect;
-
+	RECT brick_rect;
+	HPEN pen;
+	HBRUSH brush;
 	if (!IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 		return;
 
 	for (i = 0; i < Level_Height; ++i)
 		for (j = 0; j < Level_Width; ++j)
 			Draw_Brick(hdc, Level_X_Offset + j * Cell_Width, Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Level_01[i][j]));
+
+	pen = Brick_Blue_Pen;
+	brush = Brick_Blue_Brush;
+	SelectObject(hdc, pen);
+	SelectObject(hdc, brush);
+	brick_rect.left = Level_X_Offset * AsConfig::Global_Scale;
+	brick_rect.top = Level_Y_Offset * AsConfig::Global_Scale;
+	brick_rect.right = brick_rect.left + Brick_Width * AsConfig::Global_Scale;
+	brick_rect.bottom = brick_rect.top + Brick_Height * AsConfig::Global_Scale;
+
+	RoundRect(hdc, brick_rect.left, brick_rect.top, brick_rect.right, brick_rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+
 }
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
