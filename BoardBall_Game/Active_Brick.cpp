@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick::AActive_Brick():
-	Brick_Rect{}, Brick_Pen{}, Brick_Brush{}, Fade_Step(0)
+	Brick_Rect{}, Fade_Step(0)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick::Act(HWND hwnd)
@@ -16,9 +16,17 @@ void AActive_Brick::Act(HWND hwnd)
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick::Draw(HDC hdc)
 {
-	AsConfig::Create_Pen_Brush(63 - 63 * Fade_Step / Max_Fade_Step, 72 - 72 * Fade_Step / Max_Fade_Step, 204 - 204 * Fade_Step / Max_Fade_Step, Brick_Pen, Brick_Brush);
-	SelectObject(hdc, Brick_Pen);
-	SelectObject(hdc, Brick_Brush); 
+	HPEN pen;
+	HBRUSH brush;
+
+	unsigned char r = AsConfig::Blue_Brick_Color.R - AsConfig::Blue_Brick_Color.R * Fade_Step / Max_Fade_Step;
+	unsigned char g = AsConfig::Blue_Brick_Color.G - AsConfig::Blue_Brick_Color.G * Fade_Step / Max_Fade_Step;
+	unsigned char b = AsConfig::Blue_Brick_Color.B - AsConfig::Blue_Brick_Color.B * Fade_Step / Max_Fade_Step;;
+
+	AsConfig::Create_Pen_Brush(r, g, b, pen, brush);
+	SelectObject(hdc, pen);
+	SelectObject(hdc, brush); 
+
 	Fade_Step += 1;
 
 	Brick_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;

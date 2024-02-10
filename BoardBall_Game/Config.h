@@ -3,11 +3,26 @@
 #include <math.h>
 #include <Windows.h>
 
+//AColor
+//------------------------------------------------------------------------------------------------------------
+class AColor
+{
+public:
+	AColor(unsigned char r, unsigned char g, unsigned char b);
+	const unsigned char R, G, B;
+};
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
 //------------------------------------------------------------------------------------------------------------
 class AsConfig
 {
 public:
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
+	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
+
 	static const int Global_Scale = 3;
 	static const int FPS = 20;
 
@@ -22,5 +37,9 @@ public:
 	static const int Brick_Height = 7;
 
 	static const int Platform_Y_Pos = 185;
+
+	static const AColor Red_Brick_Color;
+	static const AColor Blue_Brick_Color;
+
 };
 //------------------------------------------------------------------------------------------------------------
