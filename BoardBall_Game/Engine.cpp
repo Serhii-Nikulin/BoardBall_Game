@@ -21,13 +21,11 @@ void AsEngine::Init_Engine(HWND hwnd)
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
-	RECT intersection_rect{};
-
 	Level.Draw(Hwnd, hdc, paint_area);
 
-	Platform.Draw(hdc, paint_area);
-
 	Ball.Draw(hdc, paint_area);
+
+	Platform.Draw(hdc, paint_area);
 
 	Border.Draw(hdc, paint_area);
 
@@ -73,6 +71,7 @@ int AsEngine::On_Timer()
 {
 	Ball.Move(Hwnd, &Level, Platform.X_Pos, Platform.Width);
 	Level.Active_Brick.Act(Hwnd);
+	Platform.Act(Hwnd);
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------

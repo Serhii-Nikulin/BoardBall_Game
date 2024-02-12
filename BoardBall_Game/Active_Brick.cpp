@@ -33,24 +33,23 @@ void AActive_Brick::Draw(HDC hdc)
 		break;
 	}
 
-	SelectObject(hdc, pen);
-	SelectObject(hdc, brush); 
+	if (pen and brush)
+	{
+		SelectObject(hdc, pen);
+		SelectObject(hdc, brush); 
 
-	//Fade_Step += 1;
+		Brick_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
+		Brick_Rect.top = AsConfig::Level_Y_Offset * AsConfig::Global_Scale;
+		Brick_Rect.right = Brick_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+		Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
 
-	Brick_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
-	Brick_Rect.top = AsConfig::Level_Y_Offset * AsConfig::Global_Scale;
-	Brick_Rect.right = Brick_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
-	Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
-
-	RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+		RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick::Setup_Colors()
 {
 	int i;
-	unsigned char r, g, b;
-	int max_step = Max_Fade_Step - 1;
 
 	for (i = 0; i < Max_Fade_Step; i++)
 	{
