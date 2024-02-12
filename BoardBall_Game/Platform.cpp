@@ -1,8 +1,9 @@
 #include "Platform.h"
 
+int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform():
-	Platform_State(EPS_Normal), Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale), Meltdown_Y_Pos(0),
+	Platform_State(EPS_Normal), Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
 	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -16,10 +17,13 @@ void AsPlatform::Init()
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act(HWND hwnd)
 {
+	int i, len;
 	if (Platform_State != EPS_Meltdown)
 	{
+		len = sizeof(Meltdown_Platform_Y_Pos) / sizeof(int);
 		Platform_State = EPS_Meltdown;
-		Meltdown_Y_Pos = Platform_Rect.bottom;
+		for (i = 0; i < len; i++)
+			Meltdown_Platform_Y_Pos[i] = Platform_Rect.bottom;
 	}
 
 	if (Platform_State == EPS_Meltdown)
@@ -82,32 +86,39 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT &paint_area)
 {
+	RECT intersection_rect{};
+	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect));
 	int i, j;
 	int area_width, area_height;
+	int y_offset;
 	int x, y;
 	COLORREF pixel;
 	COLORREF bg_pixel = RGB(0, 0, 0);
+
+	if (!IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
+		return;
+
 	area_width = Width * AsConfig::Global_Scale;
 	area_height = Height * AsConfig::Global_Scale;
-	int y_offset = 2;
-
 	for (i = 0; i < area_width; i++)
 	{
+		y_offset = AsConfig::Rand(Meltdown_Speed);
+
 		x = Platform_Rect.left + i;
 		for (j = 0; j <= area_height; j++)
 		{
-			y = Meltdown_Y_Pos - j;
+			y = Meltdown_Platform_Y_Pos[i] - j;
 			pixel = GetPixel(hdc, x, y);
 			SetPixel(hdc, x, y + y_offset, pixel);
-			//SetPixel(hdc, x, y, bg_pixel);
 		}
 		for (j = 0; j < y_offset; j++)
 		{
-			y = Meltdown_Y_Pos - area_height + j;
+			y = Meltdown_Platform_Y_Pos[i] - area_height + j;
 			SetPixel(hdc, x, y, bg_pixel);
 		}
+
+		Meltdown_Platform_Y_Pos[i] += y_offset;
 	}
-	Meltdown_Y_Pos += y_offset;
 	//Platform_State = EPS_Missing;
 }
 //------------------------------------------------------------------------------------------------------------

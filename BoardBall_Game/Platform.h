@@ -33,6 +33,9 @@ private:
 	static const int Inner_Height = 5;
 	static const int Circle_Size = 7;
 	static const int Height = 7;
-	int Meltdown_Y_Pos;
+	static const int Meltdown_Speed = 4;
+
+	static const int Normal_Width = 28 * AsConfig::Global_Scale;
+	static int Meltdown_Platform_Y_Pos[Normal_Width];
 };
 //------------------------------------------------------------------------------------------------------------

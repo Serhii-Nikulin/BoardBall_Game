@@ -23,9 +23,11 @@ public:
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
 	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
 	static void Setup_Colors();
+	static int Rand(int range);
 
 	static const int Global_Scale = 3;
 	static const int FPS = 20;
+	static int Current_Timer_Tick;
 
 	static const int Border_X_Offset = 6;//Min_X
 	static const int Border_Y_Offset = 4;//Min_Y
