@@ -33,5 +33,6 @@ private:
 	static const int Inner_Height = 5;
 	static const int Circle_Size = 7;
 	static const int Height = 7;
+	int Meltdown_Y_Pos;
 };
 //------------------------------------------------------------------------------------------------------------

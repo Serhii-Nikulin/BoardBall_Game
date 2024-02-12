@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform():
-	Platform_State(EPS_Normal), Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
+	Platform_State(EPS_Normal), Inner_Width(20), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale), Meltdown_Y_Pos(0),
 	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -16,7 +16,11 @@ void AsPlatform::Init()
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act(HWND hwnd)
 {
-	Platform_State = EPS_Meltdown;
+	if (Platform_State != EPS_Meltdown)
+	{
+		Platform_State = EPS_Meltdown;
+		Meltdown_Y_Pos = Platform_Rect.bottom;
+	}
 
 	if (Platform_State == EPS_Meltdown)
 		Redraw(hwnd);
@@ -78,31 +82,32 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT &paint_area)
 {
-	RECT intersection_rect;
-
 	int i, j;
 	int area_width, area_height;
 	int x, y;
-	int y_offset;
 	COLORREF pixel;
 	COLORREF bg_pixel = RGB(0, 0, 0);
 	area_width = Width * AsConfig::Global_Scale;
 	area_height = Height * AsConfig::Global_Scale;
-
+	int y_offset = 2;
 
 	for (i = 0; i < area_width; i++)
 	{
-		y_offset = 2;
 		x = Platform_Rect.left + i;
 		for (j = 0; j <= area_height; j++)
 		{
-			y = Platform_Rect.bottom - 1 - j;
+			y = Meltdown_Y_Pos - j;
 			pixel = GetPixel(hdc, x, y);
 			SetPixel(hdc, x, y + y_offset, pixel);
+			//SetPixel(hdc, x, y, bg_pixel);
+		}
+		for (j = 0; j < y_offset; j++)
+		{
+			y = Meltdown_Y_Pos - area_height + j;
 			SetPixel(hdc, x, y, bg_pixel);
 		}
 	}
-
+	Meltdown_Y_Pos += y_offset;
 	//Platform_State = EPS_Missing;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -114,6 +119,9 @@ void AsPlatform::Redraw(HWND hwnd)
 	Platform_Rect.top = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
 	Platform_Rect.right = Platform_Rect.left + Width * AsConfig::Global_Scale;
 	Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
+
+	if (Platform_State == EPS_Meltdown)
+		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
 
 	InvalidateRect(hwnd, &Prev_Platform_Rect, FALSE);
 	InvalidateRect(hwnd, &Platform_Rect, FALSE);
