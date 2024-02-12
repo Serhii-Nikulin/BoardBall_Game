@@ -21,7 +21,7 @@ private:
 	RECT Brick_Rect;
 	int Fade_Step;
 
-	static const int Max_Fade_Step = 81;
+	static const int Max_Fade_Step = 80;
 	static HPEN Fading_Red_Brick_Pens[Max_Fade_Step];
 	static HBRUSH Fading_Red_Brick_Brushes[Max_Fade_Step];
 	static HPEN Fading_Blue_Brick_Pens[Max_Fade_Step];
