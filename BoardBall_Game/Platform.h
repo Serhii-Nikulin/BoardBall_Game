@@ -2,7 +2,7 @@
 #include "Config.h"
 
 enum EPlatform_State{
-EPS_Missing, EPS_Normal, EPS_Meltdown
+EPS_Missing, EPS_Normal, EPS_Meltdown, EPS_Roll_In
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform
@@ -14,13 +14,17 @@ public:
 	void Draw(HDC hdc, RECT &paint_area);
 	void Redraw(HWND hwnd);
 	void Act(HWND Hwnd);
+	void Set_State(EPlatform_State platform_state);
+
 	int Width;
 	int X_Pos;
 	int X_Step;
 
 private:
+	void Draw_Circle_Highlight(HDC hdc);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Draw_Meltdown_State(HDC hdc, RECT &paint_area);
+	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 
 	EPlatform_State Platform_State;
 	HBRUSH Platform_Inner_Brush;

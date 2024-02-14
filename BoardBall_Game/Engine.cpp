@@ -15,6 +15,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	AActive_Brick::Setup_Colors();
 	AsConfig::Setup_Colors();
 
+	Platform.Set_State(EPS_Roll_In);
 	Platform.Redraw(Hwnd);
 	SetTimer(Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
 }
