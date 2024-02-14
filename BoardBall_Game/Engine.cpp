@@ -24,9 +24,10 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
 	Level.Draw(Hwnd, hdc, paint_area);
 
-	Ball.Draw(hdc, paint_area);
 
+	Ball.Draw(hdc, paint_area);
 	Platform.Draw(hdc, paint_area);
+
 
 	Border.Draw(hdc, paint_area);
 
@@ -75,7 +76,7 @@ int AsEngine::On_Timer()
 	Ball.Move(Hwnd, &Level, Platform.X_Pos, Platform.Width);
 	Level.Active_Brick.Act(Hwnd);
 
-	//if (AsConfig::Current_Timer_Tick % 10 == 0)
+	//if (AsConfig::Current_Timer_Tick % 3 == 0)
 	Platform.Act(Hwnd);
 
 	return 0;

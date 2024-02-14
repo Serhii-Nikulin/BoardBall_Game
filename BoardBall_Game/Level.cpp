@@ -99,9 +99,9 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 	rotation_step %= 16;
 
 	if (rotation_step < 8)
-		rotation_angle = 2.0 * M_PI / 16 * rotation_step;
+		rotation_angle = 2.0 * M_PI * rotation_step / 16.0;
 	else
-		rotation_angle = 2.0 * M_PI / 16 * (8 - rotation_step);
+		rotation_angle = 2.0 * M_PI * (8 - rotation_step) / 16.0;
 
 	if (rotation_step > 4 and rotation_step <= 12)
 	{
