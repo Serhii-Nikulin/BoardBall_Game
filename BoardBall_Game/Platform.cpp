@@ -1,9 +1,9 @@
 #include "Platform.h"
- 
+
 int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Normal), Inner_Width(20), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
+	Platform_State(EPS_Normal), Inner_Width(0), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
 	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -15,14 +15,14 @@ void AsPlatform::Init()
 	AsConfig::Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Act(HWND hwnd)
+void AsPlatform::Act()
 {
 	switch (Platform_State)
 	{
 	case EPS_Meltdown:
 	case EPS_Roll_In:
 	case EPS_Expand_Roll_In:
-		Redraw(hwnd);
+		Redraw();
 		break;
 	}
 }
@@ -54,7 +54,7 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 {
 	RECT intersection_rect;
-	if (! IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
 		return;
 
 	switch (Platform_State)
@@ -108,7 +108,8 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	SelectObject(hdc, Platform_Circle_Pen);
 	SelectObject(hdc, Platform_Circle_Brush);
 	Ellipse(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Circle_Size) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
-	Ellipse(hdc, (x + Width - Circle_Size) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Width) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
+	//Ellipse(hdc, (x + Width - Circle_Size) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Width) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
+	Ellipse(hdc, (x + Inner_Width + 1) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Inner_Width + Circle_Size + 1) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
 
 	//draw inner part
 	SelectObject(hdc, Platform_Inner_Pen);
@@ -155,7 +156,7 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Redraw(HWND hwnd)
+void AsPlatform::Redraw()
 {
 	int platform_width;
 	Prev_Platform_Rect = Platform_Rect;
@@ -169,11 +170,11 @@ void AsPlatform::Redraw(HWND hwnd)
 	Platform_Rect.right = Platform_Rect.left + platform_width * AsConfig::Global_Scale;
 	Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
 
-	if  (Platform_State == EPS_Meltdown)
+	if (Platform_State == EPS_Meltdown)
 		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
 
-	InvalidateRect(hwnd, &Prev_Platform_Rect, FALSE);
-	InvalidateRect(hwnd, &Platform_Rect, FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Prev_Platform_Rect, FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Platform_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
@@ -213,16 +214,27 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	Draw_Circle_Highlight(hdc, x, y);
 
 	X_Pos -= Rolling_Platform_Speed;
-	if (X_Pos <= Roll_In_Platform_End_X_Pos - Circle_Size / 2)
+	if (X_Pos <= Roll_In_Platform_End_X_Pos)
 	{
-		X_Pos = Roll_In_Platform_End_X_Pos - Circle_Size / 2;
+		X_Pos = Roll_In_Platform_End_X_Pos;
 		Platform_State = EPS_Expand_Roll_In;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area)
 {
-	
+	if (Inner_Width < Normal_Inner_Width)
+	{
+		Inner_Width += 2;
+		X_Pos -= 1;
+		Platform_Rect.left = X_Pos;
+	}
+	else
+	{
+		Inner_Width = Normal_Inner_Width;
+		Platform_State = EPS_Normal;
+	}
+
 	Draw_Normal_State(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------

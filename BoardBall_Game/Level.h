@@ -12,7 +12,7 @@ class ALevel
 public:
 	ALevel();
 	void Init();
-	void Draw(HWND hwnd, HDC hdc, RECT &paint_area);
+	void Draw(HDC hdc, RECT &paint_area);
 	void Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction);
 	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
 

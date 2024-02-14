@@ -9,10 +9,10 @@ AActive_Brick::AActive_Brick(EBrick_Type brick_type):
 	Brick_Type(brick_type), Brick_Rect{}, Fade_Step(0)
 {}
 //------------------------------------------------------------------------------------------------------------
-void AActive_Brick::Act(HWND hwnd)
+void AActive_Brick::Act()
 {
 	if (++Fade_Step < Max_Fade_Step)
-		InvalidateRect(hwnd, &Brick_Rect, FALSE);
+		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick::Draw(HDC hdc)

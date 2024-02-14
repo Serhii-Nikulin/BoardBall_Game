@@ -37,7 +37,7 @@ void ALevel::Init()
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Draw(HWND hwnd, HDC hdc, RECT &paint_area)
+void ALevel::Draw(HDC hdc, RECT &paint_area)
 {
 	int i, j;
 	RECT intersection_rect;
