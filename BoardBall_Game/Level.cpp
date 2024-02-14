@@ -3,7 +3,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
-	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
@@ -19,7 +19,6 @@ char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
-
 //------------------------------------------------------------------------------------------------------------
 ALevel::ALevel():
 	Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
@@ -38,7 +37,7 @@ void ALevel::Init()
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Draw(HWND hwnd, HDC hdc, RECT &paint_area)
+void ALevel::Draw(HDC hdc, RECT &paint_area)
 {
 	int i, j;
 	RECT intersection_rect;
@@ -100,9 +99,9 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 	rotation_step %= 16;
 
 	if (rotation_step < 8)
-		rotation_angle = 2.0 * M_PI / 16 * rotation_step;
+		rotation_angle = 2.0 * M_PI * rotation_step / 16.0;
 	else
-		rotation_angle = 2.0 * M_PI / 16 * (8 - rotation_step);
+		rotation_angle = 2.0 * M_PI * (8 - rotation_step) / 16.0;
 
 	if (rotation_step > 4 and rotation_step <= 12)
 	{

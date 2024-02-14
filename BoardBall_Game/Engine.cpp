@@ -2,12 +2,11 @@
 
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Hwnd{}
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Init_Engine(HWND hwnd)
 {
-	Hwnd = hwnd;
+	AsConfig::Hwnd = hwnd;
 	Ball.Init();
 	Level.Init();
 	Platform.Init();
@@ -15,18 +14,17 @@ void AsEngine::Init_Engine(HWND hwnd)
 	AActive_Brick::Setup_Colors();
 	AsConfig::Setup_Colors();
 
-	Platform.Redraw(Hwnd);
-	SetTimer(Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
+	Platform.Set_State(EPS_Roll_In);
+	Platform.Redraw();
+	
+	SetTimer(AsConfig::Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
-	Level.Draw(Hwnd, hdc, paint_area);
-
+	Level.Draw(hdc, paint_area);
 	Ball.Draw(hdc, paint_area);
-
 	Platform.Draw(hdc, paint_area);
-
 	Border.Draw(hdc, paint_area);
 
 	/*int i;
@@ -47,7 +45,7 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 		if (Platform.X_Pos < AsConfig::Border_X_Offset)
 			Platform.X_Pos = AsConfig::Border_X_Offset;
 
-		Platform.Redraw(Hwnd);
+		Platform.Redraw();
 		break;
 
 	case EKT_Right:
@@ -56,7 +54,7 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 		if (Platform.X_Pos > AsConfig::Max_X_Pos - Platform.Width + 1)
 			Platform.X_Pos = AsConfig::Max_X_Pos - Platform.Width + 1;
 
-		Platform.Redraw(Hwnd);
+		Platform.Redraw();
 		break;
 
 	case EKT_Space:
@@ -71,11 +69,11 @@ int AsEngine::On_Timer()
 {
 	AsConfig::Current_Timer_Tick += 1;
 
-	Ball.Move(Hwnd, &Level, Platform.X_Pos, Platform.Width);
-	Level.Active_Brick.Act(Hwnd);
+	Ball.Move(&Level, Platform.X_Pos, Platform.Width);
+	Level.Active_Brick.Act();
 
-	//if (AsConfig::Current_Timer_Tick % 10 == 0)
-	Platform.Act(Hwnd);
+	//if (AsConfig::Current_Timer_Tick % 3 == 0)
+	Platform.Act();
 
 	return 0;
 }

@@ -25,6 +25,7 @@ public:
 	static void Setup_Colors();
 	static int Rand(int range);
 
+	static HWND Hwnd;
 	static const int Global_Scale = 3;
 	static const int FPS = 20;
 	static int Current_Timer_Tick;
