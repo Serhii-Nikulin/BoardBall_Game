@@ -3,6 +3,9 @@
 #include "Ball.h"
 #include "Platform.h"
 
+enum EGame_State {
+	EGS_Play_Level, EGS_Lost_Ball, EGS_Restart_Level
+};
 //------------------------------------------------------------------------------------------------------------
 const int Timer_ID = WM_USER + 1;
 //------------------------------------------------------------------------------------------------------------
@@ -23,6 +26,7 @@ public:
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
 
 private:
+	EGame_State Game_State;
 	ABall Ball;
 	ALevel Level;
 	AsPlatform Platform;

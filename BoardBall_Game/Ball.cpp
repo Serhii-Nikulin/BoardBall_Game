@@ -1,15 +1,16 @@
 #include "Ball.h"
 
 //------------------------------------------------------------------------------------------------------------
-ABall::ABall():
+ABall::ABall()
+	: Ball_State(EBS_Normal),
 	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
-	Ball_X_Pos(103 - 28 / 2 + (28 - Ball_Size) / 2), Ball_Y_Pos(AsConfig::Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
-{
-	//Ball_X_Pos(X_Pos + (Width - Ball_Size) / 2), Ball_Y_Pos(Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
-}
+	Ball_X_Pos(0), Ball_Y_Pos(AsConfig::Platform_Y_Pos + 1 - Ball_Size), Ball_Speed(AsConfig::Global_Scale), Ball_Direction(M_PI - M_PI_4)
+{}
 //------------------------------------------------------------------------------------------------------------
 void ABall::Init()
 {
+	Ball_X_Pos = 103 - Ball_Size / 2;
+	//Ball_Speed = 0;
 	AsConfig::Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
 {
-	int next_x_pos, next_y_pos;
+	double next_x_pos, next_y_pos;
 
 	int max_x_pos = AsConfig::Max_X_Pos - Ball_Size;
 	int max_y_pos = AsConfig::Max_Y_Pos - Ball_Size;
@@ -42,8 +43,11 @@ void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
 
 	Prev_Ball_Rect = Ball_Rect;
 
-	next_x_pos = Ball_X_Pos + int(Ball_Speed * cos(Ball_Direction));
-	next_y_pos = Ball_Y_Pos - int(Ball_Speed * sin(Ball_Direction));
+	if (Ball_State != EBS_Normal)
+		return;
+
+	next_x_pos = Ball_X_Pos + Ball_Speed * cos(Ball_Direction);
+	next_y_pos = Ball_Y_Pos - Ball_Speed * sin(Ball_Direction);
 
 	if (next_x_pos < AsConfig::Border_X_Offset)
 	{
@@ -66,9 +70,20 @@ void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
 
 	if (next_y_pos > max_y_pos)
 	{
-		Ball_Y_Pos = AsConfig::Max_Y_Pos - Ball_Size;
-		//next_y_pos = max_y_pos - (next_y_pos - max_y_pos);
-		Ball_Direction = -Ball_Direction;
+		if (level->Has_Floor)
+		{
+			Ball_Y_Pos = AsConfig::Max_Y_Pos - Ball_Size;
+			//next_y_pos = max_y_pos - (next_y_pos - max_y_pos);
+			Ball_Direction = -Ball_Direction;
+		}
+		else
+		{
+			if (Ball_Y_Pos > AsConfig::Max_Y_Pos)
+			{
+				Ball_State = EBS_Lost;
+				return;
+			}
+		}
 	}
 
 	if (next_y_pos > platform_y_pos)
@@ -85,12 +100,17 @@ void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
 	Ball_X_Pos = next_x_pos;
 	Ball_Y_Pos = next_y_pos;
 
-	Ball_Rect.left = Ball_X_Pos * AsConfig::Global_Scale;
-	Ball_Rect.top = Ball_Y_Pos * AsConfig::Global_Scale;
+	Ball_Rect.left = (int)Ball_X_Pos * AsConfig::Global_Scale;
+	Ball_Rect.top = (int)Ball_Y_Pos * AsConfig::Global_Scale;
 	Ball_Rect.right = Ball_Rect.left + Ball_Size * AsConfig::Global_Scale;
 	Ball_Rect.bottom = Ball_Rect.top + Ball_Size * AsConfig::Global_Scale;
 
 	InvalidateRect(AsConfig::Hwnd, &Prev_Ball_Rect, FALSE);
 	InvalidateRect(AsConfig::Hwnd, &Ball_Rect, FALSE);
+}
+//------------------------------------------------------------------------------------------------------------
+EBall_State ABall::Get_State()
+{
+	return Ball_State;
 }
 //------------------------------------------------------------------------------------------------------------

@@ -20,8 +20,8 @@ char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
-ALevel::ALevel():
-	Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
+ALevel::ALevel()
+	: Has_Floor(false), Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
 {}
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Init()
@@ -190,7 +190,7 @@ void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRU
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction)
+void ALevel::Check_Level_Brick_Hit(double &next_y_pos, double &ball_direction)
 {
 	int i, j;
 	int brick_y_pos = AsConfig::Level_Y_Offset + (ALevel::Level_Height - 1) * ALevel::Cell_Height + AsConfig::Brick_Height;

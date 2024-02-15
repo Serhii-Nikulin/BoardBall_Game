@@ -3,7 +3,7 @@
 int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Normal), Inner_Width(0), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
+	Platform_State(EPS_Normal), Inner_Width(20), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
 	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -13,6 +13,11 @@ void AsPlatform::Init()
 
 	AsConfig::Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
 	AsConfig::Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
+
+	if (Platform_State == EPS_Normal)
+		Inner_Width = 20;
+	if (Platform_State == EPS_Roll_In)
+		Inner_Width = 0;
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act()
@@ -87,11 +92,12 @@ void AsPlatform::Clear_BG(HDC hdc)
 void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
 {
 	SelectObject(hdc, Highlight_Pen);
+
 	Arc(hdc,
 		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
 		x + (Circle_Size - 1) * AsConfig::Global_Scale, y + (Circle_Size - 1) * AsConfig::Global_Scale,
-		x + 8, y,
-		x, y + 8);
+		x + (Circle_Size / 2) * AsConfig::Global_Scale, y,
+		x, y + (Circle_Size / 2) * AsConfig::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
