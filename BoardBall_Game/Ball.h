@@ -24,10 +24,10 @@ private:
 	HPEN Ball_Pen;
 	HBRUSH Ball_Brush;
 	RECT Ball_Rect, Prev_Ball_Rect;
-	double Ball_X_Pos;
-	double Ball_Y_Pos;
+	double Center_X_Pos;
+	double Center_Y_Pos;
 	double Ball_Speed;
 	double Ball_Direction;
-	static const int Ball_Size = 4;
+	static const double Radius;
 };
 //------------------------------------------------------------------------------------------------------------

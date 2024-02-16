@@ -145,7 +145,7 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 	area_width = Width * AsConfig::Global_Scale;
 	area_height = Height * AsConfig::Global_Scale;
 
-	max_platform_y = area_height + AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
+	max_platform_y = area_height + AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
 
 	for (i = 0; i < area_width; i++)
 	{
@@ -180,6 +180,7 @@ void AsPlatform::Redraw()
 {
 	int platform_width;
 	Prev_Platform_Rect = Platform_Rect;
+
 	if (Platform_State == EPS_Roll_In)
 		platform_width = Circle_Size;
 	else
@@ -191,7 +192,7 @@ void AsPlatform::Redraw()
 	Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
 
 	if (Platform_State == EPS_Meltdown)
-		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
+		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
 
 	InvalidateRect(AsConfig::Hwnd, &Prev_Platform_Rect, FALSE);
 	InvalidateRect(AsConfig::Hwnd, &Platform_Rect, FALSE);
@@ -236,7 +237,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	X_Pos -= Rolling_Platform_Speed;
 	if (X_Pos <= Roll_In_Platform_End_X_Pos)
 	{
-		X_Pos = Roll_In_Platform_End_X_Pos;
+		X_Pos = Roll_In_Platform_End_X_Pos - 1;
 		Platform_State = EPS_Expand_Roll_In;
 	}
 }

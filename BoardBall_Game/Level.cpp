@@ -21,7 +21,7 @@ char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 };
 //------------------------------------------------------------------------------------------------------------
 ALevel::ALevel()
-	: Has_Floor(false), Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
+	: Has_Floor(true), Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
 {}
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Init()
@@ -202,10 +202,10 @@ void ALevel::Check_Level_Brick_Hit(double &next_y_pos, double &ball_direction)
 			if (Level_01[i][j] == 0)
 				continue;
 
-			if (brick_y_pos > next_y_pos)
+			if (brick_y_pos > next_y_pos - 2)
 			{
 				ball_direction = -ball_direction;
-				next_y_pos = brick_y_pos + (brick_y_pos - next_y_pos);
+				next_y_pos = brick_y_pos + 2;
 				break;
 			}
 		}
