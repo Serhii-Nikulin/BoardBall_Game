@@ -32,11 +32,11 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
+void ABall::Move(int platform_x_pos, int platform_width, AHit_Checker *hit_checker)
 {
 	double next_x_pos, next_y_pos;
-	bool got_hit;
 	int platform_y_pos = AsConfig::Platform_Y_Pos - Radius + 1;
+	bool got_hit;
 	double step_size = 1.0 / AsConfig::Global_Scale;
 	double rest_distance = Ball_Speed;
 	Prev_Ball_Rect = Ball_Rect;
@@ -46,46 +46,13 @@ void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
 
 	while (rest_distance >= step_size)
 	{
-		got_hit = false;
-
 		next_x_pos = Center_X_Pos + step_size * cos(Ball_Direction);
 		next_y_pos = Center_Y_Pos - step_size * sin(Ball_Direction);
 
-		if (next_x_pos - Radius < AsConfig::Border_X_Offset)
-		{
-			got_hit = true;
-			Ball_Direction = M_PI - Ball_Direction;
-		}
+		got_hit = hit_checker->Check_Hit(next_x_pos, next_y_pos, this);
 
-		if (next_y_pos - Radius < AsConfig::Border_Y_Offset)
-		{
-			got_hit = true;
-			Ball_Direction = -Ball_Direction;
-		}
-
-		if (next_x_pos + Radius > AsConfig::Max_X_Pos)
-		{
-			got_hit = true;
-			Ball_Direction = -Ball_Direction + M_PI;
-		}
-
-		if (next_y_pos + Radius > AsConfig::Max_Y_Pos)
-		{
-			if (!level->Has_Floor)
-			{
-				got_hit = true;
-				Ball_Direction = -Ball_Direction;
-			}
-			else
-			{
-				if (next_y_pos - Radius * 4 > AsConfig::Max_Y_Pos)
-				{
-					Ball_State = EBS_Lost;
-					return;
-				}
-			}
-		}
-
+		//level->Check_Level_Brick_Hit(next_y_pos, Ball_Direction);
+		
 		if ((int)next_y_pos + Radius > platform_y_pos)
 			if (next_x_pos >= platform_x_pos - Radius
 				and 
@@ -95,8 +62,6 @@ void ABall::Move(ALevel *level, int platform_x_pos, int platform_width)
 				Ball_Direction = -Ball_Direction;
 			}
 
-		//level->Check_Level_Brick_Hit(next_y_pos, Ball_Direction);
-		
 		if (!got_hit)
 		{
 			Center_X_Pos = next_x_pos;
@@ -115,7 +80,7 @@ void ABall::Redraw_Ball()
 	Ball_Rect.right = (int)(Center_X_Pos + Radius) * AsConfig::Global_Scale;
 	Ball_Rect.bottom = (int)(Center_Y_Pos + Radius) * AsConfig::Global_Scale;
 
-	//InvalidateRect(AsConfig::Hwnd, &Prev_Ball_Rect, FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Prev_Ball_Rect, FALSE);
 	InvalidateRect(AsConfig::Hwnd, &Ball_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------

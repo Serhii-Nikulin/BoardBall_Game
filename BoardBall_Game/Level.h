@@ -17,7 +17,7 @@ public:
 	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
 
 	AActive_Brick Active_Brick;
-	bool Has_Floor;
+
 private:
 	void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type);
 	void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush);
