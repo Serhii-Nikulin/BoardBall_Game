@@ -2,7 +2,7 @@
 #include "Config.h"
 
 enum EPlatform_State{
-EPS_Missing, EPS_Normal, EPS_Meltdown, EPS_Roll_In, EPS_Expand_Roll_In
+EPS_Missing, EPS_Ready, EPS_Normal, EPS_Meltdown, EPS_Roll_In, EPS_Expand_Roll_In
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform
@@ -15,10 +15,11 @@ public:
 	void Redraw();
 	void Act();
 	void Set_State(EPlatform_State platform_state);
-
+	EPlatform_State Get_State();
 	int Width;
 	int X_Pos;
 	int X_Step;
+	int Inner_Width;
 
 private:
 	void Clear_BG(HDC hdc);
@@ -36,7 +37,6 @@ private:
 	HPEN Highlight_Pen;
 	RECT Prev_Platform_Rect, Platform_Rect;
 
-	int Inner_Width;
 	int Rolling_Step;
 
 	static const int Circle_Size = 7;

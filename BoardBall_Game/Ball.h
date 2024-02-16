@@ -14,8 +14,11 @@ public:
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
 	void Move(ALevel *level, int platform_x_pos, int platform_width);
+	void Redraw_Ball();
 
 	EBall_State Get_State();
+	void Set_State(EBall_State new_state);
+
 private:
 	EBall_State Ball_State;
 	HPEN Ball_Pen;
