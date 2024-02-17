@@ -21,7 +21,7 @@ char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
 };
 //------------------------------------------------------------------------------------------------------------
 ALevel::ALevel()
-	: Has_Floor(false), Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
+	: Brick_Blue_Pen{}, Brick_Blue_Brush{}, Brick_Red_Pen{}, Brick_Red_Brush{}, Letter_Pen{}, Level_Rect{}, Active_Brick(EBT_Blue)
 {}
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Init()
@@ -41,10 +41,6 @@ void ALevel::Draw(HDC hdc, RECT &paint_area)
 {
 	int i, j;
 	RECT intersection_rect;
-	RECT brick_rect;
-	HPEN pen;
-	HBRUSH brush;
-	
 
 	if (!IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 		return;
@@ -190,11 +186,11 @@ void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRU
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Check_Level_Brick_Hit(double &next_y_pos, double &ball_direction)
+bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 {
 	int i, j;
 	int brick_y_pos = AsConfig::Level_Y_Offset + (ALevel::Level_Height - 1) * ALevel::Cell_Height + AsConfig::Brick_Height;
-
+	
 	for (i = ALevel::Level_Height - 1; i >= 0; --i)
 	{
 		for (j = 0; j < ALevel::Level_Width; ++j)
@@ -202,14 +198,14 @@ void ALevel::Check_Level_Brick_Hit(double &next_y_pos, double &ball_direction)
 			if (Level_01[i][j] == 0)
 				continue;
 
-			if (brick_y_pos > next_y_pos)
+			if (brick_y_pos > next_y_pos - ball->Radius)
 			{
-				ball_direction = -ball_direction;
-				next_y_pos = brick_y_pos + (brick_y_pos - next_y_pos);
-				break;
+				ball->Ball_Direction= -ball->Ball_Direction;
+				return true;
 			}
 		}
 		brick_y_pos -= ALevel::Cell_Height;
 	}
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------

@@ -34,6 +34,7 @@ public:
 	static const int Border_Y_Offset = 4;//Min_Y
 	static const int Max_X_Pos = 200;
 	static const int Max_Y_Pos = 199;
+	static bool Has_Floor;
 
 	static const int Level_X_Offset = 8;
 	static const int Level_Y_Offset = 6;
