@@ -1,7 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include "Level.h"
-#include "Ball.h"
+#include "Config.h"
 
 //------------------------------------------------------------------------------------------------------------
 enum EBall_State {
@@ -22,7 +21,7 @@ public:
 	ABall();
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
-	void Move(int platform_x_pos, int platform_width, AHit_Checker *level);
+	void Move();
 	void Redraw_Ball();
 
 	EBall_State Get_State();
@@ -30,6 +29,7 @@ public:
 
 	double Ball_Direction;
 	static const double Radius;
+	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 
 private:
 	EBall_State Ball_State;
@@ -39,5 +39,9 @@ private:
 	double Center_X_Pos;
 	double Center_Y_Pos;
 	double Ball_Speed;
+	double Rest_Distance;
+	static int Counter_Hit_Checker;
+	static const int Hit_Checkers_Count = 3;
+	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
 };
 //------------------------------------------------------------------------------------------------------------

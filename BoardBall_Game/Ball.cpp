@@ -1,12 +1,20 @@
 #include "Ball.h"
 
 const double ABall::Radius = 2;
+int ABall::Counter_Hit_Checker = 0;
+AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
 	: Ball_State(EBS_Normal),
 	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
-	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0)
+	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0)
 {}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
+{
+	if (Counter_Hit_Checker < Hit_Checkers_Count)
+		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
+}
 //------------------------------------------------------------------------------------------------------------
 void ABall::Init()
 {
@@ -32,41 +40,34 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Move(int platform_x_pos, int platform_width, AHit_Checker *hit_checker)
+void ABall::Move()
 {
+	int i;
 	double next_x_pos, next_y_pos;
-	int platform_y_pos = AsConfig::Platform_Y_Pos - Radius + 1;
 	bool got_hit;
 	double step_size = 1.0 / AsConfig::Global_Scale;
-	double rest_distance = Ball_Speed;
+	Rest_Distance += Ball_Speed;
 	Prev_Ball_Rect = Ball_Rect;
 
 	if (Ball_State != EBS_Normal)
 		return;
 
-	while (rest_distance >= step_size)
+	while (Rest_Distance > 0)
 	{
+		got_hit = false;
+
 		next_x_pos = Center_X_Pos + step_size * cos(Ball_Direction);
 		next_y_pos = Center_Y_Pos - step_size * sin(Ball_Direction);
 
-		got_hit = hit_checker->Check_Hit(next_x_pos, next_y_pos, this);
+		for (i = 0; i < Hit_Checkers_Count; ++i)
+			got_hit |= Hit_Checkers[i]->Check_Hit(next_x_pos, next_y_pos, this);
 
-		//level->Check_Level_Brick_Hit(next_y_pos, Ball_Direction);
-		
-		if ((int)next_y_pos + Radius > platform_y_pos)
-			if (next_x_pos >= platform_x_pos - Radius
-				and 
-				next_x_pos <= platform_x_pos + platform_width + Radius)
-			{
-				got_hit = true;
-				Ball_Direction = -Ball_Direction;
-			}
 
 		if (!got_hit)
 		{
 			Center_X_Pos = next_x_pos;
 			Center_Y_Pos = next_y_pos;
-			rest_distance -= step_size;
+			Rest_Distance -= step_size;
 		}
 	}
 
@@ -105,6 +106,7 @@ void ABall::Set_State(EBall_State new_state)
 		Center_Y_Pos = AsConfig::Platform_Y_Pos - Radius;
 		Ball_Speed = AsConfig::Global_Scale * 2;
 		Ball_Direction = M_PI - M_PI_4;
+		Rest_Distance = 0.0;
 		break;
 
 	case EBS_Lost:

@@ -1,19 +1,19 @@
 #pragma once
 #include "Active_Brick.h"
+#include "Ball.h"
 
 //------------------------------------------------------------------------------------------------------------
-class ALevel
+class ALevel: public AHit_Checker
 {
-	
 	enum ELetter_Type {
 		ELT_None, ELT_O
 	};
 
 public:
 	ALevel();
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
-	void Check_Level_Brick_Hit(double &next_y_pos, double &ball_direction);
 	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
 
 	AActive_Brick Active_Brick;

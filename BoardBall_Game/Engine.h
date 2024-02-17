@@ -2,6 +2,7 @@
 #include "Border.h"
 #include "Ball.h"
 #include "Platform.h"
+#include "Level.h"
 
 enum EGame_State {
 	EGS_Play_Level, EGS_Lost_Ball, EGS_Restart_Level
