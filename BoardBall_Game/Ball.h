@@ -26,10 +26,11 @@ public:
 
 	EBall_State Get_State();
 	void Set_State(EBall_State new_state);
-
-	double Ball_Direction;
-	static const double Radius;
+	double Get_Direction();
+	void Set_Direction(double direction);
+	void Reflect(bool from_horizontal);
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
+	static const double Radius;
 
 private:
 	EBall_State Ball_State;
@@ -39,6 +40,7 @@ private:
 	double Center_X_Pos;
 	double Center_Y_Pos;
 	double Ball_Speed;
+	double Ball_Direction;
 	double Rest_Distance;
 	static int Counter_Hit_Checker;
 	static const int Hit_Checkers_Count = 3;
