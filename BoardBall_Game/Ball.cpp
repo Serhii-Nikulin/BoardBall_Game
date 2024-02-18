@@ -62,7 +62,6 @@ void ABall::Move()
 		for (i = 0; i < Hit_Checkers_Count; ++i)
 			got_hit |= Hit_Checkers[i]->Check_Hit(next_x_pos, next_y_pos, this);
 
-
 		if (!got_hit)
 		{
 			Center_X_Pos = next_x_pos;
@@ -98,14 +97,14 @@ void ABall::Set_State(EBall_State new_state)
 		Center_X_Pos = 103;
 		Center_Y_Pos = AsConfig::Platform_Y_Pos - Radius;
 		Ball_Speed = 0.0;
-		Ball_Direction = M_PI - M_PI_4;
+		Ball_Direction = M_PI_4;
 		break;
 
 	case EBS_Normal:
 		Center_X_Pos = 103;
 		Center_Y_Pos = AsConfig::Platform_Y_Pos - Radius;
 		Ball_Speed = AsConfig::Global_Scale * 2;
-		Ball_Direction = M_PI - M_PI_4;
+		Ball_Direction = M_PI_4;
 		Rest_Distance = 0.0;
 		break;
 

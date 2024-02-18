@@ -189,6 +189,9 @@ void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRU
 bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 {
 	int i, j;
+	double x, y;
+	double brick_left_x, brick_right_x;
+	double  radius = ball->Radius;
 	int brick_y_pos = AsConfig::Level_Y_Offset + (ALevel::Level_Height - 1) * ALevel::Cell_Height + AsConfig::Brick_Height;
 	
 	for (i = ALevel::Level_Height - 1; i >= 0; --i)
@@ -198,10 +201,23 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 			if (Level_01[i][j] == 0)
 				continue;
 
+			y = next_y_pos - brick_y_pos;
+			
+			if (y > ball->Radius)
+				continue;
+			
+			x = sqrt(radius * radius - y * y);
+			brick_left_x = AsConfig::Level_X_Offset + j * ALevel::Cell_Width;
+			brick_right_x = brick_left_x + AsConfig::Brick_Width;
+
 			if (brick_y_pos > next_y_pos - ball->Radius)
 			{
-				ball->Ball_Direction= -ball->Ball_Direction;
-				return true;
+				if ((next_x_pos + x) > brick_left_x and (next_x_pos - x) < brick_right_x)
+				{
+					ball->Ball_Direction= -ball->Ball_Direction;
+					Level_01[i][j] = 0;
+					return true;
+				}
 			}
 		}
 		brick_y_pos -= ALevel::Cell_Height;
