@@ -3,21 +3,21 @@
 
 //------------------------------------------------------------------------------------------------------------
 char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
-//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
 ALevel::ALevel()
@@ -37,7 +37,7 @@ void ALevel::Init()
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Draw(HDC hdc, RECT &paint_area)
+void ALevel::Draw(HDC hdc, RECT& paint_area)
 {
 	int i, j;
 	RECT intersection_rect;
@@ -168,7 +168,7 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush)
+void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN& front_pen, HBRUSH& front_brush, HPEN& back_pen, HBRUSH& back_brush)
 {
 	if (is_switch_color)
 	{
@@ -186,11 +186,14 @@ void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRU
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
+bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 {
 	int i, j;
-	int brick_y_pos = AsConfig::Level_Y_Offset + (ALevel::Level_Height - 1) * ALevel::Cell_Height + AsConfig::Brick_Height;
-	
+	double x, y;
+	double brick_left_x, brick_right_x;
+	double brick_top_y, brick_low_y;
+	double direction = ball->Get_Direction();
+
 	for (i = ALevel::Level_Height - 1; i >= 0; --i)
 	{
 		for (j = 0; j < ALevel::Level_Width; ++j)
@@ -198,14 +201,42 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 			if (Level_01[i][j] == 0)
 				continue;
 
-			if (brick_y_pos > next_y_pos - ball->Radius)
-			{
-				ball->Ball_Direction= -ball->Ball_Direction;
-				return true;
-			}
+			brick_top_y = AsConfig::Level_Y_Offset + i * ALevel::Cell_Height;
+			brick_low_y = brick_top_y + AsConfig::Brick_Height;
+			
+			brick_left_x = AsConfig::Level_X_Offset + j * ALevel::Cell_Width;
+			brick_right_x = brick_left_x + AsConfig::Brick_Width;
+
+			//reflection from low_brick
+			if (direction > 0 and direction < M_PI)
+				if (Hit_Circle_On_Line(next_x_pos, next_y_pos - brick_low_y, ball->Radius, brick_left_x, brick_right_x))
+				{
+					ball->Reflect(true);//from horizontal
+					return true;
+				}
+
+			//reflection from top_brick
+			if (direction > M_PI and direction < M_PI * 2)
+				if (Hit_Circle_On_Line(next_x_pos, next_y_pos - brick_top_y, ball->Radius, brick_left_x, brick_right_x))
+				{
+					ball->Reflect(true);//from horizontal
+					return true;
+				}
 		}
-		brick_y_pos -= ALevel::Cell_Height;
 	}
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool ALevel::Hit_Circle_On_Line(double next_x_pos, double y, double radius, double min_x, double max_x)
+{
+	if (y > radius)
+		return false;
+
+	double x = sqrt(radius * radius - y * y);
+	
+	if ((next_x_pos + x) > min_x and (next_x_pos - x) < max_x)
+		return true;
+
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------

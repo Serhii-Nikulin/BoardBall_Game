@@ -21,6 +21,7 @@ public:
 private:
 	void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type);
 	void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush);
+	bool Hit_Circle_On_Line(double next_x_pos, double y, double radius, double min_x, double max_x);
 
 
 	HPEN Brick_Blue_Pen;

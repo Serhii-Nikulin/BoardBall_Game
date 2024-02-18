@@ -14,7 +14,7 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 			and 
 			next_x_pos <= X_Pos + Width + ball->Radius)
 		{
-			ball->Ball_Direction = -ball->Ball_Direction;
+			ball->Reflect(true);//from platform horizontal
 			return true;
 		}
 

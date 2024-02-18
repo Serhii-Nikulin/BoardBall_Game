@@ -16,7 +16,7 @@ HPEN AsConfig::BG_Pen;
 HBRUSH AsConfig::BG_Brush;
 HWND AsConfig::Hwnd;
 int AsConfig::Current_Timer_Tick = 0;
-bool AsConfig::Has_Floor = false;
+bool AsConfig::Has_Floor = true;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Setup_Colors()
 {
