@@ -29,10 +29,10 @@ void AsEngine::Init_Engine(HWND hwnd)
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
-	Ball.Draw(hdc, paint_area);
 	Border.Draw(hdc, paint_area);
 	Level.Draw(hdc, paint_area);
 	Platform.Draw(hdc, paint_area);
+	Ball.Draw(hdc, paint_area);
 
 	/*int i;
 	for (i = 0; i < 16; ++i)

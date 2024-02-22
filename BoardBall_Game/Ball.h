@@ -12,7 +12,7 @@ class AHit_Checker
 {
 public:
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball) = 0;
-
+	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
 };
 //------------------------------------------------------------------------------------------------------------
 class ABall
@@ -31,8 +31,12 @@ public:
 	void Set_Direction(double direction);
 	void Reflect(bool from_horizontal);
 	bool Is_Test_Finished();
+	bool Is_Moving_Up();
+	bool Is_Moving_Left();
+
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
+	double Ball_Speed;
 
 	double Rest_Test_Distance;
 private:
@@ -42,7 +46,6 @@ private:
 	RECT Ball_Rect, Prev_Ball_Rect;
 	double Center_X_Pos;
 	double Center_Y_Pos;
-	double Ball_Speed;
 	double Ball_Direction;
 	bool Testing_Is_Active;
 	double Rest_Distance;

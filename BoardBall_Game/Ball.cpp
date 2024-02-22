@@ -1,8 +1,30 @@
 #include "Ball.h"
 
+//AHit_Checker
+//------------------------------------------------------------------------------------------------------------
 const double ABall::Radius = 2;
 int ABall::Counter_Hit_Checker = 0;
 AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value)
+{
+	if (eval_dist > radius)
+		return false;
+
+	//value * value + eval_pos * eval_pos = radius * radius
+
+	double value = sqrt(radius * radius - eval_dist * eval_dist);
+
+	if ((next_pos + value) > min_value and (next_pos - value) < max_value)
+		return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+//ABall
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
 	: Ball_State(EBS_Normal),
@@ -68,6 +90,7 @@ void ABall::Move()
 			Center_X_Pos = next_x_pos;
 			Center_Y_Pos = next_y_pos;
 			Rest_Distance -= step_size;
+
 			if (Testing_Is_Active)
 				Rest_Test_Distance -= step_size;
 		}
@@ -94,8 +117,8 @@ void ABall::Set_For_Test()
 
 	//Set_State(EBS_Normal, 99 + Test_Iteration, 100, M_PI - M_PI_4);//low -> left
 	//Set_State(EBS_Normal, 62 + Test_Iteration, 100, M_PI_4);//low -> right
-	Set_State(EBS_Normal, 102 + Test_Iteration, 65, M_PI + M_PI_4);//top -> left
-	//Set_State(EBS_Normal, 60 + Test_Iteration, 60, -M_PI_4 / 2);//top -> right
+	//Set_State(EBS_Normal, 102 + Test_Iteration, 65, M_PI + M_PI_4);//top -> left
+	Set_State(EBS_Normal, 60 + Test_Iteration, 60, -M_PI_4);//top -> right
 	++Test_Iteration;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -167,7 +190,23 @@ bool ABall::Is_Test_Finished()
 			Set_State(EBS_Lost);
 			return true;
 		}
-	
+
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool ABall::Is_Moving_Up()
+{
+	if (Ball_Direction > 0 and Ball_Direction < M_PI)
+		return true;
+	else
+		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool ABall::Is_Moving_Left()
+{
+	if (Ball_Direction > 0 and Ball_Direction < M_PI_2 or Ball_Direction > M_PI + M_PI_2 and Ball_Direction < 2 * M_PI)
+		return true;
+	else
+		return false;
 }
 //------------------------------------------------------------------------------------------------------------
