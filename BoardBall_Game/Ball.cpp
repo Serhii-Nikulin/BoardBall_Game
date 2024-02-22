@@ -7,7 +7,8 @@ AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
 ABall::ABall()
 	: Ball_State(EBS_Normal),
 	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
-	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0)
+	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0), 
+	Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
 //------------------------------------------------------------------------------------------------------------
 void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
@@ -67,6 +68,8 @@ void ABall::Move()
 			Center_X_Pos = next_x_pos;
 			Center_Y_Pos = next_y_pos;
 			Rest_Distance -= step_size;
+			if (Testing_Is_Active)
+				Rest_Test_Distance -= step_size;
 		}
 	}
 
@@ -84,27 +87,39 @@ void ABall::Redraw_Ball()
 	InvalidateRect(AsConfig::Hwnd, &Ball_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
+void ABall::Set_For_Test()
+{
+	Testing_Is_Active = true;
+	Rest_Test_Distance = 50;
+
+	//Set_State(EBS_Normal, 99 + Test_Iteration, 100, M_PI - M_PI_4);//low -> left
+	//Set_State(EBS_Normal, 62 + Test_Iteration, 100, M_PI_4);//low -> right
+	Set_State(EBS_Normal, 102 + Test_Iteration, 65, M_PI + M_PI_4);//top -> left
+	//Set_State(EBS_Normal, 60 + Test_Iteration, 60, -M_PI_4 / 2);//top -> right
+	++Test_Iteration;
+}
+//------------------------------------------------------------------------------------------------------------
 EBall_State ABall::Get_State()
 {
 	return Ball_State;
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Set_State(EBall_State new_state)
+void ABall::Set_State(EBall_State new_state, int x_pos, int y_pos, double direction)
 {
 	switch (new_state)
 	{
 	case EBS_On_Platform:
-		Center_X_Pos = 103;
-		Center_Y_Pos = AsConfig::Platform_Y_Pos - Radius;
+		Center_X_Pos = x_pos;
+		Center_Y_Pos = y_pos;
 		Ball_Speed = 0.0;
-		Ball_Direction = M_PI_4;
+		Ball_Direction = direction;
 		break;
 
 	case EBS_Normal:
-		Center_X_Pos = 103;
-		Center_Y_Pos = AsConfig::Platform_Y_Pos - Radius;
+		Center_X_Pos = x_pos;
+		Center_Y_Pos = y_pos;
 		Ball_Speed = AsConfig::Global_Scale * 2;
-		Ball_Direction = M_PI_4;
+		Ball_Direction = direction;
 		Rest_Distance = 0.0;
 		break;
 
@@ -118,6 +133,7 @@ void ABall::Set_State(EBall_State new_state)
 //------------------------------------------------------------------------------------------------------------
 double ABall::Get_Direction()
 {
+	Set_Direction(Ball_Direction);
 	return Ball_Direction;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -140,5 +156,18 @@ void ABall::Reflect(bool from_horizontal)
 		Set_Direction(-Ball_Direction);
 	else
 		Set_Direction(M_PI - Ball_Direction);
+}
+//------------------------------------------------------------------------------------------------------------
+bool ABall::Is_Test_Finished()
+{
+	if (Testing_Is_Active)
+		if (Rest_Test_Distance <= 0)
+		{
+			Testing_Is_Active = false;
+			Set_State(EBS_Lost);
+			return true;
+		}
+	
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------
