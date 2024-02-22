@@ -25,13 +25,16 @@ public:
 	void Redraw_Ball();
 
 	EBall_State Get_State();
-	void Set_State(EBall_State new_state);
+	void Set_State(EBall_State new_state, int x_pos = 103, int y_pos = AsConfig::Platform_Y_Pos - Radius, double direction = M_PI_4);
+	void Set_For_Test();
 	double Get_Direction();
 	void Set_Direction(double direction);
 	void Reflect(bool from_horizontal);
+	bool Is_Test_Finished();
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
 
+	double Rest_Test_Distance;
 private:
 	EBall_State Ball_State;
 	HPEN Ball_Pen;
@@ -41,9 +44,12 @@ private:
 	double Center_Y_Pos;
 	double Ball_Speed;
 	double Ball_Direction;
+	bool Testing_Is_Active;
 	double Rest_Distance;
 	static int Counter_Hit_Checker;
 	static const int Hit_Checkers_Count = 3;
 	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
+	int Test_Iteration;
+
 };
 //------------------------------------------------------------------------------------------------------------

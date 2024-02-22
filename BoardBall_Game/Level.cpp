@@ -2,22 +2,42 @@
 #include "Level.h"
 
 //------------------------------------------------------------------------------------------------------------
+char ALevel::Current_Level[Level_Height][Level_Width];
+//------------------------------------------------------------------------------------------------------------
 char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
-	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
-		0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
-		0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
-		0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,//5
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,//6
-		0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,//7
-		0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,//8
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+};
+//------------------------------------------------------------------------------------------------------------
+char ALevel::Test_Level[Level_Height][Level_Width] = {
+//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//1
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//2
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//3
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//4
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//5
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//7
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
+	0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0,//9
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
 ALevel::ALevel()
@@ -35,6 +55,13 @@ void ALevel::Init()
 	Level_Rect.top = AsConfig::Level_Y_Offset * AsConfig::Global_Scale;
 	Level_Rect.right = Level_Rect.left + Cell_Width * Level_Width * AsConfig::Global_Scale;
 	Level_Rect.bottom = Level_Rect.top + Cell_Height * Level_Height * AsConfig::Global_Scale;
+
+	memset(Current_Level, 0, sizeof(Current_Level));
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Set_Current_Level(char level[Level_Height][Level_Width])
+{
+	memcpy(Current_Level, level, sizeof(Current_Level));
 }
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Draw(HDC hdc, RECT& paint_area)
@@ -47,7 +74,7 @@ void ALevel::Draw(HDC hdc, RECT& paint_area)
 
 	for (i = 0; i < Level_Height; ++i)
 		for (j = 0; j < Level_Width; ++j)
-			Draw_Brick(hdc, AsConfig::Level_X_Offset + j * Cell_Width, AsConfig::Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Level_01[i][j]));
+			Draw_Brick(hdc, AsConfig::Level_X_Offset + j * Cell_Width, AsConfig::Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Current_Level[i][j]));
 
 	Active_Brick.Draw(hdc);
 }
@@ -195,18 +222,17 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	if (next_y_pos > AsConfig::Border_Y_Offset + (Level_Height - 1) * Cell_Height + Cell_Height)
 		return false;
 
-	min_y = (next_y_pos - ball->Radius - AsConfig::Level_Y_Offset) / Cell_Height;
-	max_y = (next_y_pos + ball->Radius - AsConfig::Level_Y_Offset) / Cell_Height;
+	min_y = int(next_y_pos - ball->Radius - AsConfig::Level_Y_Offset) / Cell_Height;
+	max_y = int(next_y_pos + ball->Radius - AsConfig::Level_Y_Offset) / Cell_Height;
 
-	min_x = (next_x_pos - ball->Radius - AsConfig::Level_X_Offset) / Cell_Width;
-	max_x = (next_x_pos + ball->Radius - AsConfig::Level_X_Offset) / Cell_Width;
+	min_x = int(next_x_pos - ball->Radius - AsConfig::Level_X_Offset) / Cell_Width;
+	max_x = int(next_x_pos + ball->Radius - AsConfig::Level_X_Offset) / Cell_Width;
 
 	for (i = max_y; i >= min_y; --i)//y
-	//for (i = ALevel::Level_Height - 1; i >= 0; --i)
 	{
 		for (j = min_x; j <= max_x; ++j)//x
 		{
-			if (Level_01[i][j] == 0)
+			if (Current_Level[i][j] == 0)
 				continue;
 
 			Current_Brick_Top_Y = AsConfig::Level_Y_Offset + i * ALevel::Cell_Height;
@@ -260,7 +286,7 @@ bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int leve
 	if (direction > M_PI_2 and direction < M_PI + M_PI_2)
 		if (Hit_Circle_On_Line(next_y_pos, next_x_pos - Current_Brick_Right_X, ball->Radius, Current_Brick_Top_Y, Current_Brick_Low_Y))
 		{
-			if (level_x < Level_Width - 1 and Level_01[level_y][level_x + 1] == 0)
+			if (level_x < Level_Width - 1 and Current_Level[level_y][level_x + 1] == 0)
 			{
 				ball->Reflect(false);//from vertical
 				return true;
@@ -273,7 +299,7 @@ bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int leve
 	if (direction > 0 and direction < M_PI_2 or direction > M_PI + M_PI_2 and direction < 2 * M_PI)
 		if (Hit_Circle_On_Line(next_y_pos, next_x_pos - Current_Brick_Left_X, ball->Radius, Current_Brick_Top_Y, Current_Brick_Low_Y))
 		{
-			if (level_x > 0 and Level_01[level_y][level_x - 1] == 0)
+			if (level_x > 0 and Current_Level[level_y][level_x - 1] == 0)
 			{
 				ball->Reflect(false);//from vertical
 				return true;
@@ -293,7 +319,7 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 	if (direction > 0 and direction < M_PI)
 		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - Current_Brick_Low_Y, ball->Radius, Current_Brick_Left_X, Current_Brick_Right_X))
 		{
-			if (level_y < Level_Height - 1 and Level_01[level_y + 1][level_x] == 0)
+			if (level_y < Level_Height - 1 and Current_Level[level_y + 1][level_x] == 0)
 			{
 				ball->Reflect(true);//from horizontal
 				return true;
@@ -306,7 +332,7 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 	if (direction > M_PI and direction < M_PI * 2)
 		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - Current_Brick_Top_Y, ball->Radius, Current_Brick_Left_X, Current_Brick_Right_X))
 		{
-			if (level_y > 0 and Level_01[level_y - 1][level_x] == 0)
+			if (level_y > 0 and Current_Level[level_y - 1][level_x] == 0)
 			{
 				ball->Reflect(true);//from horizontal
 				return true;

@@ -16,6 +16,14 @@ public:
 	void Draw(HDC hdc, RECT &paint_area);
 	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
 
+	static const int Level_Height = 14;
+	static const int Level_Width = 12;
+
+	static char Current_Level[Level_Height][Level_Width];
+	static char Level_01[Level_Height][Level_Width];
+	static char Test_Level[Level_Height][Level_Width];
+	void Set_Current_Level(char level[Level_Height][Level_Width]);
+
 	AActive_Brick Active_Brick;
 
 private:
@@ -36,9 +44,6 @@ private:
 	double Current_Brick_Left_X, Current_Brick_Right_X;
 	double Current_Brick_Top_Y, Current_Brick_Low_Y;
 
-	static const int Level_Height = 14;
-	static const int Level_Width = 12;
-	static char Level_01[ALevel::Level_Height][ALevel::Level_Width];
 	static const int Cell_Width = 16;
 	static const int Cell_Height = 8;
 };
