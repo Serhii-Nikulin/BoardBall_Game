@@ -32,7 +32,6 @@ private:
 	bool Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos);
 	bool Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
-	bool Hit_Circle_On_Line(double next_x_pos, double y, double radius, double min_x, double max_x);
 
 	HPEN Brick_Blue_Pen;
 	HBRUSH Brick_Blue_Brush;

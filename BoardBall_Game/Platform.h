@@ -30,6 +30,7 @@ private:
 	void Draw_Meltdown_State(HDC hdc, RECT &paint_area);
 	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
+	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	EPlatform_State Platform_State;
 	HBRUSH Platform_Inner_Brush;

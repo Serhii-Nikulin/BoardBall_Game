@@ -33,7 +33,7 @@ char ALevel::Test_Level[Level_Height][Level_Width] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//7
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
-	0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0,//9
+	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,//9
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
@@ -219,7 +219,7 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	double direction = ball->Get_Direction();
 	int min_y, max_y, min_x, max_x;
 
-	if (next_y_pos > AsConfig::Border_Y_Offset + (Level_Height - 1) * Cell_Height + Cell_Height)
+	if (next_y_pos + ball->Radius > AsConfig::Border_Y_Offset + (Level_Height - 1) * Cell_Height + Cell_Height)
 		return false;
 
 	min_y = int(next_y_pos - ball->Radius - AsConfig::Level_Y_Offset) / Cell_Height;
@@ -281,22 +281,8 @@ bool ALevel::Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos)
 //------------------------------------------------------------------------------------------------------------
 bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball)
 {
-	double direction = ball->Get_Direction();
-	//reflection from right_brick to right
-	if (direction > M_PI_2 and direction < M_PI + M_PI_2)
-		if (Hit_Circle_On_Line(next_y_pos, next_x_pos - Current_Brick_Right_X, ball->Radius, Current_Brick_Top_Y, Current_Brick_Low_Y))
-		{
-			if (level_x < Level_Width - 1 and Current_Level[level_y][level_x + 1] == 0)
-			{
-				ball->Reflect(false);//from vertical
-				return true;
-			}
-			else
-				return false;
-		}
-
-	//reflection from left_brick to left
-	if (direction > 0 and direction < M_PI_2 or direction > M_PI + M_PI_2 and direction < 2 * M_PI)
+	if (ball->Is_Moving_Left())//reflection from left_brick to left
+	{
 		if (Hit_Circle_On_Line(next_y_pos, next_x_pos - Current_Brick_Left_X, ball->Radius, Current_Brick_Top_Y, Current_Brick_Low_Y))
 		{
 			if (level_x > 0 and Current_Level[level_y][level_x - 1] == 0)
@@ -307,6 +293,20 @@ bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int leve
 			else
 				return false;
 		}
+	}
+	else//reflection from right_brick to right
+	{
+		if (Hit_Circle_On_Line(next_y_pos, next_x_pos - Current_Brick_Right_X, ball->Radius, Current_Brick_Top_Y, Current_Brick_Low_Y))
+		{
+			if (level_x < Level_Width - 1 and Current_Level[level_y][level_x + 1] == 0)
+			{
+				ball->Reflect(false);//from vertical
+				return true;
+			}
+			else
+				return false;
+		}
+	}
 
 	return false;
 }
@@ -316,7 +316,8 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 	double direction = ball->Get_Direction();
 
 	//reflection from low_brick
-	if (direction > 0 and direction < M_PI)
+	if (ball->Is_Moving_Up())
+	{
 		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - Current_Brick_Low_Y, ball->Radius, Current_Brick_Left_X, Current_Brick_Right_X))
 		{
 			if (level_y < Level_Height - 1 and Current_Level[level_y + 1][level_x] == 0)
@@ -327,9 +328,10 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 			else
 				return false;
 		}
-
-	//reflection from top_brick
-	if (direction > M_PI and direction < M_PI * 2)
+	}
+	else
+	{
+		//reflection from top_brick
 		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - Current_Brick_Top_Y, ball->Radius, Current_Brick_Left_X, Current_Brick_Right_X))
 		{
 			if (level_y > 0 and Current_Level[level_y - 1][level_x] == 0)
@@ -340,21 +342,7 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 			else
 				return false;
 		}
-
-	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-bool ALevel::Hit_Circle_On_Line(double next_pos, double eval_pos, double radius, double min_value, double max_value)
-{
-	if (eval_pos > radius)
-		return false;
-
-	//value * value + eval_pos * eval_pos = radius * radius
-
-	double value = sqrt(radius * radius - eval_pos * eval_pos);
-	
-	if ((next_pos + value) > min_value and (next_pos - value) < max_value)
-		return true;
+	}
 
 	return false;
 }

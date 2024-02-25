@@ -15,6 +15,7 @@ AColor::AColor(unsigned char r, unsigned char g, unsigned char b)
 HPEN AsConfig::BG_Pen;
 HBRUSH AsConfig::BG_Brush;
 HWND AsConfig::Hwnd;
+double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
 bool AsConfig::Has_Floor = true;
 //------------------------------------------------------------------------------------------------------------
