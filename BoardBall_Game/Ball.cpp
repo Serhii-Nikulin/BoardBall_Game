@@ -68,7 +68,6 @@ void ABall::Move()
 	int i;
 	double next_x_pos, next_y_pos;
 	bool got_hit;
-	double step_size = 1.0 / AsConfig::Global_Scale;
 	Rest_Distance += Ball_Speed;
 	Prev_Ball_Rect = Ball_Rect;
 
@@ -79,8 +78,8 @@ void ABall::Move()
 	{
 		got_hit = false;
 
-		next_x_pos = Center_X_Pos + step_size * cos(Ball_Direction);
-		next_y_pos = Center_Y_Pos - step_size * sin(Ball_Direction);
+		next_x_pos = Center_X_Pos + AsConfig::Moving_Step_Size * cos(Ball_Direction);
+		next_y_pos = Center_Y_Pos - AsConfig::Moving_Step_Size * sin(Ball_Direction);
 
 		for (i = 0; i < Hit_Checkers_Count; ++i)
 			got_hit |= Hit_Checkers[i]->Check_Hit(next_x_pos, next_y_pos, this);
@@ -89,10 +88,10 @@ void ABall::Move()
 		{
 			Center_X_Pos = next_x_pos;
 			Center_Y_Pos = next_y_pos;
-			Rest_Distance -= step_size;
+			Rest_Distance -= AsConfig::Moving_Step_Size ;
 
 			if (Testing_Is_Active)
-				Rest_Test_Distance -= step_size;
+				Rest_Test_Distance -= AsConfig::Moving_Step_Size ;
 		}
 	}
 
@@ -115,10 +114,17 @@ void ABall::Set_For_Test()
 	Testing_Is_Active = true;
 	Rest_Test_Distance = 50;
 
-	//Set_State(EBS_Normal, 99 + Test_Iteration, 100, M_PI - M_PI_4);//low -> left
-	//Set_State(EBS_Normal, 62 + Test_Iteration, 100, M_PI_4);//low -> right
 	//Set_State(EBS_Normal, 102 + Test_Iteration, 65, M_PI + M_PI_4);//top -> left
-	Set_State(EBS_Normal, 60 + Test_Iteration, 60, -M_PI_4);//top -> right
+	//Set_State(EBS_Normal, 62 + Test_Iteration, 100, M_PI_4);//low -> right
+	//Set_State(EBS_Normal, 99 + Test_Iteration, 100, M_PI - M_PI_4);//low -> left
+	//Set_State(EBS_Normal, 60 + Test_Iteration, 60, -M_PI_4);//top -> right
+	 
+	Set_State(EBS_Normal, 60 + Test_Iteration, 160, -M_PI_4);//ball reflects from ball of platform
+	//Set_State(EBS_Normal, 85 + Test_Iteration, 160, -M_PI_2);//ball 
+	//Set_State(EBS_Normal, 80, 197 - Test_Iteration, 0);//ball reflects from ball of platform
+	//Set_State(EBS_Normal, 80 + Test_Iteration, 197, M_PI_4);//ball reflects from ball of platform
+
+
 	++Test_Iteration;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -141,7 +147,7 @@ void ABall::Set_State(EBall_State new_state, int x_pos, int y_pos, double direct
 	case EBS_Normal:
 		Center_X_Pos = x_pos;
 		Center_Y_Pos = y_pos;
-		Ball_Speed = AsConfig::Global_Scale * 2;
+		Ball_Speed = AsConfig::Global_Scale;
 		Ball_Direction = direction;
 		Rest_Distance = 0.0;
 		break;

@@ -14,17 +14,19 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	double inner_left_x;
 	double inner_right_x;
 
-	ball->Ball_Speed = AsConfig::Global_Scale * 2;
-
-
-	if (next_y_pos + ball->Radius < AsConfig::Platform_Y_Pos)
+	if (next_y_pos < AsConfig::Platform_Y_Pos)
 		return false;
 
-	ball->Ball_Speed = 0.5;
+	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball))//from left
+		return true;
+
+	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball, +(Width - Circle_Size)))//from right
+		return true;
+
 	inner_top_y = AsConfig::Platform_Y_Pos + 1;
 	inner_low_y = AsConfig::Platform_Y_Pos + Inner_Height + 1;
 	inner_left_x = double(X_Pos + Circle_Size - 1 + ball->Radius);
-	inner_right_x = double(X_Pos + Width - 1 - (Circle_Size - 1) - ball->Radius);
+	inner_right_x = double(X_Pos + Width - Circle_Size - ball->Radius);
 
 	if (ball->Is_Moving_Up())
 	{
@@ -41,6 +43,51 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			ball->Reflect(true);//from platform horizontal
 			return true;
 		}
+	}
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset)
+{
+	double angle_to_normal;
+	double reflect_angle;
+	double full_reflect_angle;
+
+	double circle_radius = Circle_Size / 2;
+	double platform_ball_x, platform_ball_y;
+	double dx, dy;
+	double direction;
+
+	double ball_left_x = next_x_pos - ball->Radius;
+	double ball_right_x = next_x_pos + ball->Radius;
+	double ball_top_y = next_y_pos - ball->Radius;
+	double ball_low_y = next_y_pos + ball->Radius;
+
+	platform_ball_x = X_Pos + x_offset + circle_radius;
+	platform_ball_y = AsConfig::Platform_Y_Pos + circle_radius;
+	dx = next_x_pos - platform_ball_x;
+	dy = platform_ball_y - next_y_pos;
+
+	if ((ball_right_x > X_Pos + x_offset and ball_left_x < X_Pos + Circle_Size - 1 + x_offset) 
+		and 
+		(ball_low_y > AsConfig::Platform_Y_Pos and ball_top_y < AsConfig::Platform_Y_Pos + Circle_Size - 1) )
+	{
+		angle_to_normal = atan2(dy, dx);
+
+		if (fabs(ball->prev_angle_to_normal - angle_to_normal) <= 1E-5)
+		{
+			direction = ball->Get_Direction() + M_PI;
+		}
+		else
+		{
+			reflect_angle = angle_to_normal + M_PI - ball->Get_Direction();
+			full_reflect_angle = angle_to_normal + reflect_angle;
+			direction = full_reflect_angle;
+			//ball->Set_Direction(full_reflect_angle);
+		}
+		ball->Set_State(EBS_Normal, next_x_pos + AsConfig::Global_Scale * cos(direction), next_y_pos - AsConfig::Global_Scale * sin(direction), direction);
+		ball->prev_angle_to_normal = angle_to_normal;
+		return true;
 	}
 	return false;
 }
