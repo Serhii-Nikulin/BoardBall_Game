@@ -2,46 +2,48 @@
 #include "Level.h"
 
 //------------------------------------------------------------------------------------------------------------
+int ALevel::Active_Bricks_Count = 0;
+//------------------------------------------------------------------------------------------------------------
 char ALevel::Current_Level[Level_Height][Level_Width];
 //------------------------------------------------------------------------------------------------------------
 char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
-//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
 char ALevel::Test_Level[Level_Height][Level_Width] = {
-//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//1
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//2
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//3
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//4
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//5
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//7
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,//9
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//1
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//2
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//3
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//4
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//5
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//7
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
+		0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
 };
 //------------------------------------------------------------------------------------------------------------
 ALevel::ALevel()
-	: Brick_Blue_Pen(0), Brick_Blue_Brush(0), Brick_Red_Pen(0), Brick_Red_Brush(0), Letter_Pen(0), Level_Rect{}, Active_Brick(EBT_Blue), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0)
+	: Brick_Blue_Pen(0), Brick_Blue_Brush(0), Brick_Red_Pen(0), Brick_Red_Brush(0), Letter_Pen(0), Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{}
 {}
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Init()
@@ -69,14 +71,18 @@ void ALevel::Draw(HDC hdc, RECT& paint_area)
 	int i, j;
 	RECT intersection_rect;
 
-	if (!IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
-		return;
+	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
+	{
+		for (i = 0; i < Level_Height; ++i)
+			for (j = 0; j < Level_Width; ++j)
+				Draw_Brick(hdc, AsConfig::Level_X_Offset + j * Cell_Width, AsConfig::Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Current_Level[i][j]));
+	}
 
-	for (i = 0; i < Level_Height; ++i)
-		for (j = 0; j < Level_Width; ++j)
-			Draw_Brick(hdc, AsConfig::Level_X_Offset + j * Cell_Width, AsConfig::Level_Y_Offset + Cell_Height * i, static_cast<EBrick_Type>(Current_Level[i][j]));
-
-	Active_Brick.Draw(hdc);
+	for (i = 0; i < Max_Active_Bricks_Count; i++)
+	{
+		if (Active_Bricks[i] and IntersectRect(&intersection_rect, &paint_area, &Active_Bricks[i]->Brick_Rect))
+			Active_Bricks[i]->Draw(hdc);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
@@ -237,23 +243,35 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 
 			Current_Brick_Top_Y = AsConfig::Level_Y_Offset + i * ALevel::Cell_Height;
 			Current_Brick_Low_Y = Current_Brick_Top_Y + AsConfig::Brick_Height;
-			
+
 			Current_Brick_Left_X = AsConfig::Level_X_Offset + j * ALevel::Cell_Width;
 			Current_Brick_Right_X = Current_Brick_Left_X + AsConfig::Brick_Width;
 
 			if (Is_Horizontal_Hit_First(next_x_pos, next_y_pos))
 			{
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
+				{
+					Add_Active_Brick(j, i);
 					return true;
+				}
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
+				{
+					Add_Active_Brick(j, i);
 					return true;
+				}
 			}
 			else
 			{
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
+				{
+					Add_Active_Brick(j, i);
 					return true;
+				}
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
+				{
+					Add_Active_Brick(j, i);
 					return true;
+				}
 			}
 		}
 	}
@@ -279,7 +297,7 @@ bool ALevel::Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos)
 		return false;
 }
 //------------------------------------------------------------------------------------------------------------
-bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball)
+bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall* ball)
 {
 	if (ball->Is_Moving_Left())//reflection from left_brick to left
 	{
@@ -311,7 +329,7 @@ bool ALevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int leve
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball)
+bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall* ball)
 {
 	double direction = ball->Get_Direction();
 
@@ -345,5 +363,25 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 	}
 
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Add_Active_Brick(int level_x, int level_y)
+{
+	AActive_Brick* active_brick;
+	EBrick_Type brick_type = EBrick_Type(Level_01[level_y][level_x]);
+	active_brick = new AActive_Brick(brick_type, level_x, level_y);
+
+	Active_Bricks[Active_Bricks_Count++] = active_brick;
+	Active_Bricks_Count %= 10;
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Act()
+{
+	int i;
+	for (i = 0; i < Max_Active_Bricks_Count; i++)
+	{
+		if (Active_Bricks[i])
+			Active_Bricks[i]->Act();
+	}
 }
 //------------------------------------------------------------------------------------------------------------

@@ -5,9 +5,14 @@ HBRUSH AActive_Brick::Fading_Red_Brick_Brushes[Max_Fade_Step];
 HPEN AActive_Brick::Fading_Blue_Brick_Pens[Max_Fade_Step];
 HBRUSH AActive_Brick::Fading_Blue_Brick_Brushes[Max_Fade_Step];
 //------------------------------------------------------------------------------------------------------------
-AActive_Brick::AActive_Brick(EBrick_Type brick_type):
+AActive_Brick::AActive_Brick(EBrick_Type brick_type, int level_x, int level_y):
 	Brick_Type(brick_type), Brick_Rect{}, Fade_Step(0)
-{}
+{
+	Brick_Rect.left = (AsConfig::Level_X_Offset + 16 * level_x) * AsConfig::Global_Scale;
+	Brick_Rect.top = (AsConfig::Level_Y_Offset + 8 * level_y) * AsConfig::Global_Scale;
+	Brick_Rect.right = Brick_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+	Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+}
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick::Act()
 {
@@ -38,10 +43,10 @@ void AActive_Brick::Draw(HDC hdc)
 		SelectObject(hdc, pen);
 		SelectObject(hdc, brush); 
 
-		Brick_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
+		/*Brick_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
 		Brick_Rect.top = AsConfig::Level_Y_Offset * AsConfig::Global_Scale;
 		Brick_Rect.right = Brick_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
-		Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+		Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;*/
 
 		RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 	}
