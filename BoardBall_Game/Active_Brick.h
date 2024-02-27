@@ -11,6 +11,7 @@ public:
 	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
 	void Act();
 	void Draw(HDC hdc);
+	bool Is_Finished();
 	static void Setup_Colors();
 	RECT Brick_Rect;
 

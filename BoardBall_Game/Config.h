@@ -34,6 +34,7 @@ public:
 	static const int Border_Y_Offset = 4;//Min_Y
 	static const int Max_X_Pos = 200;
 	static const int Max_Y_Pos = 199;
+
 	static bool Has_Floor;
 	static double Moving_Step_Size;
 
@@ -41,6 +42,8 @@ public:
 	static const int Level_Y_Offset = 6;
 	static const int Brick_Width = 15;
 	static const int Brick_Height = 7;
+	static const int Cell_Width = 16;
+	static const int Cell_Height = 8;
 
 	static const int Platform_Y_Pos = 185;
 

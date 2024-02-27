@@ -44,9 +44,6 @@ private:
 	double Current_Brick_Left_X, Current_Brick_Right_X;
 	double Current_Brick_Top_Y, Current_Brick_Low_Y;
 
-	static const int Cell_Width = 16;
-	static const int Cell_Height = 8;
-
 	static const int Max_Active_Bricks_Count = 10;
 	AActive_Brick *Active_Bricks[Max_Active_Bricks_Count];
 	static int Active_Bricks_Count;
