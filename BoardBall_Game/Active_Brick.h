@@ -8,17 +8,18 @@ enum EBrick_Type {
 class AActive_Brick
 {
 public:
-	AActive_Brick(EBrick_Type brick_type);
+	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
 	void Act();
 	void Draw(HDC hdc);
+	bool Is_Finished();
 	static void Setup_Colors();
+	RECT Brick_Rect;
 
 private:
 	static unsigned char Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step);
 	static void Get_Fading_Color(const AColor &color, int step, HPEN &pen, HBRUSH &brush);
 
 	EBrick_Type Brick_Type;
-	RECT Brick_Rect;
 	int Fade_Step;
 
 	static const int Max_Fade_Step = 80;

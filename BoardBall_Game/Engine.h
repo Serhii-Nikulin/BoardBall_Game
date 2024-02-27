@@ -25,8 +25,6 @@ public:
 	int On_Key_Down(EKey_Type key_type);
 	int On_Timer();
 
-	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
-
 private:
 	EGame_State Game_State;
 	ABall Ball;

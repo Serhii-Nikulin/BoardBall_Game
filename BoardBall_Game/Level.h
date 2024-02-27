@@ -23,6 +23,7 @@ public:
 	static char Level_01[Level_Height][Level_Width];
 	static char Test_Level[Level_Height][Level_Width];
 	void Set_Current_Level(char level[Level_Height][Level_Width]);
+	void Act();
 
 	AActive_Brick Active_Brick;
 
@@ -32,7 +33,7 @@ private:
 	bool Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos);
 	bool Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
-
+	void Add_Active_Brick(int level_x, int level_y);
 	HPEN Brick_Blue_Pen;
 	HBRUSH Brick_Blue_Brush;
 	HPEN Brick_Red_Pen;
@@ -43,7 +44,8 @@ private:
 	double Current_Brick_Left_X, Current_Brick_Right_X;
 	double Current_Brick_Top_Y, Current_Brick_Low_Y;
 
-	static const int Cell_Width = 16;
-	static const int Cell_Height = 8;
+	static const int Max_Active_Bricks_Count = 10;
+	AActive_Brick *Active_Bricks[Max_Active_Bricks_Count];
+	static int Active_Bricks_Count;
 };
 //------------------------------------------------------------------------------------------------------------
