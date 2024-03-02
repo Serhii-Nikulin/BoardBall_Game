@@ -1,118 +1,11 @@
 #include <Windows.h>
 #include "Level.h"
 
-//------------------------------------------------------------------------------------------------------------
-int ALevel::Active_Bricks_Count = 0;
-//------------------------------------------------------------------------------------------------------------
-char ALevel::Current_Level[Level_Height][Level_Width];
-//------------------------------------------------------------------------------------------------------------
-char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
-	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
-};
-//------------------------------------------------------------------------------------------------------------
-char ALevel::Test_Level[Level_Height][Level_Width] = {
-	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//1
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//2
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//3
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//4
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//5
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//7
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
-		0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,//9
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
-};
-//------------------------------------------------------------------------------------------------------------
-ALevel::ALevel()
-	: Brick_Blue_Pen(0), Brick_Blue_Brush(0), Brick_Red_Pen(0), Brick_Red_Brush(0), Letter_Pen(0), Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{}
+AFalling_Letter::AFalling_Letter(ELetter_Type letter_type)
+	:Letter_Type(letter_type)
 {}
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Init()
-{
-	Letter_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
-
-	AsConfig::Create_Pen_Brush(AsConfig::Blue_Brick_Color, Brick_Blue_Pen, Brick_Blue_Brush);
-	AsConfig::Create_Pen_Brush(AsConfig::Red_Brick_Color, Brick_Red_Pen, Brick_Red_Brush);
-
-	Level_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
-	Level_Rect.top = AsConfig::Level_Y_Offset * AsConfig::Global_Scale;
-	Level_Rect.right = Level_Rect.left + AsConfig::Cell_Width * Level_Width * AsConfig::Global_Scale;
-	Level_Rect.bottom = Level_Rect.top + AsConfig::Cell_Height * Level_Height * AsConfig::Global_Scale;
-
-	memset(Current_Level, 0, sizeof(Current_Level));
-	memset(Active_Bricks, 0, sizeof(Active_Bricks));
-}
-//------------------------------------------------------------------------------------------------------------
-void ALevel::Set_Current_Level(char level[Level_Height][Level_Width])
-{
-	memcpy(Current_Level, level, sizeof(Current_Level));
-}
-//------------------------------------------------------------------------------------------------------------
-void ALevel::Draw(HDC hdc, RECT& paint_area)
-{
-	int i, j;
-	RECT intersection_rect;
-
-	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
-	{
-		for (i = 0; i < Level_Height; ++i)
-			for (j = 0; j < Level_Width; ++j)
-				Draw_Brick(hdc, AsConfig::Level_X_Offset + j * AsConfig::Cell_Width, AsConfig::Level_Y_Offset + AsConfig::Cell_Height * i, static_cast<EBrick_Type>(Current_Level[i][j]));
-	}
-
-	for (i = 0; i < Max_Active_Bricks_Count; i++)
-	{
-		if (Active_Bricks[i] and IntersectRect(&intersection_rect, &paint_area, &Active_Bricks[i]->Brick_Rect))
-			Active_Bricks[i]->Draw(hdc);
-	}
-}
-//------------------------------------------------------------------------------------------------------------
-void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
-{
-	HPEN pen;
-	HBRUSH brush;
-
-	switch (brick_type)
-	{
-	case EBT_Blue:
-		pen = Brick_Blue_Pen;
-		brush = Brick_Blue_Brush;
-		break;
-
-	case EBT_Red:
-		pen = Brick_Red_Pen;
-		brush = Brick_Red_Brush;
-		break;
-
-	default:
-		return;
-	}
-
-	SelectObject(hdc, pen);
-	SelectObject(hdc, brush);
-	RoundRect(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + AsConfig::Brick_Width) * AsConfig::Global_Scale, (y + AsConfig::Brick_Height) * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
-}
-//------------------------------------------------------------------------------------------------------------
-void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step)
+void AFalling_Letter::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step)
 {
 	bool switch_color;
 	double offset;
@@ -189,7 +82,7 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 		{
 			if (letter_type == ELT_O)
 			{
-				SelectObject(hdc, Letter_Pen);
+				SelectObject(hdc, AsConfig::Letter_Pen);
 				Ellipse(hdc,
 					(AsConfig::Brick_Width - (AsConfig::Brick_Height - 2)) * AsConfig::Global_Scale / 2,
 					-(AsConfig::Brick_Height - 2) * AsConfig::Global_Scale / 2,
@@ -202,22 +95,133 @@ void ALevel::Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, EL
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN& front_pen, HBRUSH& front_brush, HPEN& back_pen, HBRUSH& back_brush)
+void AFalling_Letter::Set_Brick_Letter_Colors(bool is_switch_color, HPEN& front_pen, HBRUSH& front_brush, HPEN& back_pen, HBRUSH& back_brush)
 {
 	if (is_switch_color)
 	{
-		front_pen = Brick_Red_Pen;
-		front_brush = Brick_Red_Brush;
-		back_pen = Brick_Blue_Pen;
-		back_brush = Brick_Blue_Brush;
+		front_pen = AsConfig::Brick_Red_Pen;
+		front_brush = AsConfig::Brick_Red_Brush;
+		back_pen = AsConfig::Brick_Blue_Pen;
+		back_brush = AsConfig::Brick_Blue_Brush;
 	}
 	else
 	{
-		front_pen = Brick_Blue_Pen;
-		front_brush = Brick_Blue_Brush;
-		back_pen = Brick_Red_Pen;
-		back_brush = Brick_Red_Brush;
+		front_pen = AsConfig::Brick_Blue_Pen;
+		front_brush = AsConfig::Brick_Blue_Brush;
+		back_pen = AsConfig::Brick_Red_Pen;
+		back_brush = AsConfig::Brick_Red_Brush;
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+int ALevel::Active_Bricks_Count = 0;
+//------------------------------------------------------------------------------------------------------------
+char ALevel::Current_Level[Level_Height][Level_Width];
+//------------------------------------------------------------------------------------------------------------
+char ALevel::Level_01[ALevel::Level_Height][ALevel::Level_Width] = {
+	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+};
+//------------------------------------------------------------------------------------------------------------
+char ALevel::Test_Level[Level_Height][Level_Width] = {
+	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//1
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//2
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//3
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//4
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//5
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//7
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
+		0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//13
+};
+//------------------------------------------------------------------------------------------------------------
+ALevel::ALevel()
+	: Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{}
+{}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Init()
+{
+	Level_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
+	Level_Rect.top = AsConfig::Level_Y_Offset * AsConfig::Global_Scale;
+	Level_Rect.right = Level_Rect.left + AsConfig::Cell_Width * Level_Width * AsConfig::Global_Scale;
+	Level_Rect.bottom = Level_Rect.top + AsConfig::Cell_Height * Level_Height * AsConfig::Global_Scale;
+
+	memset(Current_Level, 0, sizeof(Current_Level));
+	memset(Active_Bricks, 0, sizeof(Active_Bricks));
+	memset(Falling_Letters, 0, sizeof(Falling_Letters));
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Set_Current_Level(char level[Level_Height][Level_Width])
+{
+	memcpy(Current_Level, level, sizeof(Current_Level));
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Draw(HDC hdc, RECT& paint_area)
+{
+	int i, j;
+	RECT intersection_rect;
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
+	{
+		for (i = 0; i < Level_Height; ++i)
+			for (j = 0; j < Level_Width; ++j)
+				Draw_Brick(hdc, AsConfig::Level_X_Offset + j * AsConfig::Cell_Width, AsConfig::Level_Y_Offset + AsConfig::Cell_Height * i, static_cast<EBrick_Type>(Current_Level[i][j]));
+	}
+
+	for (i = 0; i < Max_Active_Bricks_Count; i++)
+	{
+		if (Active_Bricks[i] and IntersectRect(&intersection_rect, &paint_area, &Active_Bricks[i]->Brick_Rect))
+			Active_Bricks[i]->Draw(hdc);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
+{
+	HPEN pen;
+	HBRUSH brush;
+
+	switch (brick_type)
+	{
+	case EBT_Blue:
+		pen = AsConfig::Brick_Blue_Pen;
+		brush = AsConfig::Brick_Blue_Brush;
+		break;
+
+	case EBT_Red:
+		pen = AsConfig::Brick_Red_Pen;
+		brush = AsConfig::Brick_Red_Brush;
+		break;
+
+	default:
+		return;
+	}
+
+	SelectObject(hdc, pen);
+	SelectObject(hdc, brush);
+	RoundRect(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + AsConfig::Brick_Width) * AsConfig::Global_Scale, (y + AsConfig::Brick_Height) * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -252,12 +256,12 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			{
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					Add_Active_Brick(j, i);
+					On_Hit(j, i);
 					return true;
 				}
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					Add_Active_Brick(j, i);
+					On_Hit(j, i);
 					return true;
 				}
 			}
@@ -265,12 +269,12 @@ bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			{
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					Add_Active_Brick(j, i);
+					On_Hit(j, i);
 					return true;
 				}
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					Add_Active_Brick(j, i);
+					On_Hit(j, i);
 					return true;
 				}
 			}
@@ -366,34 +370,6 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Add_Active_Brick(int level_x, int level_y)
-{
-	int i;
-	AActive_Brick* active_brick;
-	EBrick_Type brick_type = EBrick_Type(Current_Level[level_y][level_x]);
-
-	switch (brick_type)
-	{
-	case EBT_Blue:
-	case EBT_Red:
-		active_brick = new AActive_Brick(brick_type, level_x, level_y);
-		break;
-
-	default:
-		return;
-	}
-	
-	for (i = 0; i < Max_Active_Bricks_Count; i++)
-	{
-		if (Active_Bricks[i] == 0)
-		{
-			Active_Bricks[i] = active_brick;
-			++Active_Bricks_Count;
-			break;
-		}
-	}
-}
-//------------------------------------------------------------------------------------------------------------
 void ALevel::Act()
 {
 	int i;
@@ -405,8 +381,75 @@ void ALevel::Act()
 			if (Active_Bricks[i]->Is_Finished())
 			{
 				delete Active_Bricks[i];
+				--Active_Bricks_Count;
 				Active_Bricks[i] = NULL;
 			}
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::On_Hit(int level_x, int level_y)
+{
+	EBrick_Type brick_type = (EBrick_Type)Current_Level[level_y][level_x];
+
+	if (!Add_Falling_Letter(level_x, level_y, brick_type))
+		Add_Active_Brick(level_x, level_y, brick_type);
+}
+//------------------------------------------------------------------------------------------------------------
+bool ALevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type)
+{
+	int i;
+	ELetter_Type letter_type;
+	AFalling_Letter *falling_letter;
+
+	if (brick_type == EBT_Blue or brick_type == EBT_Red)
+	{
+		if (AsConfig::Rand(AsConfig::Hits_Per_Letter) == 0)
+		{
+			if (Falling_Letters_Count < AsConfig::Max_Falling_Letters_Count)
+			{
+				letter_type = ELT_O;
+				for (i = 0; i < AsConfig::Max_Falling_Letters_Count; i++)
+				{
+					if (Falling_Letters[i] == 0)
+					{
+						falling_letter = new AFalling_Letter(letter_type);
+						Falling_Letters[i] = falling_letter;
+						++Falling_Letters_Count;
+						break;
+					}
+				}
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
+{
+	int i;
+	AActive_Brick* active_brick;
+
+	switch (brick_type)
+	{
+	case EBT_Blue:
+	case EBT_Red:
+		active_brick = new AActive_Brick(brick_type, level_x, level_y);
+		break;
+
+	default:
+		return;
+	}
+
+	for (i = 0; i < Max_Active_Bricks_Count; i++)
+	{
+		if (Active_Bricks[i] == 0)
+		{
+			Active_Bricks[i] = active_brick;
+			++Active_Bricks_Count;
+			break;
 		}
 	}
 }

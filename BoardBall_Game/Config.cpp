@@ -15,12 +15,22 @@ AColor::AColor(unsigned char r, unsigned char g, unsigned char b)
 HPEN AsConfig::BG_Pen;
 HBRUSH AsConfig::BG_Brush;
 HWND AsConfig::Hwnd;
+
+HPEN AsConfig::Letter_Pen;
+HPEN AsConfig::Brick_Red_Pen, AsConfig::Brick_Blue_Pen;
+HBRUSH AsConfig::Brick_Red_Brush, AsConfig::Brick_Blue_Brush;
+
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
 bool AsConfig::Has_Floor = true;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Setup_Colors()
 {
+	AsConfig::Letter_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
+
+	AsConfig::Create_Pen_Brush(AsConfig::Blue_Brick_Color, AsConfig::Brick_Blue_Pen, AsConfig::Brick_Blue_Brush);
+	AsConfig::Create_Pen_Brush(AsConfig::Red_Brick_Color, AsConfig::Brick_Red_Pen, AsConfig::Brick_Red_Brush);
+
 	Create_Pen_Brush(AsConfig::BG_Color, AsConfig::BG_Pen, AsConfig::BG_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
