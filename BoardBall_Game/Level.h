@@ -8,13 +8,22 @@ enum ELetter_Type {
 //------------------------------------------------------------------------------------------------------------
 class AFalling_Letter
 {
-	void Draw_Brick_Letter(HDC hdc, int x, int y, EBrick_Type brick_type, ELetter_Type letter_type, int rotation_step);
+	void Draw_Brick_Letter(HDC hdc);
 	void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush);
 
-public:
+	const EBrick_Type Brick_Type;
 	const ELetter_Type Letter_Type;
-	AFalling_Letter(ELetter_Type letter_type);
+	int Rotation_Step;
+	int X, Y;
 
+
+public:
+	AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y);
+	RECT Letter_Cell, Prev_Letter_Cell;
+
+	void Act();
+	void Draw(HDC hdc);
+	bool Is_Finished();
 };
 //------------------------------------------------------------------------------------------------------------
 class ALevel: public AHit_Checker
