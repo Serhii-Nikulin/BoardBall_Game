@@ -199,14 +199,14 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	//draw side parts
 	SelectObject(hdc, Platform_Circle_Pen);
 	SelectObject(hdc, Platform_Circle_Brush);
-	Ellipse(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Circle_Size) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
+	Ellipse(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Circle_Size) * AsConfig::Global_Scale - 1, (y + Circle_Size) * AsConfig::Global_Scale - 1);
 	//Ellipse(hdc, (x + Width - Circle_Size) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Width) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
-	Ellipse(hdc, (x + Inner_Width + 1) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Inner_Width + Circle_Size + 1) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
+	Ellipse(hdc, (x + Inner_Width + 1) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Inner_Width + Circle_Size + 1) * AsConfig::Global_Scale - 1, (y + Circle_Size) * AsConfig::Global_Scale - 1);
 
 	//draw inner part
 	SelectObject(hdc, Platform_Inner_Pen);
 	SelectObject(hdc, Platform_Inner_Brush);
-	RoundRect(hdc, (x + 4) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 4 + Inner_Width) * AsConfig::Global_Scale, (y + 1 + Inner_Height) * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale);
+	RoundRect(hdc, (x + 4) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 4 + Inner_Width) * AsConfig::Global_Scale - 1, (y + 1 + Inner_Height) * AsConfig::Global_Scale - 1, Inner_Height * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale);
 
 	//draw highlight
 	Draw_Circle_Highlight(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale);
@@ -297,9 +297,8 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 
 	SelectObject(hdc, Platform_Circle_Pen);
 	SelectObject(hdc, Platform_Circle_Brush);
-	Ellipse(hdc, x, y, x + roller_size, y + roller_size);
+	Ellipse(hdc, x, y, x + roller_size - 1, y + roller_size);
 
-	SetGraphicsMode(hdc, GM_ADVANCED);
 	GetWorldTransform(hdc, &prev_xform);
 
 	Rolling_Step %= Max_Rolling_Step;
@@ -314,7 +313,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	SetWorldTransform(hdc, &xform);
 	SelectObject(hdc, AsConfig::BG_Pen);
 	SelectObject(hdc, AsConfig::BG_Brush);
-	Rectangle(hdc, -1, -roller_size / 2, 1, roller_size / 2);
+	Rectangle(hdc, -1, -roller_size / 2, 1 - 1, roller_size / 2 - 1);
 	SetWorldTransform(hdc, &prev_xform);
 
 	Draw_Circle_Highlight(hdc, x, y);

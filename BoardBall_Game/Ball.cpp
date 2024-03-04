@@ -52,7 +52,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	{
 		SelectObject(hdc, AsConfig::BG_Pen);
 		SelectObject(hdc, AsConfig::BG_Brush);
-		Ellipse(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
+		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
 	}
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
@@ -102,8 +102,8 @@ void ABall::Redraw_Ball()
 {
 	Ball_Rect.left = (int)(Center_X_Pos - Radius) * AsConfig::Global_Scale;
 	Ball_Rect.top = (int)(Center_Y_Pos - Radius) * AsConfig::Global_Scale;
-	Ball_Rect.right = (int)(Center_X_Pos + Radius) * AsConfig::Global_Scale;
-	Ball_Rect.bottom = (int)(Center_Y_Pos + Radius) * AsConfig::Global_Scale;
+	Ball_Rect.right = (int)(Center_X_Pos + Radius) * AsConfig::Global_Scale - 1;
+	Ball_Rect.bottom = (int)(Center_Y_Pos + Radius) * AsConfig::Global_Scale - 1;
 
 	InvalidateRect(AsConfig::Hwnd, &Prev_Ball_Rect, FALSE);
 	InvalidateRect(AsConfig::Hwnd, &Ball_Rect, FALSE);
