@@ -22,7 +22,7 @@ HBRUSH AsConfig::Brick_Red_Brush, AsConfig::Brick_Blue_Brush;
 
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
-bool AsConfig::Has_Floor = true;
+bool AsConfig::Has_Floor = false;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Setup_Colors()
 {

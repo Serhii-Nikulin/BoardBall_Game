@@ -20,8 +20,9 @@ void AActive_Brick::Act()
 		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
-void AActive_Brick::Draw(HDC hdc)
+void AActive_Brick::Draw(HDC hdc, RECT& paint_area)
 {
+	RECT intersection_rect;
 	HPEN pen = 0;
 	HBRUSH brush = 0;
 
@@ -40,10 +41,13 @@ void AActive_Brick::Draw(HDC hdc)
 
 	if (pen and brush)
 	{
-		SelectObject(hdc, pen);
-		SelectObject(hdc, brush); 
+		if (IntersectRect(&intersection_rect, &paint_area, &Brick_Rect))
+		{
+			SelectObject(hdc, pen);
+			SelectObject(hdc, brush); 
 
-		RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+			RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+		}
 	}
 }
 //------------------------------------------------------------------------------------------------------------

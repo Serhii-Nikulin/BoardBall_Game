@@ -22,7 +22,7 @@ public:
 	RECT Letter_Cell, Prev_Letter_Cell;
 
 	void Act();
-	void Draw(HDC hdc);
+	void Draw(HDC hdc, RECT& paint_area);
 	bool Is_Finished();
 };
 //------------------------------------------------------------------------------------------------------------

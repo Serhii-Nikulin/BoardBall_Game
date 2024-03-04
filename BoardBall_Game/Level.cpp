@@ -3,11 +3,11 @@
 
 //------------------------------------------------------------------------------------------------------------
 AFalling_Letter::AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y)
-	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(0)
+	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(2)
 {
 	Letter_Cell.left = X;
 	Letter_Cell.top = Y;
-	Letter_Cell.right = X + AsConfig::Cell_Width * AsConfig::Global_Scale;
+	Letter_Cell.right = X + AsConfig::Brick_Width * AsConfig::Global_Scale;
 	Letter_Cell.bottom = Y + AsConfig::Brick_Height * AsConfig::Global_Scale;
 	Prev_Letter_Cell = Letter_Cell;
 }
@@ -63,7 +63,6 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 	}
 	else
 	{
-		SetGraphicsMode(hdc, GM_ADVANCED);
 		GetWorldTransform(hdc, &prev_xform);
 
 		xform.eM11 = (FLOAT)1; xform.eM12 = (FLOAT)0;
@@ -134,20 +133,27 @@ void AFalling_Letter::Act()
 	InvalidateRect(AsConfig::Hwnd, &Letter_Cell, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
-void AFalling_Letter::Draw(HDC hdc)
+void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
 {
 	RECT intersection_rect;
 
-	SelectObject(hdc, AsConfig::BG_Pen);
-	SelectObject(hdc, AsConfig::BG_Brush);
-	Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
-	
-	Draw_Brick_Letter(hdc);
+	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Letter_Cell))
+	{
+		SelectObject(hdc, AsConfig::BG_Pen);
+		SelectObject(hdc, AsConfig::BG_Brush);
+		Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
+	}
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Letter_Cell))
+		Draw_Brick_Letter(hdc);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AFalling_Letter::Is_Finished()
 {
-	return true;
+	if (Letter_Cell.top > AsConfig::Max_Y_Pos * AsConfig::Global_Scale)
+		return true;
+	else
+		return false;
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -230,17 +236,14 @@ void ALevel::Draw(HDC hdc, RECT& paint_area)
 
 	for (i = 0; i < Max_Active_Bricks_Count; i++)
 	{
-		if (Active_Bricks[i] and IntersectRect(&intersection_rect, &paint_area, &Active_Bricks[i]->Brick_Rect))
-			Active_Bricks[i]->Draw(hdc);
+		if (Active_Bricks[i])
+			Active_Bricks[i]->Draw(hdc, paint_area);
 	}
 
 	for (i = 0; i < AsConfig::Max_Falling_Letters_Count; i++)
 	{
-		if (Falling_Letters[i] and 
-			(IntersectRect(&intersection_rect, &paint_area, &Falling_Letters[i]->Letter_Cell) 
-			or 
-			IntersectRect(&intersection_rect, &paint_area, &Falling_Letters[i]->Prev_Letter_Cell)))
-			Falling_Letters[i]->Draw(hdc);
+		if (Falling_Letters[i])
+			Falling_Letters[i]->Draw(hdc, paint_area);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -267,7 +270,7 @@ void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 
 	SelectObject(hdc, pen);
 	SelectObject(hdc, brush);
-	RoundRect(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + AsConfig::Brick_Width) * AsConfig::Global_Scale, (y + AsConfig::Brick_Height) * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+	RoundRect(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + AsConfig::Brick_Width) * AsConfig::Global_Scale - 1, (y + AsConfig::Brick_Height) * AsConfig::Global_Scale - 1 , 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -439,7 +442,7 @@ void ALevel::Act()
 		if (Falling_Letters[i])
 		{
 			Falling_Letters[i]->Act();
-			if (!Falling_Letters[i]->Is_Finished())
+			if (Falling_Letters[i]->Is_Finished())
 			{
 				delete Falling_Letters[i];
 				--Falling_Letters_Count;
@@ -455,6 +458,8 @@ void ALevel::On_Hit(int level_x, int level_y)
 
 	if (!Add_Falling_Letter(level_x, level_y, brick_type))
 		Add_Active_Brick(level_x, level_y, brick_type);
+
+	Current_Level[level_y][level_x] = EBT_None;
 }
 //------------------------------------------------------------------------------------------------------------
 bool ALevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type)
