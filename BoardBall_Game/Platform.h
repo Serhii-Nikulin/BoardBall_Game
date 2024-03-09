@@ -28,15 +28,22 @@ private:
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Draw_Meltdown_State(HDC hdc, RECT &paint_area);
+	bool Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, HPEN &pen_color);
 	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	EPlatform_State Platform_State;
+
+	AColor Platform_Inner_Pen_Color;
 	HBRUSH Platform_Inner_Brush;
 	HPEN Platform_Inner_Pen;
+
+	AColor Platform_Circle_Pen_Color;
 	HPEN Platform_Circle_Pen;
 	HBRUSH Platform_Circle_Brush;
+
+	AColor Highlight_Pen_Color;
 	HPEN Highlight_Pen;
 	RECT Prev_Platform_Rect, Platform_Rect;
 
@@ -54,5 +61,9 @@ private:
 
 	static const int Normal_Width = 28 * AsConfig::Global_Scale;
 	static int Meltdown_Platform_Y_Pos[Normal_Width];
+
+	int Normal_Platform_Image_Width;
+	int Normal_Platform_Image_Height;
+	int* Normal_Platform_Image;
 };
 //------------------------------------------------------------------------------------------------------------

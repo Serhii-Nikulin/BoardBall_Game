@@ -4,7 +4,9 @@ int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
 	Platform_State(EPS_Roll_In), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
-	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{}
+	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{},
+	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale), Normal_Platform_Image(0),
+	Platform_Inner_Pen_Color(237, 38, 36), Platform_Circle_Pen_Color(63, 72, 204), Highlight_Pen_Color(255, 255, 255)
 {}
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -94,10 +96,10 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Init()
 {
-	Highlight_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
+	Highlight_Pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 
-	AsConfig::Create_Pen_Brush(63, 72, 204, Platform_Circle_Pen, Platform_Circle_Brush);
-	AsConfig::Create_Pen_Brush(237, 38, 36, Platform_Inner_Pen, Platform_Inner_Brush);
+	AsConfig::Create_Pen_Brush(Platform_Circle_Pen_Color, Platform_Circle_Pen, Platform_Circle_Brush);
+	AsConfig::Create_Pen_Brush(Platform_Inner_Pen_Color, Platform_Inner_Pen, Platform_Inner_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act()
@@ -130,7 +132,7 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 	case EPS_Meltdown:
 		len = sizeof(Meltdown_Platform_Y_Pos) / sizeof(int);
 		for (i = 0; i < len; i++)
-			Meltdown_Platform_Y_Pos[i] = Platform_Rect.bottom;
+			Meltdown_Platform_Y_Pos[i] = Platform_Rect.top;
 		break;
 	}
 
@@ -188,9 +190,10 @@ void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 {
+	int i, j;
 	int x = X_Pos;
 	int y = AsConfig::Platform_Y_Pos;
-
+	int offset = 0;
 	RECT intersection_rect{};
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
@@ -210,29 +213,33 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 
 	//draw highlight
 	Draw_Circle_Highlight(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale);
+
+	if (Normal_Platform_Image == 0)
+	{
+		Normal_Platform_Image = new int[Normal_Platform_Image_Height * Normal_Platform_Image_Width];
+		x *= AsConfig::Global_Scale;
+		y *= AsConfig::Global_Scale;
+
+		for (i = 0; i < Normal_Platform_Image_Height; i++)
+			for (j = 0; j < Normal_Platform_Image_Width; j++)
+				Normal_Platform_Image[offset++] = GetPixel(hdc, x + j, y + i);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 {
-	RECT intersection_rect{};
 	int i, j;
-	int area_width, area_height;
 	int y_offset;
 	int x, y;
 	int moved_columns_count = 0;
 	int max_platform_y;
-	COLORREF pixel;
-	COLORREF bg_pixel = RGB(0, 0, 0);
+	
+	int stroke_len;
+	HPEN pen_color;
 
-	if (!IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
-		return;
+	max_platform_y = (AsConfig::Max_Y_Pos + 1) * AsConfig::Global_Scale;
 
-	area_width = Width * AsConfig::Global_Scale;
-	area_height = Height * AsConfig::Global_Scale;
-
-	max_platform_y = area_height + AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
-
-	for (i = 0; i < area_width; i++)
+	for (i = 0; i < Normal_Platform_Image_Width; i++)
 	{
 		if (Meltdown_Platform_Y_Pos[i] > max_platform_y)
 			continue;
@@ -240,18 +247,22 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 		y_offset = AsConfig::Rand(Meltdown_Speed);
 
 		x = Platform_Rect.left + i;
-		for (j = 0; j <= area_height; j++)
+		y = Meltdown_Platform_Y_Pos[i];
+		MoveToEx(hdc, x, y, 0);
+		j = 0;
+
+		while (Get_Platform_Image_Storke_Color(i, j, stroke_len, pen_color) )
 		{
-			y = Meltdown_Platform_Y_Pos[i] - j;
-			pixel = GetPixel(hdc, x, y);
-			SetPixel(hdc, x, y + y_offset, pixel);
-		}
-		for (j = 0; j < y_offset; j++)
-		{
-			y = Meltdown_Platform_Y_Pos[i] - area_height + j;
-			SetPixel(hdc, x, y, bg_pixel);
+			y += stroke_len;
+			j += stroke_len;
+			SelectObject(hdc, pen_color);
+			LineTo(hdc, x, y);			
 		}
 
+		y = Meltdown_Platform_Y_Pos[i];
+		MoveToEx(hdc, x, y, 0);
+		SelectObject(hdc, AsConfig::BG_Pen);
+		LineTo(hdc, x, y + y_offset);
 		Meltdown_Platform_Y_Pos[i] += y_offset;
 
 		moved_columns_count += 1;
@@ -259,6 +270,47 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 
 	if (moved_columns_count == 0)
 		Platform_State = EPS_Missing;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, HPEN &pen_color)
+{
+	int i;
+	int offset = y * Normal_Platform_Image_Width + x;
+	COLORREF color;
+
+	if (y >= Normal_Platform_Image_Height)
+		return false;
+
+	for (i = y; i < Normal_Platform_Image_Height; i++)
+	{
+		if (i == y)
+		{
+			stroke_len = 1;
+			color = Normal_Platform_Image[offset];
+		}
+		else
+		{
+			if (Normal_Platform_Image[offset] == color)
+				stroke_len += 1;
+			else
+				break;
+		}
+
+		offset += Normal_Platform_Image_Width;
+	}
+
+	if (color == AsConfig::BG_Color.Get_RGB())
+		pen_color = AsConfig::BG_Pen;
+	else if (color == Platform_Inner_Pen_Color.Get_RGB())
+		pen_color = Platform_Inner_Pen;
+	else if (color == Platform_Circle_Pen_Color.Get_RGB())
+		pen_color = Platform_Circle_Pen;
+	else if (color = Highlight_Pen_Color.Get_RGB())	
+		pen_color = Highlight_Pen;
+	else
+		pen_color = 0;
+
+	return true;
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Redraw()
@@ -277,7 +329,9 @@ void AsPlatform::Redraw()
 	Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
 
 	if (Platform_State == EPS_Meltdown)
+	{
 		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
+	}
 
 	InvalidateRect(AsConfig::Hwnd, &Prev_Platform_Rect, FALSE);
 	InvalidateRect(AsConfig::Hwnd, &Platform_Rect, FALSE);
