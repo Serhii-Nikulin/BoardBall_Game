@@ -10,6 +10,8 @@ class AColor
 public:
 	AColor(unsigned char r, unsigned char g, unsigned char b);
 	const unsigned char R, G, B;
+
+	int Get_RGB() const;
 };
 //------------------------------------------------------------------------------------------------------------
 

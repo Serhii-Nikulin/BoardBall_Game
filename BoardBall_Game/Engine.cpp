@@ -29,19 +29,15 @@ void AsEngine::Init_Engine(HWND hwnd)
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
+	COLORREF pixel;
+	int i;
+
 	SetGraphicsMode(hdc, GM_ADVANCED);
 
 	Border.Draw(hdc, paint_area);
 	Level.Draw(hdc, paint_area);
 	Ball.Draw(hdc, paint_area);
 	Platform.Draw(hdc, paint_area);
-
-	/*int i;
-	for (i = 0; i < 16; ++i)
-	{
-		Level.Draw_Brick_Letter(hdc, (20 + i * ALevel::Cell_Width) * Global_Scale, 100, EBT_Blue, ELT_O, i);
-		Level.Draw_Brick_Letter(hdc, (20 + i * ALevel::Cell_Width) * Global_Scale, 100 + 50, EBT_Red, ELT_O, i);
-	}*/
 }
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Key_Down(EKey_Type key_type)
