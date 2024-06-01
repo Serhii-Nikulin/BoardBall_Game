@@ -18,6 +18,8 @@ public:
 	void Act();
 	void Set_State(EPlatform_State platform_state);
 	EPlatform_State Get_State();
+	void Move(bool to_left);
+
 	int Width;
 	int X_Pos;
 	int X_Step;
