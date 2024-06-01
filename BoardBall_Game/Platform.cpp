@@ -397,3 +397,25 @@ void AsPlatform::Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area)
 	Draw_Normal_State(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
+void AsPlatform::Move(bool to_left)
+{
+	if (to_left)
+	{
+		X_Pos -= X_Step;
+
+		if (X_Pos < AsConfig::Border_X_Offset)
+			X_Pos = AsConfig::Border_X_Offset;
+
+		Redraw();
+	}
+	else
+	{
+		X_Pos += X_Step;
+
+		if (X_Pos > AsConfig::Max_X_Pos - Width + 1)
+			X_Pos = AsConfig::Max_X_Pos - Width + 1;
+
+		Redraw();
+	}
+}
+//------------------------------------------------------------------------------------------------------------

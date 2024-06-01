@@ -1,31 +1,7 @@
 #pragma once
-#include "Active_Brick.h"
+#include "Falling_Letter.h"
 #include "Ball.h"
 
-enum ELetter_Type {
-	ELT_None, ELT_O
-};
-//------------------------------------------------------------------------------------------------------------
-class AFalling_Letter
-{
-	void Draw_Brick_Letter(HDC hdc);
-	void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush);
-
-	const EBrick_Type Brick_Type;
-	const ELetter_Type Letter_Type;
-	int Rotation_Step;
-	int X, Y;
-
-
-public:
-	AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y);
-	RECT Letter_Cell, Prev_Letter_Cell;
-
-	void Act();
-	void Draw(HDC hdc, RECT& paint_area);
-	bool Is_Finished();
-};
-//------------------------------------------------------------------------------------------------------------
 class ALevel: public AHit_Checker
 {
 public:
@@ -33,6 +9,7 @@ public:
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
+	void Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 
 	static const int Level_Height = 14;
 	static const int Level_Width = 12;
@@ -42,11 +19,12 @@ public:
 	static char Test_Level[Level_Height][Level_Width];
 	void Set_Current_Level(char level[Level_Height][Level_Width]);
 	void Act();
+	void Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count);
 
 	AActive_Brick Active_Brick;
 
 private:
-	void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type);
+	void Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
 	bool Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos);
 	bool Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
