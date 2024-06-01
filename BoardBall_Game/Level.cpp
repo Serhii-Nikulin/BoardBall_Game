@@ -225,29 +225,39 @@ void ALevel::Set_Current_Level(char level[Level_Height][Level_Width])
 void ALevel::Draw(HDC hdc, RECT& paint_area)
 {
 	int i, j;
-	RECT intersection_rect;
-
+	RECT intersection_rect, brick_rect;
+	
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
 		for (i = 0; i < Level_Height; ++i)
 			for (j = 0; j < Level_Width; ++j)
-				Draw_Brick(hdc, AsConfig::Level_X_Offset + j * AsConfig::Cell_Width, AsConfig::Level_Y_Offset + AsConfig::Cell_Height * i, static_cast<EBrick_Type>(Current_Level[i][j]));
+			{
+				brick_rect.left = (AsConfig::Level_X_Offset + j * AsConfig::Cell_Width) * AsConfig::Global_Scale;
+				brick_rect.top = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * i) * AsConfig::Global_Scale;
+				brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+				brick_rect.bottom = brick_rect.top + AsConfig::Global_Scale * AsConfig::Brick_Height;
+
+				if (IntersectRect(&intersection_rect, &paint_area, &brick_rect))
+						Draw_Brick(hdc, brick_rect, static_cast<EBrick_Type>(Current_Level[i][j]));
+			}
 	}
 
-	for (i = 0; i < Max_Active_Bricks_Count; i++)
-	{
-		if (Active_Bricks[i])
-			Active_Bricks[i]->Draw(hdc, paint_area);
-	}
+	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count);
 
-	for (i = 0; i < AsConfig::Max_Falling_Letters_Count; i++)
+	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter)
+{
+	int i;
+	for (i = 0; i < objects_max_counter; i++)
 	{
-		if (Falling_Letters[i])
-			Falling_Letters[i]->Draw(hdc, paint_area);
+		if (objects_array[i])
+			objects_array[i]->Draw(hdc, paint_area);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
+void ALevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 {
 	HPEN pen;
 	HBRUSH brush;
@@ -270,7 +280,7 @@ void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 
 	SelectObject(hdc, pen);
 	SelectObject(hdc, brush);
-	RoundRect(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + AsConfig::Brick_Width) * AsConfig::Global_Scale - 1, (y + AsConfig::Brick_Height) * AsConfig::Global_Scale - 1 , 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+	RoundRect(hdc, brick_rect.left, brick_rect.top, brick_rect.right - 1, brick_rect.bottom - 1, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ALevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -421,32 +431,25 @@ bool ALevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_
 //------------------------------------------------------------------------------------------------------------
 void ALevel::Act()
 {
+	Act_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
+
+	Act_Objects((AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
+}
+//------------------------------------------------------------------------------------------------------------
+void ALevel::Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count)
+{
 	int i;
 
-	for (i = 0; i < Max_Active_Bricks_Count; i++)
+	for (i = 0; i < objects_max_count; i++)
 	{
-		if (Active_Bricks[i])
+		if (objects_array[i])
 		{
-			Active_Bricks[i]->Act();
-			if (Active_Bricks[i]->Is_Finished())
+			objects_array[i]->Act();
+			if (objects_array[i]->Is_Finished())
 			{
-				delete Active_Bricks[i];
-				--Active_Bricks_Count;
-				Active_Bricks[i] = NULL;
-			}
-		}
-	}
-
-	for (i = 0; i < AsConfig::Max_Falling_Letters_Count; i++)
-	{
-		if (Falling_Letters[i])
-		{
-			Falling_Letters[i]->Act();
-			if (Falling_Letters[i]->Is_Finished())
-			{
-				delete Falling_Letters[i];
-				--Falling_Letters_Count;
-				Falling_Letters[i] = NULL;
+				delete objects_array[i];
+				--object_count;
+				objects_array[i] = NULL;
 			}
 		}
 	}

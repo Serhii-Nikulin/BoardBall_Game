@@ -5,13 +5,22 @@ enum EBrick_Type {
 	EBT_None, EBT_Red, EBT_Blue
 };
 //------------------------------------------------------------------------------------------------------------
-class AActive_Brick
+class AGraphics_Object
+{
+public:
+	virtual void Act() = 0;
+	virtual void Draw(HDC HDC, RECT &paint_area) = 0;
+	virtual bool Is_Finished() = 0;
+};
+//------------------------------------------------------------------------------------------------------------
+class AActive_Brick: public AGraphics_Object
 {
 public:
 	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
-	void Act();
-	void Draw(HDC hdc, RECT &paint_rect);
-	bool Is_Finished();
+
+	virtual void Draw(HDC hdc, RECT &paint_rect);
+	virtual void Act();
+	virtual bool Is_Finished();
 	static void Setup_Colors();
 
 private:

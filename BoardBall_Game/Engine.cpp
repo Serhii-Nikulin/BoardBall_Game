@@ -29,9 +29,6 @@ void AsEngine::Init_Engine(HWND hwnd)
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
-	COLORREF pixel;
-	int i;
-
 	SetGraphicsMode(hdc, GM_ADVANCED);
 
 	Border.Draw(hdc, paint_area);

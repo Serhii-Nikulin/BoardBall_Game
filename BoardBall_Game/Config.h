@@ -53,7 +53,7 @@ public:
 	static const AColor Blue_Brick_Color;
 	static const AColor BG_Color;
 
-	static const int Hits_Per_Letter = 1;
+	static const int Hits_Per_Letter = 3;
 	static const int Max_Falling_Letters_Count = 10;
 
 	static HPEN BG_Pen;
