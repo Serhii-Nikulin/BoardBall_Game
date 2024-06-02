@@ -399,6 +399,9 @@ void AsPlatform::Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Move(bool to_left)
 {
+	if (Platform_State != EPS_Normal)
+		return;
+
 	if (to_left)
 	{
 		X_Pos -= X_Step;

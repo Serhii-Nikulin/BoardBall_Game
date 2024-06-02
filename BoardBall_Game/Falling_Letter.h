@@ -14,6 +14,8 @@ class AFalling_Letter: public AGraphics_Object
 	const ELetter_Type Letter_Type;
 	int Rotation_Step;
 	int X, Y;
+	bool Finished;
+	bool Got_Hit;
 
 public:
 	AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y);
@@ -23,7 +25,7 @@ public:
 	virtual bool Is_Finished();
 	
 	void Get_Letter_Cell(RECT &rect);
-	RECT Letter_Cell, Prev_Letter_Cell;
-	bool Got_Hit;
+	void Finalize();
 
+	RECT Letter_Cell, Prev_Letter_Cell;
 };

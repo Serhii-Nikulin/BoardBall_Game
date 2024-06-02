@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 AFalling_Letter::AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y)
-	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(2), Got_Hit(false)
+	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(2), Got_Hit(false), Finished(false)
 {
 	Letter_Cell.left = X;
 	Letter_Cell.top = Y;
@@ -120,6 +120,15 @@ void AFalling_Letter::Set_Brick_Letter_Colors(bool is_switch_color, HPEN& front_
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Act()
 {
+	if (Got_Hit or Finished)
+		return;
+
+	if (Letter_Cell.top > AsConfig::Max_Y_Pos * AsConfig::Global_Scale)
+	{
+		Finalize();
+		return;
+	}
+
 	Prev_Letter_Cell = Letter_Cell;
 
 	Y += AsConfig::Global_Scale;
@@ -143,20 +152,30 @@ void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
 		Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
 	}
 
+	if (Got_Hit)
+	{
+		Finished = true;
+		return;
+	}
+
 	if (IntersectRect(&intersection_rect, &paint_area, &Letter_Cell))
 		Draw_Brick_Letter(hdc);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AFalling_Letter::Is_Finished()
 {
-	if (Got_Hit or (Letter_Cell.top > AsConfig::Max_Y_Pos * AsConfig::Global_Scale) )
-		return true;
-	else
-		return false;
+	return Finished;
 }
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Get_Letter_Cell(RECT &rect)
 {
 	rect = Letter_Cell;
+}
+//------------------------------------------------------------------------------------------------------------
+void AFalling_Letter::Finalize()
+{
+	Got_Hit = true;
+	InvalidateRect(AsConfig::Hwnd, &Prev_Letter_Cell,FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Letter_Cell,FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
