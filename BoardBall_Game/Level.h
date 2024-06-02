@@ -2,14 +2,15 @@
 #include "Falling_Letter.h"
 #include "Ball.h"
 
-class ALevel: public AHit_Checker
+class AsLevel: public AHit_Checker
 {
 public:
-	ALevel();
+	AsLevel();
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
 	void Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
+	bool Get_Next_Falling_Letter(int &index, AFalling_Letter **falling_letter);
 
 	static const int Level_Height = 14;
 	static const int Level_Width = 12;
