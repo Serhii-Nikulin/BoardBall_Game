@@ -419,3 +419,14 @@ void AsPlatform::Move(bool to_left)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Hit_By(AFalling_Letter *falling_letter)
+{
+	RECT intersection_rect, falling_letter_rect;
+	falling_letter->Get_Letter_Cell(falling_letter_rect);
+
+	if (IntersectRect(&intersection_rect, &falling_letter_rect, &Platform_Rect) )
+		return true;
+	else
+		return false;
+}
+//------------------------------------------------------------------------------------------------------------

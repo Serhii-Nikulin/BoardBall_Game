@@ -15,13 +15,15 @@ class AFalling_Letter: public AGraphics_Object
 	int Rotation_Step;
 	int X, Y;
 
-
 public:
 	AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y);
 
 	virtual void Act();
 	virtual void Draw(HDC hdc, RECT& paint_area);
 	virtual bool Is_Finished();
-
+	
+	void Get_Letter_Cell(RECT &rect);
 	RECT Letter_Cell, Prev_Letter_Cell;
+	bool Got_Hit;
+
 };

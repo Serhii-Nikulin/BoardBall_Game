@@ -98,6 +98,30 @@ void ALevel::Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+bool ALevel::Get_Next_Falling_Letter(int &index, AFalling_Letter **falling_letter)
+{
+	AFalling_Letter *current_letter;
+
+	if (Falling_Letters_Count == 0)
+		return false;
+
+	if (index < 0 or index >= AsConfig::Max_Falling_Letters_Count)
+		return false;
+
+	while (index < AsConfig::Max_Falling_Letters_Count)
+	{
+		current_letter = Falling_Letters[index++];
+
+		if (current_letter)
+		{
+			*falling_letter = current_letter;
+			return true;
+		}
+	}
+	
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
 void ALevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 {
 	HPEN pen;

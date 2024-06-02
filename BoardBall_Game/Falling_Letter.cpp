@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 AFalling_Letter::AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y)
-	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(2)
+	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(2), Got_Hit(false)
 {
 	Letter_Cell.left = X;
 	Letter_Cell.top = Y;
@@ -149,9 +149,14 @@ void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
 //------------------------------------------------------------------------------------------------------------
 bool AFalling_Letter::Is_Finished()
 {
-	if (Letter_Cell.top > AsConfig::Max_Y_Pos * AsConfig::Global_Scale)
+	if (Got_Hit or (Letter_Cell.top > AsConfig::Max_Y_Pos * AsConfig::Global_Scale) )
 		return true;
 	else
 		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AFalling_Letter::Get_Letter_Cell(RECT &rect)
+{
+	rect = Letter_Cell;
 }
 //------------------------------------------------------------------------------------------------------------

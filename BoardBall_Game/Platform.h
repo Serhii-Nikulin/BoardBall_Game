@@ -1,6 +1,6 @@
 #pragma once
-#include "Config.h"
 #include "Ball.h"
+#include "Falling_Letter.h"
 
 enum EPlatform_State{
 EPS_Missing, EPS_Ready, EPS_Normal, EPS_Meltdown, EPS_Roll_In, EPS_Expand_Roll_In
@@ -19,6 +19,7 @@ public:
 	void Set_State(EPlatform_State platform_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left);
+	bool Hit_By(AFalling_Letter *falling_letter);
 
 	int Width;
 	int X_Pos;

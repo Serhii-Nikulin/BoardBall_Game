@@ -26,6 +26,9 @@ public:
 	int On_Timer();
 
 private:
+	void Act();
+	void On_Falling_Letter(AFalling_Letter *falling_Letter);
+
 	EGame_State Game_State;
 	ABall Ball;
 	ALevel Level;
