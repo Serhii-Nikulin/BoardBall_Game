@@ -5,6 +5,10 @@ enum ELetter_Type {
 	ELT_None, ELT_O
 };
 //------------------------------------------------------------------------------------------------------------
+enum EFalling_Letter_State{
+	EFLS_Normal, EFLS_Finalizing, EFLS_Finished
+};
+//------------------------------------------------------------------------------------------------------------
 class AFalling_Letter: public AGraphics_Object
 {
 	void Draw_Brick_Letter(HDC hdc);
@@ -14,9 +18,8 @@ class AFalling_Letter: public AGraphics_Object
 	const ELetter_Type Letter_Type;
 	int Rotation_Step;
 	int X, Y;
-	bool Finished;
 
-	bool Got_Hit;
+	EFalling_Letter_State Falling_Letter_State;
 
 public:
 	AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y);

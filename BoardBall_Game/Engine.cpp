@@ -21,7 +21,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 
 	Ball.Init();
 	Level.Init();
-	Level.Set_Current_Level(ALevel::Level_01);
+	Level.Set_Current_Level(AsLevel::Level_01);
 	Border.Init();
 	Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); 
