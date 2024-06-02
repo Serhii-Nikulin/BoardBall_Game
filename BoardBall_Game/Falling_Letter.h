@@ -15,6 +15,7 @@ class AFalling_Letter: public AGraphics_Object
 	int Rotation_Step;
 	int X, Y;
 	bool Finished;
+
 	bool Got_Hit;
 
 public:
