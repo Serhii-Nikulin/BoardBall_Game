@@ -3,7 +3,7 @@
 int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Roll_In), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
+	Platform_State(EPS_Missing), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
 	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{},
 	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale), Normal_Platform_Image(0),
 	Platform_Inner_Pen_Color(237, 38, 36), Platform_Circle_Pen_Color(63, 72, 204), Highlight_Pen_Color(255, 255, 255)
@@ -214,7 +214,7 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	//draw highlight
 	Draw_Circle_Highlight(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale);
 
-	if (Normal_Platform_Image == 0)
+	if (Normal_Platform_Image == 0 and Platform_State == EPS_Ready)
 	{
 		Normal_Platform_Image = new int[Normal_Platform_Image_Height * Normal_Platform_Image_Width];
 		x *= AsConfig::Global_Scale;
@@ -367,7 +367,8 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	SetWorldTransform(hdc, &xform);
 	SelectObject(hdc, AsConfig::BG_Pen);
 	SelectObject(hdc, AsConfig::BG_Brush);
-	Rectangle(hdc, -1, -roller_size / 2, 1 - 1, roller_size / 2 - 1);
+	Rectangle(hdc, -1, -roller_size / 2, 1, roller_size / 2);
+
 	SetWorldTransform(hdc, &prev_xform);
 
 	Draw_Circle_Highlight(hdc, x, y);

@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Game_State(EGS_Play_Level)
+	:Game_State(EGS_Lost_Ball)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Init_Engine(HWND hwnd)
@@ -23,8 +23,8 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Level.Init();
 	Level.Set_Current_Level(AsLevel::Level_01);
 	Border.Init();
-	Ball.Set_State(EBS_Normal);
-	Platform.Set_State(EPS_Normal); 
+	/*Ball.Set_State(EBS_Normal);
+	Platform.Set_State(EPS_Normal); */
 	Platform.Init();
 	AActive_Brick::Setup_Colors();
 	AsConfig::Setup_Colors();
