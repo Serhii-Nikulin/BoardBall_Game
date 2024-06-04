@@ -27,6 +27,8 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 	letter_rect.top = -(AsConfig::Brick_Height - 2) * AsConfig::Global_Scale / 2;
 	letter_rect.right = (AsConfig::Brick_Width + (AsConfig::Brick_Height - 2)) * AsConfig::Global_Scale / 2;
 	letter_rect.bottom = +(AsConfig::Brick_Height - 2) * AsConfig::Global_Scale / 2;
+	int middle_letter_x = letter_rect.left + (letter_rect.right - letter_rect.left) / 2;
+	int middle_letter_y = letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2;
 
 	if (! (Brick_Type == EBT_Blue || Brick_Type == EBT_Red))
 		return;
@@ -120,27 +122,106 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 				break;
 
 			case ELT_G:
-				
 				//middle horizontal line
-				MoveToEx(hdc, letter_rect.left + 2, letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2, 0);
-				LineTo(hdc, letter_rect.right - 2, letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2);
+				MoveToEx(hdc, letter_rect.left + 2, middle_letter_y, 0);
+				LineTo(hdc, letter_rect.right - 2, middle_letter_y);
 
 				MoveToEx(hdc, letter_rect.left, letter_rect.top, 0);
-				LineTo(hdc, letter_rect.left + 2, letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2);
+				LineTo(hdc, letter_rect.left + 2, middle_letter_y);
 
 				MoveToEx(hdc, letter_rect.right, letter_rect.top, 0);
-				LineTo(hdc, letter_rect.right - 2, letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2);
+				LineTo(hdc, letter_rect.right - 2, middle_letter_y);
 
 				MoveToEx(hdc, letter_rect.left, letter_rect.bottom, 0);
-				LineTo(hdc, letter_rect.left + 2, letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2);
+				LineTo(hdc, letter_rect.left + 2, middle_letter_y);
 
 				MoveToEx(hdc, letter_rect.right, letter_rect.bottom, 0);
-				LineTo(hdc, letter_rect.right - 2, letter_rect.top + (letter_rect.bottom - letter_rect.top) / 2);
+				LineTo(hdc, letter_rect.right - 2, middle_letter_y);
 
 				//middle vertical line
-				MoveToEx(hdc, letter_rect.left + (letter_rect.right - letter_rect.left) / 2 + 1, letter_rect.top, 0);
-				LineTo(hdc,  letter_rect.left + (letter_rect.right - letter_rect.left) / 2, letter_rect.bottom);
+				MoveToEx(hdc, middle_letter_x + 1, letter_rect.top, 0);
+				LineTo(hdc,  middle_letter_x, letter_rect.bottom);
 
+				break;
+
+			case ELT_M:
+				MoveToEx(hdc, letter_rect.left, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.left, letter_rect.bottom);
+
+				MoveToEx(hdc, letter_rect.left, letter_rect.top, 0);
+				LineTo(hdc, middle_letter_x, letter_rect.bottom);
+
+				MoveToEx(hdc, middle_letter_x, letter_rect.bottom, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.top);
+
+				MoveToEx(hdc, letter_rect.right, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.bottom);
+
+				break;
+
+			case ELT_K:
+				MoveToEx(hdc, middle_letter_x, letter_rect.top, 0);
+				LineTo(hdc, middle_letter_x, letter_rect.bottom);
+
+				MoveToEx(hdc, middle_letter_x, middle_letter_y, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.top);
+
+				MoveToEx(hdc, middle_letter_x, middle_letter_y, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.bottom);
+				break;
+
+			case ELT_W:
+				MoveToEx(hdc, letter_rect.left, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.left, letter_rect.bottom);
+
+				MoveToEx(hdc, letter_rect.right, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.bottom);
+
+				MoveToEx(hdc, middle_letter_x, letter_rect.top, 0);
+				LineTo(hdc, middle_letter_x, letter_rect.bottom);
+
+				MoveToEx(hdc, letter_rect.left, letter_rect.bottom, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.bottom);
+				break;
+
+			case ELT_P:
+				MoveToEx(hdc, letter_rect.left + 2, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.left + 2, letter_rect.bottom);
+
+				MoveToEx(hdc, letter_rect.right - 2, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.right - 2, letter_rect.bottom);
+
+				MoveToEx(hdc, letter_rect.left + 1, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.right - 2, letter_rect.top);
+				break;
+
+			case ELT_L:
+				MoveToEx(hdc, middle_letter_x, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.left + 2, letter_rect.bottom);
+
+				MoveToEx(hdc, middle_letter_x, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.right - 2, letter_rect.bottom);
+				break;
+
+			case ELT_T:
+				MoveToEx(hdc, letter_rect.left, letter_rect.top, 0);
+				LineTo(hdc, letter_rect.right, letter_rect.top);
+
+				MoveToEx(hdc, middle_letter_x + 1, letter_rect.top, 0);
+				LineTo(hdc, middle_letter_x + 1, letter_rect.bottom);
+				break;
+
+			case ELT_Plus:
+				MoveToEx(hdc, middle_letter_x + 1, letter_rect.top, 0);
+				LineTo(hdc, middle_letter_x + 1, letter_rect.bottom);
+
+				MoveToEx(hdc, letter_rect.left, middle_letter_y, 0);
+				LineTo(hdc, letter_rect.right, middle_letter_y);
+				break;
+
+			case ELT_C:
+				Arc(hdc, letter_rect.left, letter_rect.top , letter_rect.right, letter_rect.bottom, 
+					letter_rect.right - 1, letter_rect.top + 1, letter_rect.right, letter_rect.bottom - 1);
 				break;
 
 			default:
