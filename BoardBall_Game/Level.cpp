@@ -68,6 +68,10 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	int i, j;
 	RECT intersection_rect, brick_rect;
 	
+	//Test for letters
+	/*AFalling_Letter falling_letter(EBT_Blue, ELT_Plus, 8 * AsConfig::Global_Scale, 150 * AsConfig::Global_Scale);
+	falling_letter.Test_Draw_All_Steps(hdc);*/
+
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
 		for (i = 0; i < Level_Height; ++i)
@@ -337,30 +341,30 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 	ELetter_Type letter_type;
 	AFalling_Letter *falling_letter;
 
-	if (brick_type == EBT_Blue or brick_type == EBT_Red)
+	if (! (brick_type == EBT_Blue or brick_type == EBT_Red) )
+		return false;
+
+	if (AsConfig::Rand(AsConfig::Hits_Per_Letter) != 0)
+		return false;
+		
+	if (Falling_Letters_Count >= AsConfig::Max_Falling_Letters_Count)
+		return 0;
+
+	for (i = 0; i < AsConfig::Max_Falling_Letters_Count; i++)
 	{
-		if (AsConfig::Rand(AsConfig::Hits_Per_Letter) == 0)
+		if (Falling_Letters[i] == 0)
 		{
-			if (Falling_Letters_Count < AsConfig::Max_Falling_Letters_Count)
-			{
-				letter_type = ELT_O;
-				for (i = 0; i < AsConfig::Max_Falling_Letters_Count; i++)
-				{
-					if (Falling_Letters[i] == 0)
-					{
-						letter_x = (AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) * AsConfig::Global_Scale;
-						letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
-						falling_letter = new AFalling_Letter(brick_type, letter_type, letter_x, letter_y);
-						Falling_Letters[i] = falling_letter;
-						++Falling_Letters_Count;
-						break;
-					}
-				}
-				return true;
-			}
+			letter_x = (AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) * AsConfig::Global_Scale;
+			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
+			letter_type = AFalling_Letter::Get_Random_Letter_Type();
+
+			falling_letter = new AFalling_Letter(brick_type, letter_type, letter_x, letter_y);
+			Falling_Letters[i] = falling_letter;
+			++Falling_Letters_Count;
+			return true;
 		}
 	}
-
+	
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
