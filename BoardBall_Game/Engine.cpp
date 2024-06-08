@@ -19,6 +19,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Add_Hit_Checker(&Level);
 	ABall::Add_Hit_Checker(&Platform);
 
+	AFalling_Letter::Init();
 	Ball.Init();
 	Level.Init();
 	Level.Set_Current_Level(AsLevel::Level_01);

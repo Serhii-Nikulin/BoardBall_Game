@@ -1,5 +1,7 @@
 #include "Falling_Letter.h"
 
+int AFalling_Letter::All_Letters_Popularity;
+const int AFalling_Letter::Letters_Popularity[ELT_Max] = {7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 1};
 //------------------------------------------------------------------------------------------------------------
 AFalling_Letter::AFalling_Letter(EBrick_Type brick_type, ELetter_Type letter_type, int x, int y)
 	:Brick_Type(brick_type), Letter_Type(letter_type), X(x), Y(y), Rotation_Step(2), Falling_Letter_State(EFLS_Normal)
@@ -332,5 +334,30 @@ void AFalling_Letter::Test_Draw_All_Steps(HDC hdc)
 		Letter_Cell.left += x_step;
 		Letter_Cell.right += x_step;		
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AFalling_Letter::Init()
+{
+	int i;
+	All_Letters_Popularity = 0;
+
+	for (i = 0; i < ELT_Max; i++)
+		All_Letters_Popularity += Letters_Popularity[i];
+}
+//------------------------------------------------------------------------------------------------------------
+ELetter_Type AFalling_Letter::Get_Random_Letter_Type()
+{
+	int i;
+	int letter_popularity = AsConfig::Rand(All_Letters_Popularity);
+
+	for (i = 0; i < ELT_Max; i++)
+	{
+		if (letter_popularity < Letters_Popularity[i])
+			return (ELetter_Type)i;
+
+		letter_popularity -= Letters_Popularity[i];
+	}
+
+	return ELT_O;
 }
 //------------------------------------------------------------------------------------------------------------
