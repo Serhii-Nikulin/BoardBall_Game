@@ -50,15 +50,13 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
 	{
-		SelectObject(hdc, AsConfig::BG_Pen);
-		SelectObject(hdc, AsConfig::BG_Brush);
+		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
 	}
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
 	{
-		SelectObject(hdc, Ball_Pen);
-		SelectObject(hdc, Ball_Brush);
+		AsConfig::White_Color.Select(hdc);
 		Ellipse(hdc, Ball_Rect.left, Ball_Rect.top, Ball_Rect.right - 1, Ball_Rect.bottom - 1);
 	}
 }

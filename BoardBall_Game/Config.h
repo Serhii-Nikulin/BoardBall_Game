@@ -61,10 +61,10 @@ public:
 	static const int Max_Falling_Letters_Count = 10;
 
 	static HPEN Letter_Pen;
-	static HPEN BG_Pen;
+	/*static HPEN BG_Pen;
 	static HBRUSH BG_Brush;
 
 	static HPEN Brick_Red_Pen, Brick_Blue_Pen, Brick_White_Pen;
-	static HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Brick_White_Brush;
+	static HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Brick_White_Brush;*/
 };
 //------------------------------------------------------------------------------------------------------------

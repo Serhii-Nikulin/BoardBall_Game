@@ -172,8 +172,7 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Clear_BG(HDC hdc)
 {
-	SelectObject(hdc, AsConfig::BG_Pen);
-	SelectObject(hdc, AsConfig::BG_Brush);
+	AsConfig::BG_Color.Select(hdc);
 	Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -261,7 +260,7 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 
 		y = Meltdown_Platform_Y_Pos[i];
 		MoveToEx(hdc, x, y, 0);
-		SelectObject(hdc, AsConfig::BG_Pen);
+		SelectObject(hdc, AsConfig::BG_Color.Pen);
 		LineTo(hdc, x, y + y_offset);
 		Meltdown_Platform_Y_Pos[i] += y_offset;
 
@@ -300,7 +299,7 @@ bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, 
 	}
 
 	if (color == AsConfig::BG_Color.Get_RGB())
-		pen_color = AsConfig::BG_Pen;
+		pen_color = AsConfig::BG_Color.Pen;
 	else if (color == Platform_Inner_Pen_Color.Get_RGB())
 		pen_color = Platform_Inner_Pen;
 	else if (color == Platform_Circle_Pen_Color.Get_RGB())
@@ -365,8 +364,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	xform.eDy = (FLOAT)(y + roller_size / 2);
 
 	SetWorldTransform(hdc, &xform);
-	SelectObject(hdc, AsConfig::BG_Pen);
-	SelectObject(hdc, AsConfig::BG_Brush);
+	AsConfig::BG_Color.Select(hdc);
 	Rectangle(hdc, -1, -roller_size / 2, 1, roller_size / 2);
 
 	SetWorldTransform(hdc, &prev_xform);
