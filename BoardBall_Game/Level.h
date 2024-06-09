@@ -22,7 +22,7 @@ public:
 	void Act();
 	void Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count);
 
-	AActive_Brick Active_Brick;
+	AActive_Brick_Red_Blue Active_Brick;
 
 private:
 	void Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
