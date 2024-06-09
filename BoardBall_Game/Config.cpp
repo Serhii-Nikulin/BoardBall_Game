@@ -3,6 +3,7 @@
 const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Brick_Color(237, 38, 36);
 const AColor AsConfig::Blue_Brick_Color(63, 72, 204);
+const AColor AsConfig::White_Brick_Color(255, 255, 255);
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor(unsigned char r, unsigned char g, unsigned char b)
 : R(r), G(g), B(b)
@@ -23,8 +24,8 @@ HBRUSH AsConfig::BG_Brush;
 HWND AsConfig::Hwnd;
 
 HPEN AsConfig::Letter_Pen;
-HPEN AsConfig::Brick_Red_Pen, AsConfig::Brick_Blue_Pen;
-HBRUSH AsConfig::Brick_Red_Brush, AsConfig::Brick_Blue_Brush;
+HPEN AsConfig::Brick_Red_Pen, AsConfig::Brick_Blue_Pen, AsConfig::Brick_White_Pen;
+HBRUSH AsConfig::Brick_Red_Brush, AsConfig::Brick_Blue_Brush, AsConfig::Brick_White_Brush;
 
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
@@ -36,6 +37,7 @@ void AsConfig::Setup_Colors()
 
 	AsConfig::Create_Pen_Brush(AsConfig::Blue_Brick_Color, AsConfig::Brick_Blue_Pen, AsConfig::Brick_Blue_Brush);
 	AsConfig::Create_Pen_Brush(AsConfig::Red_Brick_Color, AsConfig::Brick_Red_Pen, AsConfig::Brick_Red_Brush);
+	AsConfig::Create_Pen_Brush(AsConfig::White_Brick_Color, AsConfig::Brick_White_Pen, AsConfig::Brick_White_Brush);
 
 	Create_Pen_Brush(AsConfig::BG_Color, AsConfig::BG_Pen, AsConfig::BG_Brush);
 }
