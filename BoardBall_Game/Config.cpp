@@ -3,15 +3,24 @@
 const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Brick_Color(237, 38, 36);
 const AColor AsConfig::Blue_Brick_Color(63, 72, 204);
-const AColor AsConfig::White_Brick_Color(255, 255, 255);
+const AColor AsConfig::White_Color(255, 255, 255);
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor(unsigned char r, unsigned char g, unsigned char b)
 : R(r), G(g), B(b)
-{}
+{
+	Pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
+	Brush = CreateSolidBrush(RGB(r, g, b));
+}
 //------------------------------------------------------------------------------------------------------------
 int AColor::Get_RGB() const
 {
 	return RGB(R, G, B);
+}
+//------------------------------------------------------------------------------------------------------------
+void AColor::Select(HDC hdc) const
+{
+	SelectObject(hdc, Pen);
+	SelectObject(hdc, Brush); 
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +46,7 @@ void AsConfig::Setup_Colors()
 
 	AsConfig::Create_Pen_Brush(AsConfig::Blue_Brick_Color, AsConfig::Brick_Blue_Pen, AsConfig::Brick_Blue_Brush);
 	AsConfig::Create_Pen_Brush(AsConfig::Red_Brick_Color, AsConfig::Brick_Red_Pen, AsConfig::Brick_Red_Brush);
-	AsConfig::Create_Pen_Brush(AsConfig::White_Brick_Color, AsConfig::Brick_White_Pen, AsConfig::Brick_White_Brush);
+	AsConfig::Create_Pen_Brush(AsConfig::White_Color, AsConfig::Brick_White_Pen, AsConfig::Brick_White_Brush);
 
 	Create_Pen_Brush(AsConfig::BG_Color, AsConfig::BG_Pen, AsConfig::BG_Brush);
 }

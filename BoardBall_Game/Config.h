@@ -10,8 +10,11 @@ class AColor
 public:
 	AColor(unsigned char r, unsigned char g, unsigned char b);
 	const unsigned char R, G, B;
+	HPEN Pen;
+	HBRUSH Brush;
 
 	int Get_RGB() const;
+	void Select(HDC hdc) const;
 };
 //------------------------------------------------------------------------------------------------------------
 
@@ -52,15 +55,15 @@ public:
 	static const AColor Red_Brick_Color;
 	static const AColor Blue_Brick_Color;
 	static const AColor BG_Color;
-	static const AColor White_Brick_Color;
+	static const AColor White_Color;
 
 	static const int Hits_Per_Letter = 2;
 	static const int Max_Falling_Letters_Count = 10;
 
+	static HPEN Letter_Pen;
 	static HPEN BG_Pen;
 	static HBRUSH BG_Brush;
 
-	static HPEN Letter_Pen;
 	static HPEN Brick_Red_Pen, Brick_Blue_Pen, Brick_White_Pen;
 	static HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Brick_White_Brush;
 };
