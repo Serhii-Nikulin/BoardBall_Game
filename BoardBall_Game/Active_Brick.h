@@ -39,15 +39,13 @@ public:
 
 private:
 	static unsigned char Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step);
-	static void Get_Fading_Color(const AColor &color, int step, HPEN &pen, HBRUSH &brush);
+	static void Get_Fading_Color(const AColor &origin_color, int step, AColor &result_color);
 
 	int Fade_Step;
 
 	static const int Max_Fade_Step = AsConfig::FPS;
-	static HPEN Fading_Red_Brick_Pens[Max_Fade_Step];
-	static HBRUSH Fading_Red_Brick_Brushes[Max_Fade_Step];
-	static HPEN Fading_Blue_Brick_Pens[Max_Fade_Step];
-	static HBRUSH Fading_Blue_Brick_Brushes[Max_Fade_Step];
+	static AColor Fading_Red_Brick_Colors[Max_Fade_Step];
+	static AColor Fading_Blue_Brick_Colors[Max_Fade_Step];
 };
 //------------------------------------------------------------------------------------------------------------
 class AActive_Brick_Unbreakable: public AActive_Brick
@@ -55,7 +53,7 @@ class AActive_Brick_Unbreakable: public AActive_Brick
 public:
 	~AActive_Brick_Unbreakable();
 	AActive_Brick_Unbreakable(EBrick_Type brick_type, int level_x, int level_y);
-
+	
 	virtual void Draw(HDC hdc, RECT &paint_rect);
 	virtual void Act();
 	virtual bool Is_Finished();

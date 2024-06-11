@@ -1,12 +1,17 @@
 #include "Config.h"
 
 const AColor AsConfig::BG_Color(0, 0, 0);
-const AColor AsConfig::Red_Brick_Color(237, 38, 36);
-const AColor AsConfig::Blue_Brick_Color(63, 72, 204);
+const AColor AsConfig::Red_Color(237, 38, 36);
+const AColor AsConfig::Blue_Color(63, 72, 204);
 const AColor AsConfig::White_Color(255, 255, 255);
 //------------------------------------------------------------------------------------------------------------
+AColor::AColor():
+	R(0), G(0), B(0), Pen(0), Brush(0)
+{
+}
+//------------------------------------------------------------------------------------------------------------
 AColor::AColor(unsigned char r, unsigned char g, unsigned char b)
-: R(r), G(g), B(b)
+	: R(r), G(g), B(b), Pen(0), Brush(0)
 {
 	Pen = CreatePen(PS_SOLID, 0, RGB(r, g, b));
 	Brush = CreateSolidBrush(RGB(r, g, b));
@@ -30,16 +35,9 @@ void AColor::Select(HDC hdc) const
 //------------------------------------------------------------------------------------------------------------
 HWND AsConfig::Hwnd;
 
-HPEN AsConfig::Letter_Pen;
-
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
 bool AsConfig::Has_Floor = false;
-//------------------------------------------------------------------------------------------------------------
-void AsConfig::Setup_Colors()
-{
-	AsConfig::Letter_Pen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
-}
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
 {

@@ -27,8 +27,7 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 //ABall
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
-	: Ball_State(EBS_Normal),
-	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
+	: Ball_State(EBS_Normal),Ball_Rect{}, Prev_Ball_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0), 
 	Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
@@ -37,11 +36,6 @@ void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
 {
 	if (Counter_Hit_Checker < Hit_Checkers_Count)
 		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
-}
-//------------------------------------------------------------------------------------------------------------
-void ABall::Init()
-{
-	AsConfig::Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Draw(HDC hdc, RECT &paint_area)

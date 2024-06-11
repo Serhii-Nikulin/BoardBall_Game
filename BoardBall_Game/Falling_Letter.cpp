@@ -95,7 +95,7 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 
 		if (Rotation_Step > 4 and Rotation_Step < 12)
 		{
-			SelectObject(hdc, AsConfig::Letter_Pen);
+			SelectObject(hdc, AsConfig::White_Color.Pen);
 
 			switch (Letter_Type)
 			{
@@ -235,13 +235,13 @@ void AFalling_Letter::Set_Brick_Letter_Colors(bool is_switch_color, const AColor
 {
 	if (is_switch_color)
 	{
-		*front_color  = &AsConfig::Red_Brick_Color;
-		*back_color = &AsConfig::Blue_Brick_Color;
+		*front_color  = &AsConfig::Red_Color;
+		*back_color = &AsConfig::Blue_Color;
 	}
 	else
 	{
-		*front_color = &AsConfig::Blue_Brick_Color;
-		*back_color = &AsConfig::Red_Brick_Color;
+		*front_color = &AsConfig::Blue_Color;
+		*back_color = &AsConfig::Red_Color;
 	}
 }
 //------------------------------------------------------------------------------------------------------------

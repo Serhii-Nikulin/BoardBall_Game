@@ -4,9 +4,7 @@ int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
 	Platform_State(EPS_Missing), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2), X_Step(2 * AsConfig::Global_Scale),
-	Platform_Inner_Pen{}, Platform_Inner_Brush{}, Platform_Circle_Pen{}, Platform_Circle_Brush{}, Highlight_Pen{}, Prev_Platform_Rect{}, Platform_Rect{},
-	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale), Normal_Platform_Image(0),
-	Platform_Inner_Pen_Color(237, 38, 36), Platform_Circle_Pen_Color(63, 72, 204), Highlight_Pen_Color(255, 255, 255)
+	Prev_Platform_Rect{}, Platform_Rect{},	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale), Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255)
 {}
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -94,14 +92,6 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Init()
-{
-	Highlight_Pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
-
-	AsConfig::Create_Pen_Brush(Platform_Circle_Pen_Color, Platform_Circle_Pen, Platform_Circle_Brush);
-	AsConfig::Create_Pen_Brush(Platform_Inner_Pen_Color, Platform_Inner_Pen, Platform_Inner_Brush);
-}
-//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act()
 {
 	switch (Platform_State)
@@ -178,7 +168,7 @@ void AsPlatform::Clear_BG(HDC hdc)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
 {
-	SelectObject(hdc, Highlight_Pen);
+	SelectObject(hdc, Highlight_Color.Pen);
 
 	Arc(hdc,
 		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
@@ -199,15 +189,13 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 		Clear_BG(hdc);
 
 	//draw side parts
-	SelectObject(hdc, Platform_Circle_Pen);
-	SelectObject(hdc, Platform_Circle_Brush);
+	Platform_Circle_Color.Select(hdc);
 	Ellipse(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Circle_Size) * AsConfig::Global_Scale - 1, (y + Circle_Size) * AsConfig::Global_Scale - 1);
 	//Ellipse(hdc, (x + Width - Circle_Size) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Width) * AsConfig::Global_Scale, (y + Circle_Size) * AsConfig::Global_Scale);
 	Ellipse(hdc, (x + Inner_Width + 1) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + Inner_Width + Circle_Size + 1) * AsConfig::Global_Scale - 1, (y + Circle_Size) * AsConfig::Global_Scale - 1);
 
 	//draw inner part
-	SelectObject(hdc, Platform_Inner_Pen);
-	SelectObject(hdc, Platform_Inner_Brush);
+	Platform_Inner_Color.Select(hdc);
 	RoundRect(hdc, (x + 4) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 4 + Inner_Width) * AsConfig::Global_Scale - 1, (y + 1 + Inner_Height) * AsConfig::Global_Scale - 1, Inner_Height * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale);
 
 	//draw highlight
@@ -234,7 +222,7 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 	int max_platform_y;
 	
 	int stroke_len;
-	HPEN pen_color;
+	const AColor *color;
 
 	max_platform_y = (AsConfig::Max_Y_Pos + 1) * AsConfig::Global_Scale;
 
@@ -250,11 +238,11 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 		MoveToEx(hdc, x, y, 0);
 		j = 0;
 
-		while (Get_Platform_Image_Storke_Color(i, j, stroke_len, pen_color) )
+		while (Get_Platform_Image_Storke_Color(i, j, stroke_len, &color) )
 		{
 			y += stroke_len;
 			j += stroke_len;
-			SelectObject(hdc, pen_color);
+			SelectObject(hdc, color->Pen);
 			LineTo(hdc, x, y);			
 		}
 
@@ -271,11 +259,11 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 		Platform_State = EPS_Missing;
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, HPEN &pen_color)
+bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, const AColor **color)
 {
 	int i;
 	int offset = y * Normal_Platform_Image_Width + x;
-	COLORREF color;
+	COLORREF color_value;
 
 	if (y >= Normal_Platform_Image_Height)
 		return false;
@@ -285,11 +273,11 @@ bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, 
 		if (i == y)
 		{
 			stroke_len = 1;
-			color = Normal_Platform_Image[offset];
+			color_value = Normal_Platform_Image[offset];
 		}
 		else
 		{
-			if (Normal_Platform_Image[offset] == color)
+			if (Normal_Platform_Image[offset] == color_value)
 				stroke_len += 1;
 			else
 				break;
@@ -298,16 +286,16 @@ bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, 
 		offset += Normal_Platform_Image_Width;
 	}
 
-	if (color == AsConfig::BG_Color.Get_RGB())
-		pen_color = AsConfig::BG_Color.Pen;
-	else if (color == Platform_Inner_Pen_Color.Get_RGB())
-		pen_color = Platform_Inner_Pen;
-	else if (color == Platform_Circle_Pen_Color.Get_RGB())
-		pen_color = Platform_Circle_Pen;
-	else if (color = Highlight_Pen_Color.Get_RGB())	
-		pen_color = Highlight_Pen;
+	if (color_value == AsConfig::BG_Color.Get_RGB())
+		*color = &AsConfig::BG_Color;
+	else if (color_value == Platform_Inner_Color.Get_RGB())
+		*color = &Platform_Inner_Color;
+	else if (color_value == Platform_Circle_Color.Get_RGB())
+		*color = &Platform_Circle_Color;
+	else if (color_value = Highlight_Color.Get_RGB())	
+		*color = &Highlight_Color;
 	else
-		pen_color = 0;
+		throw 13;
 
 	return true;
 }
@@ -348,8 +336,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
 		Clear_BG(hdc);
 
-	SelectObject(hdc, Platform_Circle_Pen);
-	SelectObject(hdc, Platform_Circle_Brush);
+	Platform_Circle_Color.Select(hdc);
 	Ellipse(hdc, x, y, x + roller_size - 1, y + roller_size);
 
 	GetWorldTransform(hdc, &prev_xform);

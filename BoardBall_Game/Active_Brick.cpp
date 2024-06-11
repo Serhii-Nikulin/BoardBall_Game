@@ -32,19 +32,17 @@ AActive_Brick::AActive_Brick(EBrick_Type brick_type, int level_x, int level_y)
 
 //AActive_Brick_Red_Blue
 //------------------------------------------------------------------------------------------------------------
-HPEN AActive_Brick_Red_Blue::Fading_Red_Brick_Pens[Max_Fade_Step];
-HBRUSH AActive_Brick_Red_Blue::Fading_Red_Brick_Brushes[Max_Fade_Step];
-HPEN AActive_Brick_Red_Blue::Fading_Blue_Brick_Pens[Max_Fade_Step];
-HBRUSH AActive_Brick_Red_Blue::Fading_Blue_Brick_Brushes[Max_Fade_Step];
+AColor AActive_Brick_Red_Blue::Fading_Red_Brick_Colors[Max_Fade_Step];
+AColor AActive_Brick_Red_Blue::Fading_Blue_Brick_Colors[Max_Fade_Step];
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick_Red_Blue::~AActive_Brick_Red_Blue()
 {
 }
 //------------------------------------------------------------------------------------------------------------
-AActive_Brick_Red_Blue::AActive_Brick_Red_Blue(EBrick_Type brick_type, int level_x, int level_y):
+AActive_Brick_Red_Blue::AActive_Brick_Red_Blue(EBrick_Type brick_type, int level_x, int level_y) :
 	AActive_Brick(brick_type, level_x, level_y), Fade_Step(0)
 {
-	if (! (brick_type == EBT_Blue or brick_type == EBT_Red))
+	if (!(brick_type == EBT_Blue or brick_type == EBT_Red))
 		throw 13;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -57,35 +55,30 @@ void AActive_Brick_Red_Blue::Act()
 void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
 {
 	RECT intersection_rect;
-	HPEN pen = 0;
-	HBRUSH brush = 0;
+	AColor* color = 0;
 
 	switch (Brick_Type)
 	{
 	case EBT_Red:
-		pen = Fading_Red_Brick_Pens[Fade_Step];
-		brush = Fading_Red_Brick_Brushes[Fade_Step];
+		color = &Fading_Red_Brick_Colors[Fade_Step];
 		break;
 
 	case EBT_Blue:
-		pen = Fading_Blue_Brick_Pens[Fade_Step];
-		brush = Fading_Blue_Brick_Brushes[Fade_Step];
+		color = &Fading_Blue_Brick_Colors[Fade_Step];
 		break;
 
 	default:
 		throw 13;
 	}
 
-	if (pen and brush)
+	//if (IntersectRect(&intersection_rect, &paint_area, &Brick_Rect))
 	{
-		if (IntersectRect(&intersection_rect, &paint_area, &Brick_Rect))
-		{
-			SelectObject(hdc, pen);
-			SelectObject(hdc, brush); 
+		if (color != 0)
+			color->Select(hdc);
 
-			RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
-		}
+		RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 	}
+
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Red_Blue::Is_Finished()
@@ -102,8 +95,8 @@ void AActive_Brick_Red_Blue::Setup_Colors()
 
 	for (i = 0; i < Max_Fade_Step; i++)
 	{
-		Get_Fading_Color(AsConfig::Red_Brick_Color, i, AActive_Brick_Red_Blue::Fading_Red_Brick_Pens[i], AActive_Brick_Red_Blue::Fading_Red_Brick_Brushes[i]);
-		Get_Fading_Color(AsConfig::Blue_Brick_Color, i, AActive_Brick_Red_Blue::Fading_Blue_Brick_Pens[i], AActive_Brick_Red_Blue::Fading_Blue_Brick_Brushes[i]);
+		Get_Fading_Color(AsConfig::Red_Color, i, Fading_Red_Brick_Colors[i]);
+		Get_Fading_Color(AsConfig::Blue_Color, i, Fading_Blue_Brick_Colors[i]);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -112,13 +105,15 @@ unsigned char AActive_Brick_Red_Blue::Get_Fading_Channel(unsigned char color, un
 	return color - color * step / (Max_Fade_Step - 1) + bg_color * step / (Max_Fade_Step - 1);
 }
 //------------------------------------------------------------------------------------------------------------
-void AActive_Brick_Red_Blue::Get_Fading_Color(const AColor &color, int step, HPEN &pen, HBRUSH &brush)
+void AActive_Brick_Red_Blue::Get_Fading_Color(const AColor& origin_color, int step, AColor& result_color)
 {
 	unsigned char r, g, b;
-	r = Get_Fading_Channel(color.R, AsConfig::BG_Color.R, step);
-	g = Get_Fading_Channel(color.G, AsConfig::BG_Color.G, step);
-	b = Get_Fading_Channel(color.B, AsConfig::BG_Color.B, step);
-	AsConfig::Create_Pen_Brush(r, g, b, pen, brush);
+
+	r = Get_Fading_Channel(origin_color.R, AsConfig::BG_Color.R, step);
+	g = Get_Fading_Channel(origin_color.G, AsConfig::BG_Color.G, step);
+	b = Get_Fading_Channel(origin_color.B, AsConfig::BG_Color.B, step);
+
+	result_color = AColor(r, g, b);
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -131,12 +126,12 @@ AActive_Brick_Unbreakable::~AActive_Brick_Unbreakable()
 {
 }
 // //------------------------------------------------------------------------------------------------------------
-AActive_Brick_Unbreakable::AActive_Brick_Unbreakable(EBrick_Type brick_type, int level_x, int level_y):
+AActive_Brick_Unbreakable::AActive_Brick_Unbreakable(EBrick_Type brick_type, int level_x, int level_y) :
 	AActive_Brick(brick_type, level_x, level_y), Unbreakable_Animation_Step(0)
 {
 }
 //------------------------------------------------------------------------------------------------------------
-void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT &paint_rect)
+void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 {
 }
 //------------------------------------------------------------------------------------------------------------
