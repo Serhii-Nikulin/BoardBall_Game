@@ -21,8 +21,7 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 	double y_ratio;
 	int back_part_offset;
 	int brick_half_height = AsConfig::Brick_Height * AsConfig::Global_Scale / 2;
-	HPEN front_pen, back_pen;
-	HBRUSH front_brush, back_brush;
+	const AColor *front_color, *back_color;
 	XFORM xform, prev_xform;
 	RECT letter_rect;
 	letter_rect.left = (AsConfig::Brick_Width - (AsConfig::Brick_Height - 2)) * AsConfig::Global_Scale / 2;
@@ -57,17 +56,15 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 			switch_color = true;
 	}
 
-	Set_Brick_Letter_Colors(switch_color, front_pen, front_brush, back_pen, back_brush);
+	Set_Brick_Letter_Colors(switch_color, &front_color, &back_color);
 
 	if (Rotation_Step == 4 or Rotation_Step == 12)
 	{
-		SelectObject(hdc, back_pen);
-		SelectObject(hdc, back_brush);
+		back_color->Select(hdc);
 		Rectangle(hdc, X, Y + brick_half_height - AsConfig::Global_Scale, X + AsConfig::Brick_Width * AsConfig::Global_Scale, Y + brick_half_height);
 
 		//Front side
-		SelectObject(hdc, front_pen);
-		SelectObject(hdc, front_brush);
+		front_color->Select(hdc);
 		Rectangle(hdc, X, Y + brick_half_height, X + AsConfig::Brick_Width * AsConfig::Global_Scale, Y + brick_half_height + AsConfig::Global_Scale - 1);
 	}
 	else
@@ -89,18 +86,16 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 		if (y_ratio < 0.0)
 			back_part_offset = -back_part_offset;
 
-		SelectObject(hdc, back_pen);
-		SelectObject(hdc, back_brush);
+		back_color->Select(hdc);
 		Rectangle(hdc, 0, -brick_half_height - back_part_offset, AsConfig::Brick_Width * AsConfig::Global_Scale, +brick_half_height - back_part_offset);
 
 		//Front side
-		SelectObject(hdc, front_pen);
-		SelectObject(hdc, front_brush);
+		front_color->Select(hdc);
 		Rectangle(hdc, 0, -(int)brick_half_height, AsConfig::Brick_Width * AsConfig::Global_Scale, +(int)brick_half_height);
 
 		if (Rotation_Step > 4 and Rotation_Step < 12)
 		{
-			SelectObject(hdc, AsConfig::Letter_Pen);
+			SelectObject(hdc, AsConfig::White_Color.Pen);
 
 			switch (Letter_Type)
 			{
@@ -236,21 +231,17 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void AFalling_Letter::Set_Brick_Letter_Colors(bool is_switch_color, HPEN& front_pen, HBRUSH& front_brush, HPEN& back_pen, HBRUSH& back_brush)
+void AFalling_Letter::Set_Brick_Letter_Colors(bool is_switch_color, const AColor **front_color, const AColor **back_color)
 {
 	if (is_switch_color)
 	{
-		front_pen = AsConfig::Brick_Red_Pen;
-		front_brush = AsConfig::Brick_Red_Brush;
-		back_pen = AsConfig::Brick_Blue_Pen;
-		back_brush = AsConfig::Brick_Blue_Brush;
+		*front_color  = &AsConfig::Red_Color;
+		*back_color = &AsConfig::Blue_Color;
 	}
 	else
 	{
-		front_pen = AsConfig::Brick_Blue_Pen;
-		front_brush = AsConfig::Brick_Blue_Brush;
-		back_pen = AsConfig::Brick_Red_Pen;
-		back_brush = AsConfig::Brick_Red_Brush;
+		*front_color = &AsConfig::Blue_Color;
+		*back_color = &AsConfig::Red_Color;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -283,8 +274,7 @@ void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Letter_Cell))
 	{
-		SelectObject(hdc, AsConfig::BG_Pen);
-		SelectObject(hdc, AsConfig::BG_Brush);
+		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
 	}
 

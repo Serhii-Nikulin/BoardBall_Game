@@ -19,7 +19,6 @@ class ABall
 {
 public:
 	ABall();
-	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
 	void Move();
 	void Redraw_Ball();
@@ -41,8 +40,6 @@ public:
 	double Rest_Test_Distance;
 private:
 	EBall_State Ball_State;
-	HPEN Ball_Pen;
-	HBRUSH Ball_Brush;
 	RECT Ball_Rect, Prev_Ball_Rect;
 	double Center_X_Pos;
 	double Center_Y_Pos;

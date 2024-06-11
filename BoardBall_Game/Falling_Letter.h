@@ -26,7 +26,7 @@ enum EFalling_Letter_State{
 class AFalling_Letter: public AGraphics_Object
 {
 	void Draw_Brick_Letter(HDC hdc);
-	void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_brush, HPEN &back_pen, HBRUSH &back_brush);
+	void Set_Brick_Letter_Colors(bool is_switch_color, const AColor **front_color, const AColor **back_color);
 
 	const EBrick_Type Brick_Type;
 	const ELetter_Type Letter_Type;

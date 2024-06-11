@@ -27,8 +27,7 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 //ABall
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
-	: Ball_State(EBS_Normal),
-	Ball_Pen{}, Ball_Brush{}, Ball_Rect{}, Prev_Ball_Rect{},
+	: Ball_State(EBS_Normal),Ball_Rect{}, Prev_Ball_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0), 
 	Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
@@ -39,26 +38,19 @@ void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
 		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Init()
-{
-	AsConfig::Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
-}
-//------------------------------------------------------------------------------------------------------------
 void ABall::Draw(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
 	{
-		SelectObject(hdc, AsConfig::BG_Pen);
-		SelectObject(hdc, AsConfig::BG_Brush);
+		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
 	}
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
 	{
-		SelectObject(hdc, Ball_Pen);
-		SelectObject(hdc, Ball_Brush);
+		AsConfig::White_Color.Select(hdc);
 		Ellipse(hdc, Ball_Rect.left, Ball_Rect.top, Ball_Rect.right - 1, Ball_Rect.bottom - 1);
 	}
 }

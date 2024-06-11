@@ -1,15 +1,9 @@
 #include "Border.h"
-#include "Config.h";
+#include "Config.h"
 
 //------------------------------------------------------------------------------------------------------------
 AsBorder::AsBorder()
-	: Border_Blue_Pen{}, Border_White_Pen{}, Border_Blue_Brush{}, Border_White_Brush{}
-{}
-//------------------------------------------------------------------------------------------------------------
-void AsBorder::Init()
 {
-	AsConfig::Create_Pen_Brush(63, 72, 204, Border_Blue_Pen, Border_Blue_Brush);
-	AsConfig::Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw(HDC hdc, RECT &paint_area)
@@ -67,28 +61,24 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border)
 {
-	SelectObject(hdc, Border_White_Pen);
-	SelectObject(hdc, Border_White_Brush);
+	AsConfig::White_Color.Select(hdc);
 
 	if (top_border)
-		Rectangle(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + 4) * AsConfig::Global_Scale - 1, (y + 1) * AsConfig::Global_Scale) - 1;
+		Rectangle(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + 4) * AsConfig::Global_Scale - 1, (y + 1) * AsConfig::Global_Scale - 1);
 	else
-		Rectangle(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + 1) * AsConfig::Global_Scale - 1, (y + 4) * AsConfig::Global_Scale) - 1;
+		Rectangle(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + 1) * AsConfig::Global_Scale - 1, (y + 4) * AsConfig::Global_Scale - 1);
 
-	SelectObject(hdc, Border_Blue_Pen);
-	SelectObject(hdc, Border_Blue_Brush);
+	AsConfig::Blue_Color.Select(hdc);
 
 	if (top_border)
 		Rectangle(hdc, x * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 4) * AsConfig::Global_Scale - 1, (y + 1 + 3) * AsConfig::Global_Scale - 1);
 	else
-		Rectangle(hdc, (x + 1) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + 1 + 3) * AsConfig::Global_Scale - 1, (y + 4) * AsConfig::Global_Scale) - 1;
+		Rectangle(hdc, (x + 1) * AsConfig::Global_Scale, y * AsConfig::Global_Scale, (x + 1 + 3) * AsConfig::Global_Scale - 1, (y + 4) * AsConfig::Global_Scale - 1);
 
-	SelectObject(hdc, AsConfig::BG_Pen);
-	SelectObject(hdc, AsConfig::BG_Brush);
-
+	AsConfig::BG_Color.Select(hdc);
 
 	if (top_border)
-		Rectangle(hdc, (x + 2) * AsConfig::Global_Scale, (y + 2) * AsConfig::Global_Scale, (x + 3) * AsConfig::Global_Scale - 1, (y + 3) * AsConfig::Global_Scale) - 1;
+		Rectangle(hdc, (x + 2) * AsConfig::Global_Scale, (y + 2) * AsConfig::Global_Scale, (x + 3) * AsConfig::Global_Scale - 1, (y + 3) * AsConfig::Global_Scale - 1);
 	else
 		Rectangle(hdc, (x + 2) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 3) * AsConfig::Global_Scale - 1, (y + 2) * AsConfig::Global_Scale - 1);
 }

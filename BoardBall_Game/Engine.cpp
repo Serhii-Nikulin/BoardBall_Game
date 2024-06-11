@@ -20,15 +20,11 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Add_Hit_Checker(&Platform);
 
 	AFalling_Letter::Init();
-	Ball.Init();
 	Level.Init();
 	Level.Set_Current_Level(AsLevel::Level_01);
-	Border.Init();
 	/*Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); */
-	Platform.Init();
 	AActive_Brick_Red_Blue::Setup_Colors();
-	AsConfig::Setup_Colors();
 
 	Platform.Redraw();
 	
