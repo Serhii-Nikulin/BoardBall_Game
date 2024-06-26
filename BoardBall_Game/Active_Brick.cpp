@@ -76,7 +76,7 @@ void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
 		if (color != 0)
 			color->Select(hdc);
 
-		RoundRect(hdc, Brick_Rect.left, Brick_Rect.top, Brick_Rect.right, Brick_Rect.bottom, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
+		AsConfig::Round_Rect(hdc, Brick_Rect);
 	}
 
 }
