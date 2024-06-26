@@ -133,6 +133,20 @@ AActive_Brick_Unbreakable::AActive_Brick_Unbreakable(EBrick_Type brick_type, int
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 {
+	const int scale = AsConfig::Global_Scale;
+
+	AsConfig::White_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, Brick_Rect);
+
+	AsConfig::Red_Color.Select(hdc);
+	MoveToEx(hdc, Brick_Rect.left + 4 * scale, Brick_Rect.top + 7 * scale - 1, 0);
+	LineTo(hdc, Brick_Rect.left + 11 * scale - 1, Brick_Rect.top + 0 * scale);
+	LineTo(hdc, Brick_Rect.left + 14 * scale - 1, Brick_Rect.top + 0 * scale);
+	LineTo(hdc, Brick_Rect.left + 7 * scale, Brick_Rect.top + 7 * scale - 1);
+	
+	LineTo(hdc, Brick_Rect.left + 4 * scale, Brick_Rect.top + 7 * scale - 1);
+
+	FloodFill(hdc, Brick_Rect.left + 11 * scale, Brick_Rect.top + 1 * scale, AsConfig::Red_Color.Get_RGB());
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Act()
