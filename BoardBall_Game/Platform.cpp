@@ -168,7 +168,7 @@ void AsPlatform::Clear_BG(HDC hdc)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
 {
-	SelectObject(hdc, Highlight_Color.Pen);
+	Highlight_Color.Select_Pen(hdc);
 
 	Arc(hdc,
 		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
@@ -249,13 +249,13 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 		{
 			y += stroke_len;
 			j += stroke_len;
-			SelectObject(hdc, color->Pen);
+			color->Select_Pen(hdc);
 			LineTo(hdc, x, y);			
 		}
 
 		y = Meltdown_Platform_Y_Pos[i];
 		MoveToEx(hdc, x, y, 0);
-		SelectObject(hdc, AsConfig::BG_Color.Pen);
+		AsConfig::BG_Color.Select_Pen(hdc);
 		LineTo(hdc, x, y + y_offset);
 		Meltdown_Platform_Y_Pos[i] += y_offset;
 

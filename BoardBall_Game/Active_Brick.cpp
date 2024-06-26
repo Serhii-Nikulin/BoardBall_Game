@@ -122,13 +122,18 @@ void AActive_Brick_Red_Blue::Get_Fading_Color(const AColor& origin_color, int st
 
 //AActive_Brick_Unbreakable
 //------------------------------------------------------------------------------------------------------------
+AColor AActive_Brick_Unbreakable::Red_Higlight(AsConfig::Red_Color, 3 * AsConfig::Global_Scale);
+AColor AActive_Brick_Unbreakable::Blue_Highlight(AsConfig::Blue_Color, AsConfig::Global_Scale);
+//------------------------------------------------------------------------------------------------------------
 AActive_Brick_Unbreakable::~AActive_Brick_Unbreakable()
 {
+	DeleteObject(Region);
 }
 // //------------------------------------------------------------------------------------------------------------
 AActive_Brick_Unbreakable::AActive_Brick_Unbreakable(EBrick_Type brick_type, int level_x, int level_y) :
 	AActive_Brick(brick_type, level_x, level_y), Unbreakable_Animation_Step(0)
 {
+	Region = CreateRoundRectRgn(Brick_Rect.left, Brick_Rect.top, Brick_Rect.right + 1, Brick_Rect.bottom + 1, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
@@ -139,14 +144,19 @@ void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 	AsConfig::Round_Rect(hdc, Brick_Rect);
 
 	AsConfig::Red_Color.Select(hdc);
-	MoveToEx(hdc, Brick_Rect.left + 4 * scale, Brick_Rect.top + 7 * scale - 1, 0);
-	LineTo(hdc, Brick_Rect.left + 11 * scale - 1, Brick_Rect.top + 0 * scale);
-	LineTo(hdc, Brick_Rect.left + 14 * scale - 1, Brick_Rect.top + 0 * scale);
-	LineTo(hdc, Brick_Rect.left + 7 * scale, Brick_Rect.top + 7 * scale - 1);
-	
-	LineTo(hdc, Brick_Rect.left + 4 * scale, Brick_Rect.top + 7 * scale - 1);
 
-	FloodFill(hdc, Brick_Rect.left + 11 * scale, Brick_Rect.top + 1 * scale, AsConfig::Red_Color.Get_RGB());
+	SelectClipRgn(hdc, Region);
+
+	Red_Higlight.Select_Pen(hdc);
+
+	MoveToEx(hdc, Brick_Rect.left + 2 * scale, Brick_Rect.top + 8 * scale, 0);
+	LineTo(hdc, Brick_Rect.left + 11 * scale, Brick_Rect.top - 1 * scale);
+
+	Blue_Highlight.Select_Pen(hdc);
+	MoveToEx(hdc, Brick_Rect.left + 0 * scale, Brick_Rect.top + 8 * scale, 0);
+	LineTo(hdc, Brick_Rect.left + 10 * scale, Brick_Rect.top - 2 * scale);
+
+	SelectClipRgn(hdc, 0);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Act()

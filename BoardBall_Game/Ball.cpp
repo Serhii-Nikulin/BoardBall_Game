@@ -139,7 +139,7 @@ void ABall::Set_State(EBall_State new_state, int x_pos, int y_pos, double direct
 	case EBS_Normal:
 		Center_X_Pos = x_pos;
 		Center_Y_Pos = y_pos;
-		Ball_Speed = AsConfig::Global_Scale * 2;
+		Ball_Speed = 2 * AsConfig::Global_Scale;
 		Ball_Direction = direction;
 		Rest_Distance = 0.0;
 		break;

@@ -60,5 +60,8 @@ public:
 
 	static const int Max_Unbreakable_Animation_Step = 5;
 	int Unbreakable_Animation_Step;
+private:
+	static AColor Red_Higlight, Blue_Highlight;
+	HRGN Region;
 };
 //------------------------------------------------------------------------------------------------------------

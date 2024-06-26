@@ -10,12 +10,17 @@ class AColor
 public:
 	AColor();
 	AColor(unsigned char r, unsigned char g, unsigned char b);
+	AColor(const AColor& color, int pen_size);
 	unsigned char R, G, B;
-	HPEN Pen;
-	HBRUSH Brush;
 
 	int Get_RGB() const;
 	void Select(HDC hdc) const;
+	void Select_Pen(HDC hdc) const;
+	HBRUSH Get_Brush() const;
+
+private:
+	HPEN Pen;
+	HBRUSH Brush;
 };
 //------------------------------------------------------------------------------------------------------------
 
