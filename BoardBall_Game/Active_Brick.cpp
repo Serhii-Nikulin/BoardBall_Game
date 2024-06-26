@@ -131,7 +131,7 @@ AActive_Brick_Unbreakable::~AActive_Brick_Unbreakable()
 }
 // //------------------------------------------------------------------------------------------------------------
 AActive_Brick_Unbreakable::AActive_Brick_Unbreakable(EBrick_Type brick_type, int level_x, int level_y) :
-	AActive_Brick(brick_type, level_x, level_y), Unbreakable_Animation_Step(0)
+	AActive_Brick(brick_type, level_x, level_y), Animation_Step(0)
 {
 	Region = CreateRoundRectRgn(Brick_Rect.left, Brick_Rect.top, Brick_Rect.right + 1, Brick_Rect.bottom + 1, 2 * AsConfig::Global_Scale, 2 * AsConfig::Global_Scale);
 }
@@ -139,6 +139,7 @@ AActive_Brick_Unbreakable::AActive_Brick_Unbreakable(EBrick_Type brick_type, int
 void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 {
 	const int scale = AsConfig::Global_Scale;
+	int offset;
 
 	AsConfig::White_Color.Select(hdc);
 	AsConfig::Round_Rect(hdc, Brick_Rect);
@@ -149,22 +150,23 @@ void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 
 	Red_Higlight.Select_Pen(hdc);
 
-	MoveToEx(hdc, Brick_Rect.left + 2 * scale, Brick_Rect.top + 8 * scale, 0);
-	LineTo(hdc, Brick_Rect.left + 11 * scale, Brick_Rect.top - 1 * scale);
+	offset = (2 * Animation_Step - AsConfig::Brick_Width) * scale;
+	MoveToEx(hdc, Brick_Rect.left + 2 * scale + offset, Brick_Rect.top + 8 * scale, 0);
+	LineTo(hdc, Brick_Rect.left + 11 * scale + offset, Brick_Rect.top - 1 * scale);
 
 	Blue_Highlight.Select_Pen(hdc);
-	MoveToEx(hdc, Brick_Rect.left + 0 * scale, Brick_Rect.top + 8 * scale, 0);
-	LineTo(hdc, Brick_Rect.left + 10 * scale, Brick_Rect.top - 2 * scale);
+	MoveToEx(hdc, Brick_Rect.left + 0 * scale + offset, Brick_Rect.top + 8 * scale, 0);
+	LineTo(hdc, Brick_Rect.left + 10 * scale + offset, Brick_Rect.top - 2 * scale);
 
 	SelectClipRgn(hdc, 0);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Act()
 {
-	if (Unbreakable_Animation_Step < Max_Unbreakable_Animation_Step)
+	if (Animation_Step < Max_Animation_Step)
 	{
 		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
-		Unbreakable_Animation_Step += 1;
+		Animation_Step += 1;
 	}
 }
 //------------------------------------------------------------------------------------------------------------

@@ -58,8 +58,8 @@ public:
 	virtual void Act();
 	virtual bool Is_Finished();
 
-	static const int Max_Unbreakable_Animation_Step = 5;
-	int Unbreakable_Animation_Step;
+	static const int Max_Animation_Step = 15;
+	int Animation_Step;
 private:
 	static AColor Red_Higlight, Blue_Highlight;
 	HRGN Region;
