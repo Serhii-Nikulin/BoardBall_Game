@@ -100,6 +100,38 @@ void AActive_Brick_Red_Blue::Setup_Colors()
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Red_Blue::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
+{
+	const AColor *color;
+
+	switch (brick_type)
+	{
+	case EBT_None:
+		color = &AsConfig::BG_Color;
+		break;
+
+	case EBT_Blue:
+		color = &AsConfig::Blue_Color;
+		break;
+
+	case EBT_Red:
+		color = &AsConfig::Red_Color;
+		break;
+
+	case EBT_Unbreakable:
+		color = &AsConfig::White_Color;
+		break;
+
+	default:
+		throw 13 ;
+	}
+
+	if (color != 0)
+		color->Select(hdc);
+
+	AsConfig::Round_Rect(hdc, brick_rect);
+}
+//------------------------------------------------------------------------------------------------------------
 unsigned char AActive_Brick_Red_Blue::Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step)
 {
 	return color - color * step / (Max_Fade_Step - 1) + bg_color * step / (Max_Fade_Step - 1);
@@ -141,8 +173,7 @@ void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 	const int scale = AsConfig::Global_Scale;
 	int offset;
 
-	AsConfig::White_Color.Select(hdc);
-	AsConfig::Round_Rect(hdc, Brick_Rect);
+	Draw_In_Level(hdc, Brick_Rect);
 
 	AsConfig::Red_Color.Select(hdc);
 
@@ -151,6 +182,7 @@ void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 	Red_Higlight.Select_Pen(hdc);
 
 	offset = (2 * Animation_Step - AsConfig::Brick_Width) * scale;
+
 	MoveToEx(hdc, Brick_Rect.left + 2 * scale + offset, Brick_Rect.top + 8 * scale, 0);
 	LineTo(hdc, Brick_Rect.left + 11 * scale + offset, Brick_Rect.top - 1 * scale);
 
@@ -173,5 +205,11 @@ void AActive_Brick_Unbreakable::Act()
 bool AActive_Brick_Unbreakable::Is_Finished()
 {
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Unbreakable::Draw_In_Level(HDC hdc, RECT &brick_rect)
+{
+	AsConfig::White_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, brick_rect);
 }
 //------------------------------------------------------------------------------------------------------------
