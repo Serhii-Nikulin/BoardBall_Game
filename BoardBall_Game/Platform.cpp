@@ -168,7 +168,7 @@ void AsPlatform::Clear_BG(HDC hdc)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
 {
-	SelectObject(hdc, Highlight_Color.Pen);
+	Highlight_Color.Select_Pen(hdc);
 
 	Arc(hdc,
 		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
@@ -184,6 +184,7 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	int y = AsConfig::Platform_Y_Pos;
 	int offset = 0;
 	RECT intersection_rect{};
+	RECT inner_rect{};
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
 		Clear_BG(hdc);
@@ -196,7 +197,13 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 
 	//draw inner part
 	Platform_Inner_Color.Select(hdc);
-	RoundRect(hdc, (x + 4) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 4 + Inner_Width) * AsConfig::Global_Scale - 1, (y + 1 + Inner_Height) * AsConfig::Global_Scale - 1, Inner_Height * AsConfig::Global_Scale, Inner_Height * AsConfig::Global_Scale);
+
+	inner_rect.left = (x + 4) * AsConfig::Global_Scale;
+	inner_rect.top = (y + 1) * AsConfig::Global_Scale;
+	inner_rect.right = (x + 4 + Inner_Width) * AsConfig::Global_Scale;
+	inner_rect.bottom = (y + 1 + Inner_Height) * AsConfig::Global_Scale;
+
+	AsConfig::Round_Rect(hdc, inner_rect, Inner_Height);
 
 	//draw highlight
 	Draw_Circle_Highlight(hdc, x * AsConfig::Global_Scale, y * AsConfig::Global_Scale);
@@ -242,13 +249,13 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 		{
 			y += stroke_len;
 			j += stroke_len;
-			SelectObject(hdc, color->Pen);
+			color->Select_Pen(hdc);
 			LineTo(hdc, x, y);			
 		}
 
 		y = Meltdown_Platform_Y_Pos[i];
 		MoveToEx(hdc, x, y, 0);
-		SelectObject(hdc, AsConfig::BG_Color.Pen);
+		AsConfig::BG_Color.Select_Pen(hdc);
 		LineTo(hdc, x, y + y_offset);
 		Meltdown_Platform_Y_Pos[i] += y_offset;
 

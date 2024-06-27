@@ -36,6 +36,7 @@ public:
 	virtual void Act();
 	virtual bool Is_Finished();
 	static void Setup_Colors();
+	static void Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
 
 private:
 	static unsigned char Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step);
@@ -57,8 +58,12 @@ public:
 	virtual void Draw(HDC hdc, RECT &paint_rect);
 	virtual void Act();
 	virtual bool Is_Finished();
+	static void Draw_In_Level(HDC hdc, RECT &brick_rect);
 
-	static const int Max_Unbreakable_Animation_Step = 5;
-	int Unbreakable_Animation_Step;
+	static const int Max_Animation_Step = 15;
+	int Animation_Step;
+private:
+	static AColor Red_Higlight, Blue_Highlight;
+	HRGN Region;
 };
 //------------------------------------------------------------------------------------------------------------

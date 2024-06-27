@@ -10,12 +10,17 @@ class AColor
 public:
 	AColor();
 	AColor(unsigned char r, unsigned char g, unsigned char b);
+	AColor(const AColor& color, int pen_size);
 	unsigned char R, G, B;
-	HPEN Pen;
-	HBRUSH Brush;
 
 	int Get_RGB() const;
 	void Select(HDC hdc) const;
+	void Select_Pen(HDC hdc) const;
+	HBRUSH Get_Brush() const;
+
+private:
+	HPEN Pen;
+	HBRUSH Brush;
 };
 //------------------------------------------------------------------------------------------------------------
 
@@ -29,6 +34,7 @@ public:
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
 	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
 	static int Rand(int range);
+	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
 
 	static HWND Hwnd;
 	static const int Global_Scale = 3;
