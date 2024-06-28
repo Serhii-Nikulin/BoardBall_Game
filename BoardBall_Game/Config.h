@@ -35,6 +35,7 @@ public:
 	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
 	static int Rand(int range);
 	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
+	static void Throw();
 
 	static HWND Hwnd;
 	static const int Global_Scale = 3;

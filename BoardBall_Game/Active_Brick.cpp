@@ -68,7 +68,7 @@ void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
 		break;
 
 	default:
-		throw 13;
+		AsConfig::Throw();
 	}
 
 	//if (IntersectRect(&intersection_rect, &paint_area, &Brick_Rect))
@@ -102,7 +102,7 @@ void AActive_Brick_Red_Blue::Setup_Colors()
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Red_Blue::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 {
-	const AColor *color;
+	const AColor *color = 0;
 
 	switch (brick_type)
 	{
@@ -123,7 +123,7 @@ void AActive_Brick_Red_Blue::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Typ
 		break;
 
 	default:
-		throw 13 ;
+		AsConfig::Throw();
 	}
 
 	if (color != 0)
@@ -204,7 +204,10 @@ void AActive_Brick_Unbreakable::Act()
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Unbreakable::Is_Finished()
 {
-	return false;
+	if (Animation_Step >= Max_Animation_Step)
+		return true;
+	else
+		return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Draw_In_Level(HDC hdc, RECT &brick_rect)

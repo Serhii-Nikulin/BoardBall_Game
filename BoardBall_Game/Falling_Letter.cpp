@@ -222,7 +222,7 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 				break;
 
 			default:
-				break;
+				AsConfig::Throw();
 			}
 			
 		}

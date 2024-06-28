@@ -16,8 +16,8 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3,//8
-		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+		//3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3,//8
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
@@ -142,7 +142,7 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 		break;
 
 	default:
-		throw 13;
+		AsConfig::Throw();
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 {
 	int i;
-	AActive_Brick* active_brick;
+	AActive_Brick* active_brick = 0;
 
 	switch (brick_type)
 	{
@@ -381,7 +381,7 @@ void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 		break;
 
 	default:
-		throw 13;
+		AsConfig::Throw();
 	}
 
 	for (i = 0; i < Max_Active_Bricks_Count; i++)
