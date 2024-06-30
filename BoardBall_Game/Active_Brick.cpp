@@ -233,6 +233,19 @@ AActive_Brick_Multihit::AActive_Brick_Multihit(EBrick_Type brick_type, int level
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)
 {
+	const int scale = AsConfig::Global_Scale;
+	AsConfig::BG_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, Brick_Rect);
+
+	HPEN pen = CreatePen(PS_SOLID, AsConfig::Global_Scale, AsConfig::White_Color.Get_RGB() );
+
+	SelectObject(hdc, pen);
+	MoveToEx(hdc, Brick_Rect.left + 1 * scale, Brick_Rect.top + 3 * scale, 0);
+	LineTo(hdc, Brick_Rect.left + 3 * scale, Brick_Rect.top + 1 * scale);
+	LineTo(hdc, Brick_Rect.left + 3 * scale, Brick_Rect.top + 6 * scale + 1);
+
+	RoundRect(hdc, Brick_Rect.left + 5 * scale, Brick_Rect.top + 1 * scale, Brick_Rect.left + 8 * scale, Brick_Rect.top + 6 * scale + 1, 2 * scale, 2 * scale);
+	RoundRect(hdc, Brick_Rect.left + 10 * scale, Brick_Rect.top + 1 * scale, Brick_Rect.left + 13 * scale, Brick_Rect.top + 6 * scale + 1, 2 * scale, 2 * scale);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Multihit::Is_Finished()
