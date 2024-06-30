@@ -63,8 +63,9 @@ public:
 	static const AColor Blue_Color;
 	static const AColor BG_Color;
 	static const AColor White_Color;
+	static const AColor Letter_Color;
 
-	static const int Hits_Per_Letter = 5;
+	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 10;
 };
 //------------------------------------------------------------------------------------------------------------

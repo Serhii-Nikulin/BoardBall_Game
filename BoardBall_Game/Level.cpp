@@ -16,9 +16,10 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		//2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
 		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - unbreakable_bricks
-		2, 2, 2, 2, 2, 2, 2, 2, 4, 5, 6, 4,
+		//2, 2, 2, 2, 2, 2, 2, 2, 4, 5, 6, 4,
+		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7,
 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
@@ -406,6 +407,7 @@ void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 
 	case EBT_Multihit_1:
 		active_brick = new AActive_Brick_Multihit(brick_type, level_x, level_y);
+		Current_Level[level_y][level_x] = EBT_None;
 		break;
 
 	case EBT_Multihit_2:

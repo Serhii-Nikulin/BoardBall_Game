@@ -4,6 +4,7 @@ const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Color(237, 38, 36);
 const AColor AsConfig::Blue_Color(63, 72, 204);
 const AColor AsConfig::White_Color(255, 255, 255);
+const AColor AsConfig::Letter_Color(AsConfig::White_Color, AsConfig::Global_Scale);
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():
 	R(0), G(0), B(0), Pen(0), Brush(0)

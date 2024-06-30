@@ -227,30 +227,58 @@ AActive_Brick_Multihit::~AActive_Brick_Multihit()
 }
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick_Multihit::AActive_Brick_Multihit(EBrick_Type brick_type, int level_x, int level_y)
-	:AActive_Brick(brick_type, level_x, level_y)
+	:AActive_Brick(brick_type, level_x, level_y), Rotation_Step(0)
 {
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Multihit::Act()
+{ 
+	if (Rotation_Step <= Max_Rotation_Step)
+	{
+		++Rotation_Step;
+		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)
 {
 	const int scale = AsConfig::Global_Scale;
+	double x_delta;
+	double angle;
+	XFORM xform, prev_xform;
+	RECT zero_rect;
+
 	AsConfig::BG_Color.Select(hdc);
 	AsConfig::Round_Rect(hdc, Brick_Rect);
 
-	HPEN pen = CreatePen(PS_SOLID, AsConfig::Global_Scale, AsConfig::White_Color.Get_RGB() );
+	angle = 4.0 * M_PI * (double)Rotation_Step / Max_Rotation_Step;
+	x_delta = cos(angle);
+	xform.eM11 = (FLOAT)x_delta; xform.eM12 = (FLOAT)0.0;
+	xform.eM21 = (FLOAT)0.0; xform.eM22 = (FLOAT)1.0;
 
-	SelectObject(hdc, pen);
-	MoveToEx(hdc, Brick_Rect.left + 1 * scale, Brick_Rect.top + 3 * scale, 0);
-	LineTo(hdc, Brick_Rect.left + 3 * scale, Brick_Rect.top + 1 * scale);
-	LineTo(hdc, Brick_Rect.left + 3 * scale, Brick_Rect.top + 6 * scale + 1);
+	xform.eDx = (FLOAT)(Brick_Rect.left + (1 - x_delta) * (AsConfig::Brick_Width * scale) / 2.0);
+	xform.eDy = (FLOAT)Brick_Rect.top;
+	GetWorldTransform(hdc, &prev_xform);
+	SetWorldTransform(hdc, &xform);
 
-	RoundRect(hdc, Brick_Rect.left + 5 * scale, Brick_Rect.top + 1 * scale, Brick_Rect.left + 8 * scale, Brick_Rect.top + 6 * scale + 1, 2 * scale, 2 * scale);
-	RoundRect(hdc, Brick_Rect.left + 10 * scale, Brick_Rect.top + 1 * scale, Brick_Rect.left + 13 * scale, Brick_Rect.top + 6 * scale + 1, 2 * scale, 2 * scale);
+	AsConfig::Letter_Color.Select_Pen(hdc);
+	
+	MoveToEx(hdc, 0 + 1 * scale, 0 + 3 * scale, 0);
+	LineTo(hdc, 0 + 3 * scale, 0 + 1 * scale);
+	LineTo(hdc, 0 + 3 * scale, 0 + 6 * scale + 1);
+	
+	RoundRect(hdc, 0 + 5 * scale, 0 + 1 * scale, 0 + 8 * scale, 0 + 6 * scale + 1, 2 * scale, 2 * scale);
+	RoundRect(hdc, 0 + 10 * scale, 0 + 1 * scale, 0 + 13 * scale, 0 + 6 * scale + 1, 2 * scale, 2 * scale);
+
+	SetWorldTransform(hdc, &prev_xform);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Multihit::Is_Finished()
 {
-	return false;
+	if (Rotation_Step >= Max_Rotation_Step)
+		return true;
+	else
+		return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Multihit::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
