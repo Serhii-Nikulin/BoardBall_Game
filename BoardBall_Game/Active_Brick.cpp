@@ -224,13 +224,11 @@ void AActive_Brick_Unbreakable::Draw_In_Level(HDC hdc, RECT &brick_rect)
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick_Multihit::~AActive_Brick_Multihit()
 {
-
 }
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick_Multihit::AActive_Brick_Multihit(EBrick_Type brick_type, int level_x, int level_y)
 	:AActive_Brick(brick_type, level_x, level_y)
 {
-
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)

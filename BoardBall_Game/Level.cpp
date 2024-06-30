@@ -16,9 +16,9 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		//3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3,//8
+		//2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
 		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - unbreakable_bricks
-		2, 2, 2, 2, 2, 2, 2, 2, 4, 5, 6, 7,
+		2, 2, 2, 2, 2, 2, 2, 2, 4, 5, 6, 4,
 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
@@ -138,9 +138,11 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 	case EBT_Red:
 		AActive_Brick_Red_Blue::Draw_In_Level(hdc, brick_rect, brick_type);
 		break;
+
 	case EBT_Unbreakable:
 		AActive_Brick_Unbreakable::Draw_In_Level(hdc, brick_rect);
 		break;
+
 	case EBT_Multihit_1:
 	case EBT_Multihit_2:
 	case EBT_Multihit_3:
@@ -334,15 +336,21 @@ void AsLevel::On_Hit(int level_x, int level_y)
 	else
 		Add_Active_Brick(level_x, level_y, brick_type);
 
-	RECT rect;
+	Redraw_Brick(level_x, level_y);
+	
 
-	rect.left = (AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width) * AsConfig::Global_Scale;
-	rect.top = (AsConfig::Level_Y_Offset + level_y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
-	rect.right = rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
-	rect.bottom = rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Redraw_Brick(int level_x, int level_y)
+{
+	RECT brick_rect;
 
-	InvalidateRect(AsConfig::Hwnd, &rect, FALSE);
+	brick_rect.left = (AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width) * AsConfig::Global_Scale;
+	brick_rect.top = (AsConfig::Level_Y_Offset + level_y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
+	brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+	brick_rect.bottom = brick_rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
 
+	InvalidateRect(AsConfig::Hwnd, &brick_rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type)
