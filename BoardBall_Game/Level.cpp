@@ -16,8 +16,10 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3,//8
-		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - unbreakable_bricks
+		//2, 2, 2, 2, 2, 2, 2, 2, 4, 5, 6, 4,
+		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7,
 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
@@ -137,12 +139,20 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 	case EBT_Red:
 		AActive_Brick_Red_Blue::Draw_In_Level(hdc, brick_rect, brick_type);
 		break;
+
 	case EBT_Unbreakable:
 		AActive_Brick_Unbreakable::Draw_In_Level(hdc, brick_rect);
 		break;
 
+	case EBT_Multihit_1:
+	case EBT_Multihit_2:
+	case EBT_Multihit_3:
+	case EBT_Multihit_4:
+		AActive_Brick_Multihit::Draw_In_Level(hdc, brick_rect, brick_type);
+		break;
+
 	default:
-		throw 13;
+		AsConfig::Throw();
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -327,6 +337,21 @@ void AsLevel::On_Hit(int level_x, int level_y)
 	else
 		Add_Active_Brick(level_x, level_y, brick_type);
 
+	Redraw_Brick(level_x, level_y);
+	
+
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Redraw_Brick(int level_x, int level_y)
+{
+	RECT brick_rect;
+
+	brick_rect.left = (AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width) * AsConfig::Global_Scale;
+	brick_rect.top = (AsConfig::Level_Y_Offset + level_y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
+	brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+	brick_rect.bottom = brick_rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+
+	InvalidateRect(AsConfig::Hwnd, &brick_rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type)
@@ -366,7 +391,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 {
 	int i;
-	AActive_Brick* active_brick;
+	AActive_Brick* active_brick = 0;
 
 	switch (brick_type)
 	{
@@ -380,8 +405,19 @@ void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 		active_brick = new AActive_Brick_Unbreakable(brick_type, level_x, level_y);
 		break;
 
+	case EBT_Multihit_1:
+		active_brick = new AActive_Brick_Multihit(brick_type, level_x, level_y);
+		Current_Level[level_y][level_x] = EBT_None;
+		break;
+
+	case EBT_Multihit_2:
+	case EBT_Multihit_3:
+	case EBT_Multihit_4:
+		Current_Level[level_y][level_x] = brick_type - 1;
+		break;
+
 	default:
-		throw 13;
+		AsConfig::Throw();
 	}
 
 	for (i = 0; i < Max_Active_Bricks_Count; i++)

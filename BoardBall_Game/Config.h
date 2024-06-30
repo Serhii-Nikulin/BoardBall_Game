@@ -35,6 +35,7 @@ public:
 	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
 	static int Rand(int range);
 	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
+	static void Throw();
 
 	static HWND Hwnd;
 	static const int Global_Scale = 3;
@@ -62,8 +63,9 @@ public:
 	static const AColor Blue_Color;
 	static const AColor BG_Color;
 	static const AColor White_Color;
+	static const AColor Letter_Color;
 
-	static const int Hits_Per_Letter = 2;
+	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 10;
 };
 //------------------------------------------------------------------------------------------------------------

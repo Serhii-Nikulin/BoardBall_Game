@@ -4,7 +4,8 @@
 #include "Platform.h"
 #include "Level.h"
 
-enum EGame_State {
+enum EGame_State
+{
 	EGS_Test_Ball,
 	EGS_Play_Level, EGS_Lost_Ball, EGS_Restart_Level
 };
@@ -14,7 +15,8 @@ const int Timer_ID = WM_USER + 1;
 class AsEngine
 {
 public:
-	enum EKey_Type {
+	enum EKey_Type
+	{
 		EKT_Left, EKT_Right, EKT_Space
 	};
 

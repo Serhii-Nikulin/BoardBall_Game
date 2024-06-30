@@ -1,9 +1,9 @@
 #pragma once
 #include "Active_Brick.h"
 
-enum ELetter_Type {
+enum ELetter_Type
+{
 	//ELT_None,
-
 	ELT_O, // To cancel
 	ELT_M, // To generate the monster
 	ELT_I, // Inversion
@@ -19,7 +19,8 @@ enum ELetter_Type {
 	ELT_Max
 };
 //------------------------------------------------------------------------------------------------------------
-enum EFalling_Letter_State{
+enum EFalling_Letter_State
+{
 	EFLS_Normal, EFLS_Finalizing, EFLS_Finished
 };
 //------------------------------------------------------------------------------------------------------------

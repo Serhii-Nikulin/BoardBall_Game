@@ -68,7 +68,7 @@ void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
 		break;
 
 	default:
-		throw 13;
+		AsConfig::Throw();
 	}
 
 	//if (IntersectRect(&intersection_rect, &paint_area, &Brick_Rect))
@@ -102,7 +102,7 @@ void AActive_Brick_Red_Blue::Setup_Colors()
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Red_Blue::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 {
-	const AColor *color;
+	const AColor *color = 0;
 
 	switch (brick_type)
 	{
@@ -123,7 +123,7 @@ void AActive_Brick_Red_Blue::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Typ
 		break;
 
 	default:
-		throw 13 ;
+		AsConfig::Throw();
 	}
 
 	if (color != 0)
@@ -204,7 +204,10 @@ void AActive_Brick_Unbreakable::Act()
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Unbreakable::Is_Finished()
 {
-	return false;
+	if (Animation_Step >= Max_Animation_Step)
+		return true;
+	else
+		return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Unbreakable::Draw_In_Level(HDC hdc, RECT &brick_rect)
@@ -213,3 +216,127 @@ void AActive_Brick_Unbreakable::Draw_In_Level(HDC hdc, RECT &brick_rect)
 	AsConfig::Round_Rect(hdc, brick_rect);
 }
 //------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AActive_Brick_Multihit
+//------------------------------------------------------------------------------------------------------------
+AActive_Brick_Multihit::~AActive_Brick_Multihit()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+AActive_Brick_Multihit::AActive_Brick_Multihit(EBrick_Type brick_type, int level_x, int level_y)
+	:AActive_Brick(brick_type, level_x, level_y), Rotation_Step(0)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Multihit::Act()
+{ 
+	if (Rotation_Step <= Max_Rotation_Step)
+	{
+		++Rotation_Step;
+		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)
+{
+	const int scale = AsConfig::Global_Scale;
+	double x_delta;
+	double angle;
+	XFORM xform, prev_xform;
+	RECT zero_rect;
+
+	AsConfig::BG_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, Brick_Rect);
+
+	angle = 4.0 * M_PI * (double)Rotation_Step / Max_Rotation_Step;
+	x_delta = cos(angle);
+	xform.eM11 = (FLOAT)x_delta; xform.eM12 = (FLOAT)0.0;
+	xform.eM21 = (FLOAT)0.0; xform.eM22 = (FLOAT)1.0;
+
+	xform.eDx = (FLOAT)(Brick_Rect.left + (1 - x_delta) * (AsConfig::Brick_Width * scale) / 2.0);
+	xform.eDy = (FLOAT)Brick_Rect.top;
+	GetWorldTransform(hdc, &prev_xform);
+	SetWorldTransform(hdc, &xform);
+
+	AsConfig::Letter_Color.Select_Pen(hdc);
+	
+	MoveToEx(hdc, 0 + 1 * scale, 0 + 3 * scale, 0);
+	LineTo(hdc, 0 + 3 * scale, 0 + 1 * scale);
+	LineTo(hdc, 0 + 3 * scale, 0 + 6 * scale + 1);
+	
+	RoundRect(hdc, 0 + 5 * scale, 0 + 1 * scale, 0 + 8 * scale, 0 + 6 * scale + 1, 2 * scale, 2 * scale);
+	RoundRect(hdc, 0 + 10 * scale, 0 + 1 * scale, 0 + 13 * scale, 0 + 6 * scale + 1, 2 * scale, 2 * scale);
+
+	SetWorldTransform(hdc, &prev_xform);
+}
+//------------------------------------------------------------------------------------------------------------
+bool AActive_Brick_Multihit::Is_Finished()
+{
+	if (Rotation_Step >= Max_Rotation_Step)
+		return true;
+	else
+		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Multihit::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
+{
+	const int scale = AsConfig::Global_Scale;
+	
+
+	AsConfig::White_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, brick_rect);
+
+	AsConfig::Red_Color.Select(hdc);
+	Rectangle(hdc, brick_rect.left + scale, brick_rect.top + scale, brick_rect.right - scale - 1, brick_rect.bottom - scale - 1);
+
+	switch (brick_type)
+	{
+	case EBT_Multihit_1:
+		Draw_Stage(hdc, brick_rect, 2, 10);
+		break;
+		
+	case EBT_Multihit_2:
+		Draw_Stage(hdc, brick_rect, 2, 4);
+		Draw_Stage(hdc, brick_rect, 8, 4);
+		break;
+
+	case EBT_Multihit_3:
+		Draw_Stage(hdc, brick_rect, 2, 2);
+		Draw_Stage(hdc, brick_rect, 6, 2);
+		Draw_Stage(hdc, brick_rect, 10, 2);
+		break;
+
+	case EBT_Multihit_4:
+		Draw_Stage(hdc, brick_rect, 2, 2);
+		Draw_Stage(hdc, brick_rect, 5, 2);
+		Draw_Stage(hdc, brick_rect, 8, 2);
+		Draw_Stage(hdc, brick_rect, 11, 2);
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
+
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Multihit::Draw_Stage(HDC hdc, RECT &brick_rect, int x, int width)
+{
+	RECT stage_rect;
+	const int scale = AsConfig::Global_Scale;
+
+	stage_rect.left = brick_rect.left + x * scale;
+	stage_rect.top = brick_rect.top + 2 * scale;
+	stage_rect.right = stage_rect.left + width * scale - 1;
+	stage_rect.bottom = stage_rect.top + 3 * scale - 1;
+
+	AsConfig::BG_Color.Select(hdc);
+	Rectangle(hdc, stage_rect.left + scale, stage_rect.top + scale, stage_rect.right + scale, stage_rect.bottom + scale);
+
+	AsConfig::Blue_Color.Select(hdc);
+	Rectangle(hdc, stage_rect.left, stage_rect.top, stage_rect.right, stage_rect.bottom);
+}
+//------------------------------------------------------------------------------------------------------------
+

@@ -4,6 +4,7 @@ const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Color(237, 38, 36);
 const AColor AsConfig::Blue_Color(63, 72, 204);
 const AColor AsConfig::White_Color(255, 255, 255);
+const AColor AsConfig::Letter_Color(AsConfig::White_Color, AsConfig::Global_Scale);
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():
 	R(0), G(0), B(0), Pen(0), Brush(0)
@@ -76,5 +77,10 @@ void AsConfig::Round_Rect(HDC hdc, RECT &rect, int corner_radius)
 {
 	int radius = corner_radius * Global_Scale;
 	RoundRect(hdc, rect.left, rect.top, rect.right - 1, rect.bottom - 1, radius, radius);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsConfig::Throw()
+{
+	throw 13;
 }
 //------------------------------------------------------------------------------------------------------------

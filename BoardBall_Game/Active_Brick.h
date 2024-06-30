@@ -1,9 +1,11 @@
 #pragma once
 #include "Config.h"
 
-enum EBrick_Type {
+enum EBrick_Type 
+{
 	EBT_None, EBT_Red, EBT_Blue,
-	EBT_Unbreakable
+	EBT_Unbreakable,
+	EBT_Multihit_1, EBT_Multihit_2, EBT_Multihit_3, EBT_Multihit_4
 };
 //------------------------------------------------------------------------------------------------------------
 class AGraphics_Object
@@ -23,8 +25,12 @@ protected:
 	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
 	EBrick_Type Brick_Type;
 	RECT Brick_Rect;
-
 };
+//-----------------------------------------------------------------------------------------------------
+
+
+
+
 //-----------------------------------------------------------------------------------------------------
 class AActive_Brick_Red_Blue: public AActive_Brick
 {
@@ -49,6 +55,11 @@ private:
 	static AColor Fading_Blue_Brick_Colors[Max_Fade_Step];
 };
 //------------------------------------------------------------------------------------------------------------
+
+
+
+
+//-----------------------------------------------------------------------------------------------------
 class AActive_Brick_Unbreakable: public AActive_Brick
 {
 public:
@@ -65,5 +76,29 @@ public:
 private:
 	static AColor Red_Higlight, Blue_Highlight;
 	HRGN Region;
+};
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+class AActive_Brick_Multihit: public AActive_Brick
+{
+public:
+	~AActive_Brick_Multihit();
+	AActive_Brick_Multihit(EBrick_Type brick_type, int level_x, int level_y);
+
+	virtual void Act();
+	virtual void Draw(HDC hdc, RECT &paint_rect);
+	virtual bool Is_Finished();
+	static void Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
+	/*static const int Max_Animation_Step = 15;
+	int Animation_Step;*/
+private:
+	static void Draw_Stage(HDC hdc, RECT &brick_rect, int x, int width);
+
+	int Rotation_Step;
+	static const int Max_Rotation_Step = 32;
 };
 //------------------------------------------------------------------------------------------------------------
