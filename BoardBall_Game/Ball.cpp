@@ -48,6 +48,12 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
 	}
 
+	if (Ball_State == EBS_On_Parachute)
+		Draw_Parachute(hdc, paint_area);
+
+	if (Ball_State == EBS_Lost)
+		return;
+
 	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
 	{
 		AsConfig::White_Color.Select(hdc);
@@ -210,8 +216,24 @@ bool ABall::Is_Moving_Left()
 //------------------------------------------------------------------------------------------------------------
 void ABall::Set_On_Parachute(int level_x, int level_y)
 {
+	int cell_x = AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width;
+	int cell_y = AsConfig::Level_Y_Offset + level_y * AsConfig::Cell_Height;
+
+	Ball_State = EBS_On_Parachute;
 	Ball_Direction = M_PI + M_PI_2;
 	Ball_Speed = 1.0;
-	Center_X_Pos = (double)(AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width + AsConfig::Cell_Width / 2.0);
+
+	Parachute_Rect.left = cell_x * AsConfig::Global_Scale;
+	Parachute_Rect.top = cell_y * AsConfig::Global_Scale;
+	Parachute_Rect.right = Parachute_Rect.left + Parachute_Size * AsConfig::Global_Scale;
+	Parachute_Rect.bottom = Parachute_Rect.top + Parachute_Size * AsConfig::Global_Scale;
+
+	Center_X_Pos = (double)(cell_x + AsConfig::Cell_Width / 2.0);
+	Center_Y_Pos = (double)(cell_y + Parachute_Size);
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
+{
+
 }
 //------------------------------------------------------------------------------------------------------------
