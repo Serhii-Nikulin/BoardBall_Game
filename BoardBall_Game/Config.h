@@ -11,6 +11,8 @@ public:
 	AColor();
 	AColor(unsigned char r, unsigned char g, unsigned char b);
 	AColor(const AColor& color, int pen_size);
+	AColor(const AColor &pen_color, int pen_size, const AColor &brush_color);
+
 	unsigned char R, G, B;
 
 	int Get_RGB() const;
@@ -65,7 +67,7 @@ public:
 	static const AColor White_Color;
 	static const AColor Letter_Color;
 
-	static const int Hits_Per_Letter = 1;
+	static const int Hits_Per_Letter = 5;
 	static const int Max_Falling_Letters_Count = 10;
 };
 //------------------------------------------------------------------------------------------------------------

@@ -33,6 +33,8 @@ private:
 	void Redraw_Brick(int level_x, int level_y);
 	void Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type);
 	bool Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type);
+	void Draw_Parachute_In_Level(HDC hdc, RECT brick_rect);
+
 
 	double Current_Brick_Left_X, Current_Brick_Right_X;
 	double Current_Brick_Top_Y, Current_Brick_Low_Y;
@@ -42,6 +44,7 @@ private:
 	static const int Max_Active_Bricks_Count = 10;
 	AActive_Brick *Active_Bricks[Max_Active_Bricks_Count];
 	static int Active_Bricks_Count;
+	const AColor Parachute_Color;
 
 	int Falling_Letters_Count = 0;
 	AFalling_Letter *Falling_Letters[AsConfig::Max_Falling_Letters_Count] = {};
