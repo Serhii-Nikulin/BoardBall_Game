@@ -193,12 +193,12 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			{
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 			}
@@ -206,12 +206,12 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			{
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 			}
@@ -333,11 +333,16 @@ void AsLevel::Act_Objects(AGraphics_Object **objects_array, const int objects_ma
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void AsLevel::On_Hit(int level_x, int level_y)
+void AsLevel::On_Hit(int level_x, int level_y, ABall *ball)
 {
 	EBrick_Type brick_type = (EBrick_Type)Current_Level[level_y][level_x];
 
-	if (Add_Falling_Letter(level_x, level_y, brick_type))
+	if (brick_type == EBT_Parachute)
+	{
+		ball->Set_On_Parachute(level_x, level_y);
+		Current_Level[level_y][level_x] = EBT_None;
+	}
+	else if (Add_Falling_Letter(level_x, level_y, brick_type))
 		Current_Level[level_y][level_x] = EBT_None;
 	else
 		Add_Active_Brick(level_x, level_y, brick_type);
@@ -438,15 +443,14 @@ void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Draw_Parachute_In_Level(HDC hdc, RECT brick_rect)
 {
-	Parachute_Color.Select(hdc);
-
+	int i, width, height;
 	RECT top_rect, bottom_rect;
 
+	Parachute_Color.Select(hdc);
 	top_rect.left = brick_rect.left + 1;
 	top_rect.top = brick_rect.top + 1;
-	int i;
-	int width;
-	int height = 3 * AsConfig::Global_Scale;
+	
+	height = 3 * AsConfig::Global_Scale;
 
 	for (i = 0; i < 3; i++)
 	{

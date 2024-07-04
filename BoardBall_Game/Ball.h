@@ -33,12 +33,14 @@ public:
 	bool Is_Test_Finished();
 	bool Is_Moving_Up();
 	bool Is_Moving_Left();
+	void Set_On_Parachute(int level_x, int level_y);
 
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
 	double Ball_Speed;
 	double prev_angle_to_normal = 0;
 	double Rest_Test_Distance;
+
 private:
 	EBall_State Ball_State;
 	RECT Ball_Rect, Prev_Ball_Rect;

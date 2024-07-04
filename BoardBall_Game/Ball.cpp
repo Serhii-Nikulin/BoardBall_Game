@@ -208,3 +208,10 @@ bool ABall::Is_Moving_Left()
 		return false;
 }
 //------------------------------------------------------------------------------------------------------------
+void ABall::Set_On_Parachute(int level_x, int level_y)
+{
+	Ball_Direction = M_PI + M_PI_2;
+	Ball_Speed = 1.0;
+	Center_X_Pos = (double)(AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width + AsConfig::Cell_Width / 2.0);
+}
+//------------------------------------------------------------------------------------------------------------
