@@ -230,10 +230,38 @@ void ABall::Set_On_Parachute(int level_x, int level_y)
 
 	Center_X_Pos = (double)(cell_x + AsConfig::Cell_Width / 2.0);
 	Center_Y_Pos = (double)(cell_y + Parachute_Size);
+
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 {
+	const int scale = AsConfig::Global_Scale;
+	AsConfig::Blue_Color.Select(hdc);
 
+	Chord(hdc, Parachute_Rect.left, Parachute_Rect.top, Parachute_Rect.right, Parachute_Rect.bottom, Parachute_Rect.right, Parachute_Rect.top + Parachute_Size * scale / 2.0, Parachute_Rect.left, Parachute_Rect.top + Parachute_Size * scale / 2.0);
+
+	AsConfig::BG_Color.Select(hdc);
+
+	Ellipse(hdc, Parachute_Rect.left + 0 * scale + 1, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 4 * scale, Parachute_Rect.top + 8 * scale + 2);
+
+	Ellipse(hdc, Parachute_Rect.left + 5 * scale - 1, Parachute_Rect.top + 5 * scale, Parachute_Rect.left + 10 * scale + 1, Parachute_Rect.top + 9 * scale);
+
+	Ellipse(hdc, Parachute_Rect.left + 11 * scale, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 15 * scale - 2, Parachute_Rect.top + 8 * scale + 2);
+
+	AsConfig::White_Color.Select(hdc);
+
+	MoveToEx(hdc, Parachute_Rect.left, Parachute_Rect.top + 22, NULL);
+	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+
+	MoveToEx(hdc, Parachute_Rect.left + 13, Parachute_Rect.top + 22, NULL);
+	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+
+	MoveToEx(hdc, Parachute_Rect.left + 32, Parachute_Rect.top + 22, NULL);
+	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+
+	MoveToEx(hdc, Parachute_Rect.left + 44, Parachute_Rect.top + 22, NULL);
+	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+
+	InvalidateRect(AsConfig::Hwnd, &Parachute_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
