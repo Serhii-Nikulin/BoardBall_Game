@@ -69,7 +69,7 @@ void ABall::Move()
 	Rest_Distance += Ball_Speed;
 	Prev_Ball_Rect = Ball_Rect;
 
-	if (Ball_State != EBS_Normal)
+	if (Ball_State == EBS_Lost or Ball_State == EBS_On_Platform)
 		return;
 
 	while (Rest_Distance > 0)
@@ -228,40 +228,50 @@ void ABall::Set_On_Parachute(int level_x, int level_y)
 	Parachute_Rect.right = Parachute_Rect.left + Parachute_Size * AsConfig::Global_Scale;
 	Parachute_Rect.bottom = Parachute_Rect.top + Parachute_Size * AsConfig::Global_Scale;
 
-	Center_X_Pos = (double)(cell_x + AsConfig::Cell_Width / 2.0);
-	Center_Y_Pos = (double)(cell_y + Parachute_Size);
+	Center_X_Pos = (double)(cell_x + AsConfig::Cell_Width / 2.0) - 1.0 / AsConfig::Global_Scale;
+	Center_Y_Pos = (double)(cell_y + Parachute_Size) - ABall::Radius * 2.0;
+
+	InvalidateRect(AsConfig::Hwnd, &Parachute_Rect, FALSE);
 
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 {
+	RECT intersection_rect;
 	const int scale = AsConfig::Global_Scale;
+	const int dome_size = Parachute_Size * scale / 2.0;
+	int ball_center_x, ball_center_y;
+
+	if (! IntersectRect(&intersection_rect, &paint_area, &Parachute_Rect) )
+		return;
+
 	AsConfig::Blue_Color.Select(hdc);
 
-	Chord(hdc, Parachute_Rect.left, Parachute_Rect.top, Parachute_Rect.right, Parachute_Rect.bottom, Parachute_Rect.right, Parachute_Rect.top + Parachute_Size * scale / 2.0, Parachute_Rect.left, Parachute_Rect.top + Parachute_Size * scale / 2.0);
+	Chord(hdc, Parachute_Rect.left, Parachute_Rect.top, Parachute_Rect.right, Parachute_Rect.bottom, Parachute_Rect.right, Parachute_Rect.top + dome_size, Parachute_Rect.left, Parachute_Rect.top + dome_size);
 
 	AsConfig::BG_Color.Select(hdc);
 
-	Ellipse(hdc, Parachute_Rect.left + 0 * scale + 1, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 4 * scale, Parachute_Rect.top + 8 * scale + 2);
+	Ellipse(hdc, Parachute_Rect.left + 0 * scale + 1, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 4 * scale, Parachute_Rect.top + 9 * scale - 1);
 
 	Ellipse(hdc, Parachute_Rect.left + 5 * scale - 1, Parachute_Rect.top + 5 * scale, Parachute_Rect.left + 10 * scale + 1, Parachute_Rect.top + 9 * scale);
 
-	Ellipse(hdc, Parachute_Rect.left + 11 * scale, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 15 * scale - 2, Parachute_Rect.top + 8 * scale + 2);
+	Ellipse(hdc, Parachute_Rect.left + 11 * scale, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 14 * scale + 1, Parachute_Rect.top + 9 * scale - 1);
+
+	ball_center_x = Parachute_Rect.left + Parachute_Size * scale / 2.0;
+	ball_center_y = Parachute_Rect.bottom;
 
 	AsConfig::White_Color.Select(hdc);
 
-	MoveToEx(hdc, Parachute_Rect.left, Parachute_Rect.top + 22, NULL);
-	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+	MoveToEx(hdc, Parachute_Rect.left, Parachute_Rect.top + dome_size, NULL);
+	LineTo(hdc, ball_center_x, ball_center_y);
 
-	MoveToEx(hdc, Parachute_Rect.left + 13, Parachute_Rect.top + 22, NULL);
-	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+	MoveToEx(hdc, Parachute_Rect.left + 5 * scale - 1, Parachute_Rect.top + dome_size, NULL);
+	LineTo(hdc, ball_center_x, ball_center_y);
 
-	MoveToEx(hdc, Parachute_Rect.left + 32, Parachute_Rect.top + 22, NULL);
-	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
+	MoveToEx(hdc, Parachute_Rect.left + 11 * scale - 1, Parachute_Rect.top + dome_size, NULL);
+	LineTo(hdc, ball_center_x, ball_center_y);
 
-	MoveToEx(hdc, Parachute_Rect.left + 44, Parachute_Rect.top + 22, NULL);
-	LineTo(hdc, Center_X_Pos * scale, Center_Y_Pos * scale);
-
-	InvalidateRect(AsConfig::Hwnd, &Parachute_Rect, FALSE);
+	MoveToEx(hdc, Parachute_Rect.right, Parachute_Rect.top + dome_size, NULL);
+	LineTo(hdc, ball_center_x, ball_center_y);
 }
 //------------------------------------------------------------------------------------------------------------
