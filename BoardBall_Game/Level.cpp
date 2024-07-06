@@ -76,7 +76,7 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	//Test for letters
 	/*AFalling_Letter falling_letter(EBT_Blue, ELT_Plus, 8 * AsConfig::Global_Scale, 150 * AsConfig::Global_Scale);
 	falling_letter.Test_Draw_All_Steps(hdc);*/
-
+	
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
 		for (i = 0; i < Level_Height; ++i)

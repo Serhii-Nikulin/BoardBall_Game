@@ -18,10 +18,10 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 		return false;
 
 	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball))//from left
-		return true;
+		goto got_hit;
 
-	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball, +(Width - Circle_Size)))//from right
-		return true;
+	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball, + (Width - Circle_Size)))//from right
+		goto got_hit;
 
 	inner_top_y = AsConfig::Platform_Y_Pos + 1;
 	inner_low_y = AsConfig::Platform_Y_Pos + Inner_Height + 1;
@@ -33,7 +33,7 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - inner_low_y, ball->Radius, inner_left_x, inner_right_x))
 		{
 			ball->Reflect(true);//from platform horizontal
-			return true;
+			goto got_hit;
 		}
 	}
 	else
@@ -41,10 +41,20 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - inner_top_y, ball->Radius, inner_left_x, inner_right_x))
 		{
 			ball->Reflect(true);//from platform horizontal
-			return true;
+			goto got_hit;
 		}
 	}
+
 	return false;
+
+got_hit:
+
+	if (ball->Get_State() == EBS_On_Parachute)
+	{
+		ball->Set_State(EBS_Off_Parachute);
+	}
+
+	return true;
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset)
@@ -85,6 +95,7 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 			direction = full_reflect_angle;
 			//ball->Set_Direction(full_reflect_angle);
 		}
+
 		ball->Set_State(EBS_Normal, next_x_pos + AsConfig::Global_Scale * cos(direction), next_y_pos - AsConfig::Global_Scale * sin(direction), direction);
 		ball->prev_angle_to_normal = angle_to_normal;
 		return true;

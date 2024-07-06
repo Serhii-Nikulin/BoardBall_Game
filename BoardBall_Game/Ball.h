@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------------------------------------
 enum EBall_State
 {
-	EBS_Normal, EBS_Lost, EBS_On_Platform, EBS_On_Parachute
+	EBS_Normal, EBS_Lost, EBS_On_Platform, EBS_On_Parachute, EBS_Off_Parachute
 };
 //------------------------------------------------------------------------------------------------------------
 class ABall;
@@ -23,6 +23,7 @@ public:
 	void Draw(HDC hdc, RECT &paint_area);
 	void Move();
 	void Redraw_Ball();
+	void Redraw_Parachute();
 
 	EBall_State Get_State();
 	void Set_State(EBall_State new_state, int x_pos = 103, int y_pos = AsConfig::Platform_Y_Pos - Radius, double direction = M_PI_4);
@@ -44,11 +45,12 @@ public:
 private:
 
 	void Draw_Parachute(HDC hdc, RECT &paint_area);
+	void Clean_Parachute(HDC hdc);
 
 	EBall_State Ball_State;
 	RECT Ball_Rect, Prev_Ball_Rect;
-	RECT Parachute_Rect;
-	
+	RECT Parachute_Rect, Prev_Parachute_Rect;
+
 	double Center_X_Pos;
 	double Center_Y_Pos;
 	double Ball_Direction;

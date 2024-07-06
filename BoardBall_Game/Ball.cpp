@@ -27,7 +27,7 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 //ABall
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
-	: Ball_State(EBS_Normal),Ball_Rect{}, Prev_Ball_Rect{},
+	: Ball_State(EBS_Normal),Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0), 
 	Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
@@ -51,6 +51,12 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	if (Ball_State == EBS_On_Parachute)
 		Draw_Parachute(hdc, paint_area);
 
+	if (Ball_State == EBS_Off_Parachute)
+	{
+		Clean_Parachute(hdc);
+		Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
+	}
+
 	if (Ball_State == EBS_Lost)
 		return;
 
@@ -66,11 +72,12 @@ void ABall::Move()
 	int i;
 	double next_x_pos, next_y_pos;
 	bool got_hit;
-	Rest_Distance += Ball_Speed;
-	Prev_Ball_Rect = Ball_Rect;
 
 	if (Ball_State == EBS_Lost or Ball_State == EBS_On_Platform)
 		return;
+
+	Rest_Distance += Ball_Speed;
+	Prev_Ball_Rect = Ball_Rect;
 
 	while (Rest_Distance > 0)
 	{
@@ -94,6 +101,17 @@ void ABall::Move()
 	}
 
 	Redraw_Ball();
+
+	if (Ball_State == EBS_On_Parachute)
+	{
+		Prev_Parachute_Rect = Parachute_Rect;
+
+		Parachute_Rect.bottom = Ball_Rect.bottom;
+		Parachute_Rect.top = Parachute_Rect.bottom - Parachute_Size * AsConfig::Global_Scale;
+
+		Redraw_Parachute();
+	}
+
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Redraw_Ball()
@@ -105,6 +123,12 @@ void ABall::Redraw_Ball()
 
 	InvalidateRect(AsConfig::Hwnd, &Prev_Ball_Rect, FALSE);
 	InvalidateRect(AsConfig::Hwnd, &Ball_Rect, FALSE);
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Redraw_Parachute()
+{
+	InvalidateRect(AsConfig::Hwnd, &Prev_Parachute_Rect, FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Parachute_Rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Set_For_Test()
@@ -148,6 +172,11 @@ void ABall::Set_State(EBall_State new_state, int x_pos, int y_pos, double direct
 		Ball_Speed = 2 * AsConfig::Global_Scale;
 		Ball_Direction = direction;
 		Rest_Distance = 0.0;
+		break;
+
+	case EBS_Off_Parachute:
+		Redraw_Ball();
+		Redraw_Parachute();
 		break;
 
 	case EBS_Lost:
@@ -221,18 +250,17 @@ void ABall::Set_On_Parachute(int level_x, int level_y)
 
 	Ball_State = EBS_On_Parachute;
 	Ball_Direction = M_PI + M_PI_2;
-	Ball_Speed = 1.0;
+	Ball_Speed = 1.0 * AsConfig::Global_Scale;
 
 	Parachute_Rect.left = cell_x * AsConfig::Global_Scale;
 	Parachute_Rect.top = cell_y * AsConfig::Global_Scale;
 	Parachute_Rect.right = Parachute_Rect.left + Parachute_Size * AsConfig::Global_Scale;
 	Parachute_Rect.bottom = Parachute_Rect.top + Parachute_Size * AsConfig::Global_Scale;
 
-	Center_X_Pos = (double)(cell_x + AsConfig::Cell_Width / 2.0) - 1.0 / AsConfig::Global_Scale;
-	Center_Y_Pos = (double)(cell_y + Parachute_Size) - ABall::Radius * 2.0;
+	Prev_Parachute_Rect = Parachute_Rect;
 
-	InvalidateRect(AsConfig::Hwnd, &Parachute_Rect, FALSE);
-
+	Center_X_Pos = (double)(cell_x + AsConfig::Cell_Width / 2.0);
+	Center_Y_Pos = (double)(cell_y + Parachute_Size);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
@@ -244,6 +272,8 @@ void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 
 	if (! IntersectRect(&intersection_rect, &paint_area, &Parachute_Rect) )
 		return;
+
+	Clean_Parachute(hdc);
 
 	AsConfig::Blue_Color.Select(hdc);
 
@@ -263,7 +293,7 @@ void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 	AsConfig::White_Color.Select(hdc);
 
 	MoveToEx(hdc, Parachute_Rect.left, Parachute_Rect.top + dome_size, NULL);
-	LineTo(hdc, ball_center_x, ball_center_y);
+	LineTo(hdc, ball_center_x, ball_center_y - 1);
 
 	MoveToEx(hdc, Parachute_Rect.left + 5 * scale - 1, Parachute_Rect.top + dome_size, NULL);
 	LineTo(hdc, ball_center_x, ball_center_y);
@@ -273,5 +303,13 @@ void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 
 	MoveToEx(hdc, Parachute_Rect.right, Parachute_Rect.top + dome_size, NULL);
 	LineTo(hdc, ball_center_x, ball_center_y);
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Clean_Parachute(HDC hdc)
+{
+	AsConfig::BG_Color.Select(hdc);
+
+	AsConfig::Round_Rect(hdc, Prev_Parachute_Rect);
+	AsConfig::Round_Rect(hdc, Parachute_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
