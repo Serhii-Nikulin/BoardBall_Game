@@ -5,7 +5,8 @@ enum EBrick_Type
 {
 	EBT_None, EBT_Red, EBT_Blue,
 	EBT_Unbreakable,
-	EBT_Multihit_1, EBT_Multihit_2, EBT_Multihit_3, EBT_Multihit_4
+	EBT_Multihit_1, EBT_Multihit_2, EBT_Multihit_3, EBT_Multihit_4,
+	EBT_Parachute
 };
 //------------------------------------------------------------------------------------------------------------
 class AGraphics_Object

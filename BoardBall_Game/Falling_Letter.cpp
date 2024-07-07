@@ -157,14 +157,14 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 				break;
 
 			case ELT_K:
-				MoveToEx(hdc, middle_letter_x, letter_rect.top, 0);
-				LineTo(hdc, middle_letter_x, letter_rect.bottom);
+				MoveToEx(hdc, middle_letter_x - 5, letter_rect.top, 0);
+				LineTo(hdc, middle_letter_x - 5, letter_rect.bottom);
 
-				MoveToEx(hdc, middle_letter_x, middle_letter_y, 0);
-				LineTo(hdc, letter_rect.right, letter_rect.top);
+				MoveToEx(hdc, middle_letter_x - 5, middle_letter_y, 0);
+				LineTo(hdc, letter_rect.right - 5, letter_rect.top);
 
-				MoveToEx(hdc, middle_letter_x, middle_letter_y, 0);
-				LineTo(hdc, letter_rect.right, letter_rect.bottom);
+				MoveToEx(hdc, middle_letter_x - 5, middle_letter_y, 0);
+				LineTo(hdc, letter_rect.right - 5, letter_rect.bottom);
 				break;
 
 			case ELT_W:
@@ -303,8 +303,8 @@ void AFalling_Letter::Get_Letter_Cell(RECT &rect)
 void AFalling_Letter::Finalize()
 {
 	Falling_Letter_State = EFLS_Finalizing;
-	InvalidateRect(AsConfig::Hwnd, &Prev_Letter_Cell,FALSE);
-	InvalidateRect(AsConfig::Hwnd, &Letter_Cell,FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Prev_Letter_Cell, FALSE);
+	InvalidateRect(AsConfig::Hwnd, &Letter_Cell, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Test_Draw_All_Steps(HDC hdc)

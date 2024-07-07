@@ -16,10 +16,10 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
-		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - unbreakable_bricks
-		//2, 2, 2, 2, 2, 2, 2, 2, 4, 5, 6, 4,
-		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7,
+		//2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
+		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - Unbreakable_Bricks
+		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, - Multihits_Bricks
+		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
@@ -47,7 +47,8 @@ char AsLevel::Test_Level[Level_Height][Level_Width] = {
 };
 //------------------------------------------------------------------------------------------------------------
 AsLevel::AsLevel()
-	: Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{}
+	: Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{},
+	Parachute_Color(AsConfig::Red_Color, AsConfig::Global_Scale, AsConfig::Blue_Color)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Init()
@@ -75,7 +76,7 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	//Test for letters
 	/*AFalling_Letter falling_letter(EBT_Blue, ELT_Plus, 8 * AsConfig::Global_Scale, 150 * AsConfig::Global_Scale);
 	falling_letter.Test_Draw_All_Steps(hdc);*/
-
+	
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
 		for (i = 0; i < Level_Height; ++i)
@@ -151,6 +152,10 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 		AActive_Brick_Multihit::Draw_In_Level(hdc, brick_rect, brick_type);
 		break;
 
+	case EBT_Parachute:
+		Draw_Parachute_In_Level(hdc, brick_rect);
+		break;
+
 	default:
 		AsConfig::Throw();
 	}
@@ -188,12 +193,12 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			{
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 			}
@@ -201,12 +206,12 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 			{
 				if (Check_Vertical_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 				if (Check_Horizontal_Hit(next_x_pos, next_y_pos, j, i, ball))
 				{
-					On_Hit(j, i);
+					On_Hit(j, i, ball);
 					return true;
 				}
 			}
@@ -328,11 +333,16 @@ void AsLevel::Act_Objects(AGraphics_Object **objects_array, const int objects_ma
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void AsLevel::On_Hit(int level_x, int level_y)
+void AsLevel::On_Hit(int level_x, int level_y, ABall *ball)
 {
 	EBrick_Type brick_type = (EBrick_Type)Current_Level[level_y][level_x];
 
-	if (Add_Falling_Letter(level_x, level_y, brick_type))
+	if (brick_type == EBT_Parachute)
+	{
+		ball->Set_On_Parachute(level_x, level_y);
+		Current_Level[level_y][level_x] = EBT_None;
+	}
+	else if (Add_Falling_Letter(level_x, level_y, brick_type))
 		Current_Level[level_y][level_x] = EBT_None;
 	else
 		Add_Active_Brick(level_x, level_y, brick_type);
@@ -428,6 +438,40 @@ void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 			++Active_Bricks_Count;
 			break;
 		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Draw_Parachute_In_Level(HDC hdc, RECT brick_rect)
+{
+	int i, width, height;
+	RECT top_rect, bottom_rect;
+
+	Parachute_Color.Select(hdc);
+	top_rect.left = brick_rect.left + 1;
+	top_rect.top = brick_rect.top + 1;
+	
+	height = 3 * AsConfig::Global_Scale;
+
+	for (i = 0; i < 3; i++)
+	{
+		if (i % 2 == 1)
+		{
+			width = 6 * AsConfig::Global_Scale;
+			top_rect.right = top_rect.left + width + 1;
+		}
+		else
+		{
+			width = 4 * AsConfig::Global_Scale;
+			top_rect.right = top_rect.left + width + 1;
+			top_rect.bottom = top_rect.top + height + 1;
+		}
+
+		AsConfig::Round_Rect(hdc, top_rect);
+		bottom_rect = top_rect;
+		bottom_rect.top += height;
+		bottom_rect.bottom += height;
+		AsConfig::Round_Rect(hdc, bottom_rect);
+		top_rect.left += width;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
