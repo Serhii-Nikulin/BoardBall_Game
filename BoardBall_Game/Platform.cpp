@@ -96,7 +96,11 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 			//ball->Set_Direction(full_reflect_angle);
 		}
 
-		ball->Set_State(EBS_Normal, next_x_pos + AsConfig::Global_Scale * cos(direction), next_y_pos - AsConfig::Global_Scale * sin(direction), direction);
+		if (ball->Get_State() == EBS_On_Parachute)
+			ball->Set_State(EBS_Off_Parachute);
+		else
+			ball->Set_State(EBS_Normal, next_x_pos + AsConfig::Global_Scale * cos(direction), next_y_pos - AsConfig::Global_Scale * sin(direction), direction);
+
 		ball->prev_angle_to_normal = angle_to_normal;
 		return true;
 	}

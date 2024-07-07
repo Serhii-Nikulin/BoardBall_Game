@@ -19,7 +19,7 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		//2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
 		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - Unbreakable_Bricks
 		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, - Multihits_Bricks
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 8,// - Parachute_Bricks
+		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10

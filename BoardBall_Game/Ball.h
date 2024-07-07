@@ -45,9 +45,9 @@ public:
 private:
 
 	void Draw_Parachute(HDC hdc, RECT &paint_area);
-	void Clean_Parachute(HDC hdc);
+	void Clear_Parachute(HDC hdc);
 
-	EBall_State Ball_State;
+	EBall_State Ball_State, Prev_Ball_State;
 	RECT Ball_Rect, Prev_Ball_Rect;
 	RECT Parachute_Rect, Prev_Parachute_Rect;
 
