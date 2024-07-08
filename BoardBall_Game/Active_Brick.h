@@ -1,12 +1,13 @@
 #pragma once
-#include "Config.h"
+#include "Ball.h"
 
 enum EBrick_Type 
 {
 	EBT_None, EBT_Red, EBT_Blue,
 	EBT_Unbreakable,
 	EBT_Multihit_1, EBT_Multihit_2, EBT_Multihit_3, EBT_Multihit_4,
-	EBT_Parachute
+	EBT_Parachute, 
+	EBT_Teleport
 };
 //------------------------------------------------------------------------------------------------------------
 class AGraphics_Object
@@ -74,6 +75,7 @@ public:
 
 	static const int Max_Animation_Step = 15;
 	int Animation_Step;
+
 private:
 	static AColor Red_Higlight, Blue_Highlight;
 	HRGN Region;
@@ -101,5 +103,27 @@ private:
 
 	int Rotation_Step;
 	static const int Max_Rotation_Step = 32;
+};
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+class AActive_Brick_Teleport: public AActive_Brick
+{
+public:
+	~AActive_Brick_Teleport();
+	AActive_Brick_Teleport(int level_x, int level_y, ABall *ball);
+
+	virtual void Act();
+	virtual void Draw(HDC hdc, RECT &paint_rect);
+	virtual bool Is_Finished();
+	static void Draw_In_Level(HDC hdc, RECT &brick_rect, int step = 0);
+	
+private:
+	ABall *Ball;
+	static const int Max_Animation_Step = 12;
+	int Animation_Step;
 };
 //------------------------------------------------------------------------------------------------------------

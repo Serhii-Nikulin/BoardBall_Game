@@ -31,7 +31,7 @@ private:
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	void On_Hit(int level_x, int level_y, ABall *ball);
 	void Redraw_Brick(int level_x, int level_y);
-	void Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type);
+	void Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball);
 	bool Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type);
 	void Draw_Parachute_In_Level(HDC hdc, RECT brick_rect);
 

@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include "Level.h"
+#include "Ball.h"
 
 //------------------------------------------------------------------------------------------------------------
 int AsLevel::Active_Bricks_Count = 0;
@@ -9,18 +10,18 @@ char AsLevel::Current_Level[Level_Height][Level_Width];
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+		1, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
 		2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2,//4
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		//2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//8
-		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, - Unbreakable_Bricks
-		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, - Multihits_Bricks
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
-
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9,//8
+		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,// -  Unbreakable_Bricks
+		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, //- Multihits_Bricks
+		//8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
+		
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
@@ -154,6 +155,10 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 
 	case EBT_Parachute:
 		Draw_Parachute_In_Level(hdc, brick_rect);
+		break;
+
+	case EBT_Teleport:
+		AActive_Brick_Teleport::Draw_In_Level(hdc, brick_rect, 0);
 		break;
 
 	default:
@@ -345,7 +350,7 @@ void AsLevel::On_Hit(int level_x, int level_y, ABall *ball)
 	else if (Add_Falling_Letter(level_x, level_y, brick_type))
 		Current_Level[level_y][level_x] = EBT_None;
 	else
-		Add_Active_Brick(level_x, level_y, brick_type);
+		Add_Active_Brick(level_x, level_y, brick_type, ball);
 
 	Redraw_Brick(level_x, level_y);
 	
@@ -398,9 +403,10 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
+void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball)
 {
 	int i;
+	double ball_x, ball_y;
 	AActive_Brick* active_brick = 0;
 
 	switch (brick_type)
@@ -424,6 +430,15 @@ void AsLevel::Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type)
 	case EBT_Multihit_3:
 	case EBT_Multihit_4:
 		Current_Level[level_y][level_x] = brick_type - 1;
+		break;
+
+	case EBT_Teleport:
+		ball_x = (double)(AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) + AsConfig::Brick_Width / 2.0 + 1.0 / AsConfig::Global_Scale;
+		ball_y = (double)(AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) + AsConfig::Brick_Height / 2.0 + 1.0 / AsConfig::Global_Scale;
+
+		ball->Set_State(EBS_Teleporting, ball_x, ball_y);
+
+		active_brick = new AActive_Brick_Teleport(level_x, level_y, ball);
 		break;
 
 	default:
