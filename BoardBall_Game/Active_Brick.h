@@ -110,11 +110,18 @@ private:
 
 
 //------------------------------------------------------------------------------------------------------------
+enum ETeleport_State
+{
+	ETS_Starting,
+	ETS_Finishing,
+	ETS_Done
+};
+//------------------------------------------------------------------------------------------------------------
 class AActive_Brick_Teleport: public AActive_Brick
 {
 public:
 	~AActive_Brick_Teleport();
-	AActive_Brick_Teleport(int level_x, int level_y, ABall *ball);
+	AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport);
 
 	virtual void Act();
 	virtual void Draw(HDC hdc, RECT &paint_rect);
@@ -122,7 +129,9 @@ public:
 	static void Draw_In_Level(HDC hdc, RECT &brick_rect, int step = 0);
 	
 private:
+	ETeleport_State Teleport_State;
 	ABall *Ball;
+	AActive_Brick_Teleport *Destination_Teleport;
 	static const int Max_Animation_Step = 12;
 	int Animation_Step;
 };

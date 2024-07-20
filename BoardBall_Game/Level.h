@@ -2,9 +2,16 @@
 #include "Falling_Letter.h"
 #include "Ball.h"
 
+//------------------------------------------------------------------------------------------------------------
+struct SPoint
+{
+	int X, Y;
+};
+//------------------------------------------------------------------------------------------------------------
 class AsLevel: public AHit_Checker
 {
 public:
+	~AsLevel();
 	AsLevel();
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	void Init();
@@ -31,10 +38,14 @@ private:
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	void On_Hit(int level_x, int level_y, ABall *ball);
 	void Redraw_Brick(int level_x, int level_y);
-	void Add_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball);
+	void Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball);
 	bool Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type);
+	void Add_New_Active_Brick(AActive_Brick *active_brick);
+	AActive_Brick_Teleport *Select_Destination_Teleport(ABall *ball);
 	void Draw_Parachute_In_Level(HDC hdc, RECT brick_rect);
 
+	int Teleport_Bricks_Count;
+	SPoint *Teleport_Bricks_Pos;
 
 	double Current_Brick_Left_X, Current_Brick_Right_X;
 	double Current_Brick_Top_Y, Current_Brick_Low_Y;

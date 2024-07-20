@@ -346,8 +346,8 @@ AActive_Brick_Teleport::~AActive_Brick_Teleport()
 {
 }
 //------------------------------------------------------------------------------------------------------------
-AActive_Brick_Teleport::AActive_Brick_Teleport(int level_x, int level_y, ABall *ball)
-	:AActive_Brick(EBT_Teleport, level_x, level_y), Animation_Step(0), Ball(ball)
+AActive_Brick_Teleport::AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport)
+	:AActive_Brick(EBT_Teleport, level_x, level_y), Teleport_State(ETS_Starting), Animation_Step(0), Ball(ball), Destination_Teleport(destination_teleport)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -358,12 +358,37 @@ void AActive_Brick_Teleport::Act()
 		++Animation_Step;
 		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
 	}
+	else
+	{
+		switch (Teleport_State)
+		{
+		case ETS_Starting:
+			Animation_Step = 0;
+			Teleport_State = ETS_Finishing;
+
+			if (Destination_Teleport != 0)
+			{
+				Destination_Teleport->Ball = Ball;
+				Ball = 0;
+			}
+			break;
+
+		case ETS_Finishing:
+			Teleport_State = ETS_Done;
+			break;
+
+		case ETS_Done:
+			break;
+		}
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Teleport::Draw(HDC hdc, RECT &paint_rect)
 {
 	Draw_In_Level(hdc, Brick_Rect, Animation_Step);
-	Ball->Draw_Teleporting(hdc, Animation_Step);
+
+	if (Ball != 0)
+		Ball->Draw_Teleporting(hdc, Animation_Step);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Teleport::Is_Finished()
