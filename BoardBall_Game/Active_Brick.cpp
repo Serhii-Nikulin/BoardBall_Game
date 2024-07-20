@@ -18,7 +18,7 @@ AActive_Brick::~AActive_Brick()
 }
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick::AActive_Brick(EBrick_Type brick_type, int level_x, int level_y)
-	:Brick_Type(brick_type)
+	:Brick_Type(brick_type), Level_X(level_x), Level_Y(level_y)
 {
 	Brick_Rect.left = (AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) * AsConfig::Global_Scale;
 	Brick_Rect.top = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
@@ -349,10 +349,13 @@ AActive_Brick_Teleport::~AActive_Brick_Teleport()
 AActive_Brick_Teleport::AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport)
 	:AActive_Brick(EBT_Teleport, level_x, level_y), Teleport_State(ETS_Starting), Animation_Step(0), Ball(ball), Destination_Teleport(destination_teleport)
 {
+	Set_Ball(ball);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Teleport::Act()
 { 
+	double x_pos, y_pos;
+
 	if (Animation_Step <= Max_Animation_Step)
 	{
 		++Animation_Step;
@@ -369,6 +372,7 @@ void AActive_Brick_Teleport::Act()
 			if (Destination_Teleport != 0)
 			{
 				Destination_Teleport->Ball = Ball;
+				Destination_Teleport->Set_Ball(Ball);
 				Ball = 0;
 			}
 			break;
@@ -378,6 +382,11 @@ void AActive_Brick_Teleport::Act()
 			break;
 
 		case ETS_Done:
+			if (Ball != 0)
+			{
+				Ball->Get_Center(x_pos, y_pos);
+				Ball->Set_State(EBS_Normal, x_pos, y_pos);
+			}
 			break;
 		}
 	}
@@ -385,18 +394,48 @@ void AActive_Brick_Teleport::Act()
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Teleport::Draw(HDC hdc, RECT &paint_rect)
 {
+	int step;
+
 	Draw_In_Level(hdc, Brick_Rect, Animation_Step);
 
+	switch (Teleport_State)
+	{
+	case ETS_Starting:
+		step = Animation_Step;
+		break;
+
+	case ETS_Finishing:
+		step = Max_Animation_Step - Animation_Step;
+		break;
+
+	default:
+		return;
+	}
+
 	if (Ball != 0)
-		Ball->Draw_Teleporting(hdc, Animation_Step);
+		Ball->Draw_Teleporting(hdc, step);
+	
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Teleport::Is_Finished()
 {
-	if (Animation_Step >= Max_Animation_Step)
+	/*if (Animation_Step >= Max_Animation_Step)
 		return true;
-	else
+	else*/
 		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Teleport::Set_Ball(ABall *ball)
+{
+	double ball_x, ball_y;
+
+	ball_x = (double)(AsConfig::Level_X_Offset + AsConfig::Cell_Width * Level_X) + AsConfig::Brick_Width / 2.0 + 1.0 / AsConfig::Global_Scale;
+	ball_y = (double)(AsConfig::Level_Y_Offset + AsConfig::Cell_Height * Level_Y) + AsConfig::Brick_Height / 2.0 + 1.0 / AsConfig::Global_Scale;
+
+	if (ball != 0)
+		Ball->Set_State(EBS_Teleporting, ball_x, ball_y);
+
+	Ball = ball;
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Teleport::Draw_In_Level(HDC hdc, RECT &brick_rect, int step)

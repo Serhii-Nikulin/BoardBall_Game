@@ -41,7 +41,7 @@ private:
 	void Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball);
 	bool Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type);
 	void Add_New_Active_Brick(AActive_Brick *active_brick);
-	AActive_Brick_Teleport *Select_Destination_Teleport(ABall *ball);
+	AActive_Brick_Teleport *Select_Destination_Teleport();
 	void Draw_Parachute_In_Level(HDC hdc, RECT brick_rect);
 
 	int Teleport_Bricks_Count;

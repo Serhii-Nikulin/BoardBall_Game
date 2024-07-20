@@ -27,6 +27,8 @@ protected:
 	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
 	EBrick_Type Brick_Type;
 	RECT Brick_Rect;
+
+	int Level_X, Level_Y;
 };
 //-----------------------------------------------------------------------------------------------------
 
@@ -126,6 +128,7 @@ public:
 	virtual void Act();
 	virtual void Draw(HDC hdc, RECT &paint_rect);
 	virtual bool Is_Finished();
+	void Set_Ball(ABall *ball);
 	static void Draw_In_Level(HDC hdc, RECT &brick_rect, int step = 0);
 	
 private:

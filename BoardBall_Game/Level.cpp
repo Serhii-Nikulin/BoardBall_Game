@@ -9,7 +9,7 @@ char AsLevel::Current_Level[Level_Height][Level_Width];
 //------------------------------------------------------------------------------------------------------------
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
 		1, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
@@ -451,7 +451,6 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball)
 {
-	double ball_x, ball_y;
 	AActive_Brick* active_brick = 0;
 	AActive_Brick_Teleport *destination_teleport = 0;
 
@@ -479,12 +478,8 @@ void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_ty
 		break;
 
 	case EBT_Teleport:
-		ball_x = (double)(AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) + AsConfig::Brick_Width / 2.0 + 1.0 / AsConfig::Global_Scale;
-		ball_y = (double)(AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) + AsConfig::Brick_Height / 2.0 + 1.0 / AsConfig::Global_Scale;
-
-		ball->Set_State(EBS_Teleporting, ball_x, ball_y);
-
-		destination_teleport = Select_Destination_Teleport(ball);
+	
+		destination_teleport = Select_Destination_Teleport();
 		active_brick = new AActive_Brick_Teleport(level_x, level_y, ball, destination_teleport);
 
 		break;
@@ -515,11 +510,11 @@ void AsLevel::Add_New_Active_Brick(AActive_Brick *active_brick)
 
 }
 //------------------------------------------------------------------------------------------------------------
-AActive_Brick_Teleport *AsLevel::Select_Destination_Teleport(ABall *ball)
+AActive_Brick_Teleport *AsLevel::Select_Destination_Teleport()
 {
 	AActive_Brick_Teleport *destination_teleport;
 
-	destination_teleport = new AActive_Brick_Teleport(Teleport_Bricks_Pos[0].X, Teleport_Bricks_Pos[0].Y, ball, 0);
+	destination_teleport = new AActive_Brick_Teleport(Teleport_Bricks_Pos[0].X, Teleport_Bricks_Pos[0].Y, 0, 0);
 
 	return destination_teleport;
 }
