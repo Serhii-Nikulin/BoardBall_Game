@@ -10,6 +10,14 @@ enum EBrick_Type
 	EBT_Teleport
 };
 //------------------------------------------------------------------------------------------------------------
+enum EDirection_Type
+{
+	EDT_Left,
+	EDT_Up,
+	EDT_Right,
+	EDT_Down
+};
+//------------------------------------------------------------------------------------------------------------
 class AGraphics_Object
 {
 public:
@@ -22,13 +30,18 @@ public:
 //------------------------------------------------------------------------------------------------------------
 class AActive_Brick: public AGraphics_Object
 {
+public:
+	void Get_Level_Pos(int &brick_x, int &brick_y);
+
 protected:
 	virtual ~AActive_Brick();
 	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
+	double Get_Brick_X_Pos(bool is_center);
+	double Get_Brick_Y_Pos(bool is_center);
 	EBrick_Type Brick_Type;
 	RECT Brick_Rect;
-
 	int Level_X, Level_Y;
+
 };
 //-----------------------------------------------------------------------------------------------------
 
@@ -129,8 +142,10 @@ public:
 	virtual void Draw(HDC hdc, RECT &paint_rect);
 	virtual bool Is_Finished();
 	void Set_Ball(ABall *ball);
+
 	static void Draw_In_Level(HDC hdc, RECT &brick_rect, int step = 0);
-	
+
+	EDirection_Type Release_Direction;
 private:
 	ETeleport_State Teleport_State;
 	ABall *Ball;

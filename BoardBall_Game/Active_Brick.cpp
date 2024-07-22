@@ -10,7 +10,12 @@ AGraphics_Object::~AGraphics_Object()
 
 
 
-
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick::Get_Level_Pos(int &brick_x, int &brick_y)
+{
+	brick_x = Level_X;
+	brick_y = Level_Y;
+}
 //------------------------------------------------------------------------------------------------------------
 //AActive_Brick
 AActive_Brick::~AActive_Brick()
@@ -24,6 +29,26 @@ AActive_Brick::AActive_Brick(EBrick_Type brick_type, int level_x, int level_y)
 	Brick_Rect.top = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
 	Brick_Rect.right = Brick_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
 	Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+}
+//------------------------------------------------------------------------------------------------------------
+double AActive_Brick::Get_Brick_X_Pos(bool is_center)
+{
+	double x_pos = AsConfig::Level_X_Offset + Level_X * AsConfig::Cell_Width;
+
+	if (is_center)
+		x_pos += AsConfig::Brick_Width / 2.0 + 1.0 / AsConfig::Global_Scale;;
+
+	return x_pos;
+}
+//------------------------------------------------------------------------------------------------------------
+double AActive_Brick::Get_Brick_Y_Pos(bool is_center)
+{
+	double y_pos = AsConfig::Level_Y_Offset + Level_Y * AsConfig::Cell_Height;
+
+	if (is_center)
+		y_pos += AsConfig::Brick_Height / 2.0 + 1.0 / AsConfig::Global_Scale;;
+
+	return y_pos;
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -379,14 +404,46 @@ void AActive_Brick_Teleport::Act()
 
 		case ETS_Finishing:
 			Teleport_State = ETS_Done;
-			break;
 
+			if (Ball != 0)
+			{
+				switch (Release_Direction)
+				{
+				case EDT_Left:
+					x_pos = Get_Brick_X_Pos(false) - ABall::Radius;
+					y_pos = Get_Brick_Y_Pos(true);
+					break;
+
+				case EDT_Up:
+					x_pos = Get_Brick_X_Pos(true);
+					y_pos = Get_Brick_Y_Pos(false) - ABall::Radius;
+					break;
+
+				case EDT_Right:
+					x_pos = Get_Brick_X_Pos(false) + AsConfig::Brick_Width + ABall::Radius;
+					y_pos = Get_Brick_Y_Pos(true);
+					break;
+
+				case EDT_Down:
+					x_pos = Get_Brick_X_Pos(true);
+					y_pos = Get_Brick_Y_Pos(false) + AsConfig::Brick_Height + ABall::Radius;
+					break;
+
+				default:
+					AsConfig::Throw();
+				}
+
+				Ball->Set_State(EBS_Normal, x_pos, y_pos);
+			}
+
+			break;
+			
 		case ETS_Done:
 			if (Ball != 0)
 			{
-				Ball->Get_Center(x_pos, y_pos);
-				Ball->Set_State(EBS_Normal, x_pos, y_pos);
+				//Ball->Set_State(EBS_Normal, x_pos, y_pos);
 				Ball = 0;
+
 			}
 			break;
 		}
@@ -409,6 +466,10 @@ void AActive_Brick_Teleport::Draw(HDC hdc, RECT &paint_rect)
 		step = Max_Animation_Step - Animation_Step;
 		break;
 
+	case ETS_Done:
+		step = 0;
+		break;
+
 	default:
 		return;
 	}
@@ -420,9 +481,9 @@ void AActive_Brick_Teleport::Draw(HDC hdc, RECT &paint_rect)
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Teleport::Is_Finished()
 {
-	//if (Teleport_State == ETS_Done)
-	//	return true;
-	//else
+	if (Teleport_State == ETS_Done)
+		return true;
+	else
 		return false;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -430,8 +491,8 @@ void AActive_Brick_Teleport::Set_Ball(ABall *ball)
 {
 	double ball_x, ball_y;
 
-	ball_x = (double)(AsConfig::Level_X_Offset + AsConfig::Cell_Width * Level_X) + AsConfig::Brick_Width / 2.0 + 1.0 / AsConfig::Global_Scale;
-	ball_y = (double)(AsConfig::Level_Y_Offset + AsConfig::Cell_Height * Level_Y) + AsConfig::Brick_Height / 2.0 + 1.0 / AsConfig::Global_Scale;
+	ball_x = Get_Brick_X_Pos(true);
+	ball_y = Get_Brick_Y_Pos(true);
 
 	if (ball != 0)
 		Ball->Set_State(EBS_Teleporting, ball_x, ball_y);

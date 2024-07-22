@@ -37,10 +37,10 @@ private:
 	bool Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos);
 	bool Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
-	void On_Hit(int level_x, int level_y, ABall *ball);
+	void On_Hit(int level_x, int level_y, ABall *ball, bool vertical_hit);
 	void Redraw_Brick(int level_x, int level_y);
-	void Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball);
-	void Add_Active_Brick_Teleport(int level_x, int level_y, ABall *ball);
+	void Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball, bool vertical_hit);
+	void Add_Active_Brick_Teleport(int level_x, int level_y, ABall *ball, bool vertical_hit);
 	bool Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type);
 	void Add_New_Active_Brick(AActive_Brick *active_brick);
 	AActive_Brick_Teleport *Select_Destination_Teleport(int source_x, int source_y);
