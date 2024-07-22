@@ -386,6 +386,7 @@ void AActive_Brick_Teleport::Act()
 			{
 				Ball->Get_Center(x_pos, y_pos);
 				Ball->Set_State(EBS_Normal, x_pos, y_pos);
+				Ball = 0;
 			}
 			break;
 		}
@@ -419,9 +420,9 @@ void AActive_Brick_Teleport::Draw(HDC hdc, RECT &paint_rect)
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Teleport::Is_Finished()
 {
-	/*if (Animation_Step >= Max_Animation_Step)
-		return true;
-	else*/
+	//if (Teleport_State == ETS_Done)
+	//	return true;
+	//else
 		return false;
 }
 //------------------------------------------------------------------------------------------------------------

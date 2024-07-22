@@ -9,7 +9,7 @@ char AsLevel::Current_Level[Level_Height][Level_Width];
 //------------------------------------------------------------------------------------------------------------
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
-		0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
 		1, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
@@ -374,6 +374,7 @@ void AsLevel::Act_Objects(AGraphics_Object **objects_array, const int objects_ma
 		if (objects_array[i])
 		{
 			objects_array[i]->Act();
+
 			if (objects_array[i]->Is_Finished())
 			{
 				delete objects_array[i];
@@ -452,7 +453,6 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball)
 {
 	AActive_Brick* active_brick = 0;
-	AActive_Brick_Teleport *destination_teleport = 0;
 
 	switch (brick_type)
 	{
@@ -478,22 +478,30 @@ void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_ty
 		break;
 
 	case EBT_Teleport:
-	
-		destination_teleport = Select_Destination_Teleport();
-		active_brick = new AActive_Brick_Teleport(level_x, level_y, ball, destination_teleport);
-
-		break;
+		Add_Active_Brick_Teleport(level_x, level_y, ball);
+		return;
 
 	default:
 		AsConfig::Throw();
 	}
 
 	Add_New_Active_Brick(active_brick);
-
-	if (destination_teleport != 0)
-		Add_New_Active_Brick(destination_teleport);
 }
 //------------------------------------------------------------------------------------------------------------
+void AsLevel::Add_Active_Brick_Teleport(int level_x, int level_y, ABall *ball)
+{
+	AActive_Brick_Teleport *destination_teleport = 0;
+	AActive_Brick_Teleport *source_teleport = 0;
+
+	destination_teleport = Select_Destination_Teleport(level_x, level_y);
+	source_teleport = new AActive_Brick_Teleport(level_x, level_y, ball, destination_teleport);
+
+	Add_New_Active_Brick(source_teleport);
+
+	if (destination_teleport != 0)
+		Add_New_Active_Brick(destination_teleport); 
+}
+//------------------------------------------------------------------------------------------------------------ 
 void AsLevel::Add_New_Active_Brick(AActive_Brick *active_brick)
 {
 	int i;
@@ -510,11 +518,26 @@ void AsLevel::Add_New_Active_Brick(AActive_Brick *active_brick)
 
 }
 //------------------------------------------------------------------------------------------------------------
-AActive_Brick_Teleport *AsLevel::Select_Destination_Teleport()
+AActive_Brick_Teleport *AsLevel::Select_Destination_Teleport(int source_x, int source_y)
 {
+	int dest_index;
 	AActive_Brick_Teleport *destination_teleport;
 
-	destination_teleport = new AActive_Brick_Teleport(Teleport_Bricks_Pos[0].X, Teleport_Bricks_Pos[0].Y, 0, 0);
+	if (Teleport_Bricks_Count < 2)
+	{
+		AsConfig::Throw();
+		return 0;
+	}
+
+	dest_index = AsConfig::Rand(Teleport_Bricks_Count);
+	
+	if (source_x == Teleport_Bricks_Pos[dest_index].X and source_y == Teleport_Bricks_Pos[dest_index].Y)
+		++dest_index;
+
+	if (dest_index >= Teleport_Bricks_Count)
+		dest_index = 0;
+
+	destination_teleport = new AActive_Brick_Teleport(Teleport_Bricks_Pos[dest_index].X, Teleport_Bricks_Pos[dest_index].Y, 0, 0);
 
 	return destination_teleport;
 }

@@ -24,6 +24,7 @@ public:
 
 	static char Current_Level[Level_Height][Level_Width];
 	static char Level_01[Level_Height][Level_Width];
+
 	static char Test_Level[Level_Height][Level_Width];
 	void Set_Current_Level(char level[Level_Height][Level_Width]);
 	void Act();
@@ -39,9 +40,10 @@ private:
 	void On_Hit(int level_x, int level_y, ABall *ball);
 	void Redraw_Brick(int level_x, int level_y);
 	void Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_type, ABall *ball);
+	void Add_Active_Brick_Teleport(int level_x, int level_y, ABall *ball);
 	bool Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type);
 	void Add_New_Active_Brick(AActive_Brick *active_brick);
-	AActive_Brick_Teleport *Select_Destination_Teleport();
+	AActive_Brick_Teleport *Select_Destination_Teleport(int source_x, int source_y);
 	void Draw_Parachute_In_Level(HDC hdc, RECT brick_rect);
 
 	int Teleport_Bricks_Count;
