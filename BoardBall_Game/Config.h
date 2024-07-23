@@ -69,7 +69,7 @@ public:
 	static const AColor Red_Higlight, Blue_Highlight;
 	static const AColor Teleport_Color;
 
-	static const int Hits_Per_Letter = 5;
+	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 10;
 };
 //------------------------------------------------------------------------------------------------------------

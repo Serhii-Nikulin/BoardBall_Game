@@ -10,7 +10,7 @@ char AsLevel::Current_Level[Level_Height][Level_Width];
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+		1, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
 		2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2,//4
@@ -298,7 +298,9 @@ bool AsLevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int lev
 		{
 			if (level_x > 0 and Current_Level[level_y][level_x - 1] == 0)
 			{
-				ball->Reflect(false);//from vertical
+				if (Current_Level[level_y][level_x] != EBT_Teleport)
+					ball->Reflect(false);//from vertical
+
 				return true;
 			}
 			else
@@ -311,7 +313,9 @@ bool AsLevel::Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int lev
 		{
 			if (level_x < Level_Width - 1 and Current_Level[level_y][level_x + 1] == 0)
 			{
-				ball->Reflect(false);//from vertical
+				if (Current_Level[level_y][level_x] != EBT_Teleport)
+					ball->Reflect(false);//from vertical
+
 				return true;
 			}
 			else
@@ -333,7 +337,9 @@ bool AsLevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level
 		{
 			if (level_y < Level_Height - 1 and Current_Level[level_y + 1][level_x] == 0)
 			{
-				ball->Reflect(true);//from horizontal
+				if (Current_Level[level_y][level_x] != EBT_Teleport)
+					ball->Reflect(true);//from horizontal
+
 				return true;
 			}
 			else
@@ -347,7 +353,9 @@ bool AsLevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level
 		{
 			if (level_y > 0 and Current_Level[level_y - 1][level_x] == 0)
 			{
-				ball->Reflect(true);//from horizontal
+				if (Current_Level[level_y][level_x] != EBT_Teleport)
+					ball->Reflect(true);//from horizontal
+
 				return true;
 			}
 			else
@@ -561,6 +569,8 @@ void AsLevel::Add_Active_Brick_Teleport(int level_x, int level_y, ABall *ball, b
 			break;
 
 		direction = static_cast<EDirection_Type>(direction - 1);
+		
+		ball->Set_Direction(ball->Get_Direction() + M_PI_2);
 
 		if (direction < 0)
 			direction = EDT_Down;
