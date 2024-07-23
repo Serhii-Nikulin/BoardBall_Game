@@ -10,7 +10,12 @@ AGraphics_Object::~AGraphics_Object()
 
 
 
-
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick::Get_Level_Pos(int &brick_x, int &brick_y)
+{
+	brick_x = Level_X;
+	brick_y = Level_Y;
+}
 //------------------------------------------------------------------------------------------------------------
 //AActive_Brick
 AActive_Brick::~AActive_Brick()
@@ -18,12 +23,32 @@ AActive_Brick::~AActive_Brick()
 }
 //------------------------------------------------------------------------------------------------------------
 AActive_Brick::AActive_Brick(EBrick_Type brick_type, int level_x, int level_y)
-	:Brick_Type(brick_type)
+	:Brick_Type(brick_type), Level_X(level_x), Level_Y(level_y)
 {
 	Brick_Rect.left = (AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) * AsConfig::Global_Scale;
 	Brick_Rect.top = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
 	Brick_Rect.right = Brick_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
 	Brick_Rect.bottom = Brick_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+}
+//------------------------------------------------------------------------------------------------------------
+double AActive_Brick::Get_Brick_X_Pos(bool is_center)
+{
+	double x_pos = AsConfig::Level_X_Offset + Level_X * AsConfig::Cell_Width;
+
+	if (is_center)
+		x_pos += AsConfig::Brick_Width / 2.0 + 1.0 / AsConfig::Global_Scale;;
+
+	return x_pos;
+}
+//------------------------------------------------------------------------------------------------------------
+double AActive_Brick::Get_Brick_Y_Pos(bool is_center)
+{
+	double y_pos = AsConfig::Level_Y_Offset + Level_Y * AsConfig::Cell_Height;
+
+	if (is_center)
+		y_pos += AsConfig::Brick_Height / 2.0 + 1.0 / AsConfig::Global_Scale;;
+
+	return y_pos;
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -154,9 +179,6 @@ void AActive_Brick_Red_Blue::Get_Fading_Color(const AColor& origin_color, int st
 
 //AActive_Brick_Unbreakable
 //------------------------------------------------------------------------------------------------------------
-AColor AActive_Brick_Unbreakable::Red_Higlight(AsConfig::Red_Color, 3 * AsConfig::Global_Scale);
-AColor AActive_Brick_Unbreakable::Blue_Highlight(AsConfig::Blue_Color, AsConfig::Global_Scale);
-//------------------------------------------------------------------------------------------------------------
 AActive_Brick_Unbreakable::~AActive_Brick_Unbreakable()
 {
 	DeleteObject(Region);
@@ -179,14 +201,14 @@ void AActive_Brick_Unbreakable::Draw(HDC hdc, RECT& paint_rect)
 
 	SelectClipRgn(hdc, Region);
 
-	Red_Higlight.Select_Pen(hdc);
+	AsConfig::Red_Higlight.Select_Pen(hdc);
 
 	offset = (2 * Animation_Step - AsConfig::Brick_Width) * scale;
 
 	MoveToEx(hdc, Brick_Rect.left + 2 * scale + offset, Brick_Rect.top + 8 * scale, 0);
 	LineTo(hdc, Brick_Rect.left + 11 * scale + offset, Brick_Rect.top - 1 * scale);
 
-	Blue_Highlight.Select_Pen(hdc);
+	AsConfig::Blue_Highlight.Select_Pen(hdc);
 	MoveToEx(hdc, Brick_Rect.left + 0 * scale + offset, Brick_Rect.top + 8 * scale, 0);
 	LineTo(hdc, Brick_Rect.left + 10 * scale + offset, Brick_Rect.top - 2 * scale);
 
@@ -339,4 +361,149 @@ void AActive_Brick_Multihit::Draw_Stage(HDC hdc, RECT &brick_rect, int x, int wi
 	Rectangle(hdc, stage_rect.left, stage_rect.top, stage_rect.right, stage_rect.bottom);
 }
 //------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AActive_Brick_Teleport
+//------------------------------------------------------------------------------------------------------------
+AActive_Brick_Teleport::~AActive_Brick_Teleport()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+AActive_Brick_Teleport::AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport)
+	:AActive_Brick(EBT_Teleport, level_x, level_y), Teleport_State(ETS_Starting), Animation_Step(0), Ball(ball), Destination_Teleport(destination_teleport)
+{
+	Set_Ball(ball);
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Teleport::Act()
+{ 
+	double ball_x = 0, ball_y = 0;
+	double direction;
+
+	if (Animation_Step <= Max_Animation_Step)
+	{
+		++Animation_Step;
+		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+	}
+	else
+	{
+		switch (Teleport_State)
+		{
+		case ETS_Starting:
+			Animation_Step = 0;
+			Teleport_State = ETS_Finishing;
+
+			if (Destination_Teleport != 0)
+			{
+				Destination_Teleport->Ball = Ball;
+				Destination_Teleport->Set_Ball(Ball);
+				Ball = 0;
+			}
+			break;
+
+		case ETS_Finishing:
+			Teleport_State = ETS_Done;
+
+			if (Ball != 0)
+			{
+				switch (Release_Direction)
+				{
+				case EDT_Left:
+					ball_x = Get_Brick_X_Pos(false) - ABall::Radius;
+					ball_y = Get_Brick_Y_Pos(true);
+					break;
+
+				case EDT_Up:
+					ball_x = Get_Brick_X_Pos(true);
+					ball_y = Get_Brick_Y_Pos(false) - ABall::Radius;
+					break;
+
+				case EDT_Right:
+					ball_x = Get_Brick_X_Pos(false) + AsConfig::Brick_Width + ABall::Radius;
+					ball_y = Get_Brick_Y_Pos(true);
+					break;
+
+				case EDT_Down:
+					ball_x = Get_Brick_X_Pos(true);
+					ball_y = Get_Brick_Y_Pos(false) + AsConfig::Brick_Height + ABall::Radius;
+					break;
+
+				default:
+					AsConfig::Throw();
+				}
+
+				direction = Ball->Get_Direction();
+				Ball->Set_State(EBS_Normal, ball_x, ball_y, direction);
+				Ball = 0;
+			
+			}
+			break;
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Teleport::Draw(HDC hdc, RECT &paint_rect)
+{
+	int step;
+
+	switch (Teleport_State)
+	{
+	case ETS_Starting:
+		step = Animation_Step;
+		break;
+
+	case ETS_Finishing:
+		step = Max_Animation_Step - Animation_Step;
+		break;
+
+	default:
+		step = 0;
+		return;
+	}
+
+	Draw_In_Level(hdc, Brick_Rect, step);
+
+	if (Ball != 0)
+		Ball->Draw_Teleporting(hdc, step);
+	
+}
+//------------------------------------------------------------------------------------------------------------
+bool AActive_Brick_Teleport::Is_Finished()
+{
+	if (Teleport_State == ETS_Done)
+		return true;
+	else
+		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Teleport::Set_Ball(ABall *ball)
+{
+	double ball_x, ball_y;
+
+	ball_x = Get_Brick_X_Pos(true);
+	ball_y = Get_Brick_Y_Pos(true);
+
+	if (ball != 0)
+		Ball->Set_State(EBS_Teleporting, ball_x, ball_y);
+
+	Ball = ball;
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Teleport::Draw_In_Level(HDC hdc, RECT &brick_rect, int step)
+{
+	const int scale = AsConfig::Global_Scale;
+
+	int top_y = brick_rect.top + 0 * scale + step / 2 + 1;
+	int low_y = brick_rect.top + 6 * scale - step / 2 + 1;
+
+	AsConfig::Red_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, brick_rect);
+
+	AsConfig::Teleport_Color.Select(hdc);
+	Ellipse(hdc, brick_rect.left + 3 * scale + 1, top_y, brick_rect.left + 11 * scale + 1, low_y);
+}
+//------------------------------------------------------------------------------------------------------------
+
 

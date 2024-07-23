@@ -1,12 +1,21 @@
 #pragma once
-#include "Config.h"
+#include "Ball.h"
 
 enum EBrick_Type 
 {
 	EBT_None, EBT_Red, EBT_Blue,
 	EBT_Unbreakable,
 	EBT_Multihit_1, EBT_Multihit_2, EBT_Multihit_3, EBT_Multihit_4,
-	EBT_Parachute
+	EBT_Parachute, 
+	EBT_Teleport
+};
+//------------------------------------------------------------------------------------------------------------
+enum EDirection_Type
+{
+	EDT_Left,
+	EDT_Up,
+	EDT_Right,
+	EDT_Down
 };
 //------------------------------------------------------------------------------------------------------------
 class AGraphics_Object
@@ -21,11 +30,18 @@ public:
 //------------------------------------------------------------------------------------------------------------
 class AActive_Brick: public AGraphics_Object
 {
+public:
+	void Get_Level_Pos(int &brick_x, int &brick_y);
+
 protected:
 	virtual ~AActive_Brick();
 	AActive_Brick(EBrick_Type brick_type, int level_x, int level_y);
+	double Get_Brick_X_Pos(bool is_center);
+	double Get_Brick_Y_Pos(bool is_center);
 	EBrick_Type Brick_Type;
 	RECT Brick_Rect;
+	int Level_X, Level_Y;
+
 };
 //-----------------------------------------------------------------------------------------------------
 
@@ -74,6 +90,7 @@ public:
 
 	static const int Max_Animation_Step = 15;
 	int Animation_Step;
+
 private:
 	static AColor Red_Higlight, Blue_Highlight;
 	HRGN Region;
@@ -101,5 +118,39 @@ private:
 
 	int Rotation_Step;
 	static const int Max_Rotation_Step = 32;
+};
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+enum ETeleport_State
+{
+	ETS_Starting,
+	ETS_Finishing,
+	ETS_Done
+};
+//------------------------------------------------------------------------------------------------------------
+class AActive_Brick_Teleport: public AActive_Brick
+{
+public:
+	~AActive_Brick_Teleport();
+	AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport);
+
+	virtual void Act();
+	virtual void Draw(HDC hdc, RECT &paint_rect);
+	virtual bool Is_Finished();
+	void Set_Ball(ABall *ball);
+
+	static void Draw_In_Level(HDC hdc, RECT &brick_rect, int step = 0);
+
+	EDirection_Type Release_Direction;
+private:
+	ETeleport_State Teleport_State;
+	ABall *Ball;
+	AActive_Brick_Teleport *Destination_Teleport;
+	static const int Max_Animation_Step = 12;
+	int Animation_Step;
 };
 //------------------------------------------------------------------------------------------------------------

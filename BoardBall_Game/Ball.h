@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------------------------------------
 enum EBall_State
 {
-	EBS_Normal, EBS_Lost, EBS_On_Platform, EBS_On_Parachute, EBS_Off_Parachute
+	EBS_Normal, EBS_Lost, EBS_On_Platform, EBS_On_Parachute, EBS_Off_Parachute, EBS_Teleporting
 };
 //------------------------------------------------------------------------------------------------------------
 class ABall;
@@ -26,7 +26,8 @@ public:
 	void Redraw_Parachute();
 
 	EBall_State Get_State();
-	void Set_State(EBall_State new_state, int x_pos = 103, int y_pos = AsConfig::Platform_Y_Pos - Radius, double direction = M_PI_4);
+	void Set_State(EBall_State new_state, double x_pos = 103, double y_pos = AsConfig::Platform_Y_Pos - Radius, double direction = M_PI_4);
+	void Get_Center(double &x_pos, double &y_pos);
 	void Set_For_Test();
 	double Get_Direction();
 	void Set_Direction(double direction);
@@ -35,6 +36,8 @@ public:
 	bool Is_Moving_Up();
 	bool Is_Moving_Left();
 	void Set_On_Parachute(int level_x, int level_y);
+
+	void Draw_Teleporting(HDC hdc, int step);
 
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
