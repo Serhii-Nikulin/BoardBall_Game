@@ -10,7 +10,7 @@ char AsLevel::Current_Level[Level_Height][Level_Width];
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		1, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
 		2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2,//4
@@ -119,11 +119,9 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 {
 	int i, j;
 	RECT intersection_rect, brick_rect;
-	
-	//Test for letters
-	/*AFalling_Letter falling_letter(EBT_Blue, ELT_Plus, 8 * AsConfig::Global_Scale, 150 * AsConfig::Global_Scale);
-	falling_letter.Test_Draw_All_Steps(hdc);*/
-	
+		
+	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
 		for (i = 0; i < Level_Height; ++i)
@@ -136,12 +134,24 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 
 				if (IntersectRect(&intersection_rect, &paint_area, &brick_rect))
 						Draw_Brick(hdc, brick_rect, static_cast<EBrick_Type>(Current_Level[i][j]));
+
 			}
+
+		Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count);
 	}
 
-	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count);
-
 	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter)
+{
+	int i;
+
+	for (i = 0; i < objects_max_counter; i++)
+	{
+		if (objects_array[i])
+			objects_array[i]->Clear_Prev_Animation(hdc, paint_area);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter)

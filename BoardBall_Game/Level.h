@@ -16,6 +16,7 @@ public:
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
+	void Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	void Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	bool Get_Next_Falling_Letter(int &index, AFalling_Letter **falling_letter);
 
@@ -54,7 +55,7 @@ private:
 
 	RECT Level_Rect;
 
-	static const int Max_Active_Bricks_Count = 10;
+	static const int Max_Active_Bricks_Count = 20;
 	AActive_Brick *Active_Bricks[Max_Active_Bricks_Count];
 	static int Active_Bricks_Count;
 	const AColor Parachute_Color;

@@ -26,7 +26,7 @@ public:
 	void Redraw_Parachute();
 
 	EBall_State Get_State();
-	void Set_State(EBall_State new_state, double x_pos = 103, double y_pos = AsConfig::Platform_Y_Pos - Radius, double direction = M_PI_4);
+	void Set_State(EBall_State new_state, double x_pos = 103, double y_pos = AsConfig::Platform_Y_Pos - Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4);
 	void Get_Center(double &x_pos, double &y_pos);
 	void Set_For_Test();
 	double Get_Direction();

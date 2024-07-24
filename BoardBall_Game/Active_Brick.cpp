@@ -22,6 +22,10 @@ AActive_Brick::~AActive_Brick()
 {
 }
 //------------------------------------------------------------------------------------------------------------
+void AActive_Brick::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+}
+//------------------------------------------------------------------------------------------------------------
 AActive_Brick::AActive_Brick(EBrick_Type brick_type, int level_x, int level_y)
 	:Brick_Type(brick_type), Level_X(level_x), Level_Y(level_y)
 {

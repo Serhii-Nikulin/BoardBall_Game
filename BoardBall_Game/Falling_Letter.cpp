@@ -267,15 +267,21 @@ void AFalling_Letter::Act()
 	InvalidateRect(AsConfig::Hwnd, &Letter_Cell, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------
-void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
+void AFalling_Letter::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
 
-	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Letter_Cell))
-	{
-		AsConfig::BG_Color.Select(hdc);
-		Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
-	}
+	if (! IntersectRect(&intersection_rect, &paint_area, &Prev_Letter_Cell))
+		return;
+
+	AsConfig::BG_Color.Select(hdc);
+	Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
+
+}
+//------------------------------------------------------------------------------------------------------------
+void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
+{
+	RECT intersection_rect;
 
 	if (Falling_Letter_State == EFLS_Finalizing)
 	{
