@@ -7,7 +7,8 @@ enum EBrick_Type
 	EBT_Unbreakable,
 	EBT_Multihit_1, EBT_Multihit_2, EBT_Multihit_3, EBT_Multihit_4,
 	EBT_Parachute, 
-	EBT_Teleport
+	EBT_Teleport,
+	EBT_Ad
 };
 //------------------------------------------------------------------------------------------------------------
 enum EDirection_Type
@@ -154,5 +155,40 @@ private:
 	AActive_Brick_Teleport *Destination_Teleport;
 	static const int Max_Animation_Step = 12;
 	int Animation_Step;
+};
+//------------------------------------------------------------------------------------------------------------
+class AAdvertisement: public AGraphics_Object
+{
+public:
+	AAdvertisement(int level_x, int level_y, int width, int height);
+	void Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+	{}
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual bool Is_Finished();
+
+private:
+	int Level_X, Level_Y;
+	int Width, Height;
+	RECT Ad_Rect;
+};
+//------------------------------------------------------------------------------------------------------------
+class AActive_Brick_Ad: public AActive_Brick
+{
+public:
+	~AActive_Brick_Ad();
+	AActive_Brick_Ad(EBrick_Type brick_type, int level_x, int level_y);
+
+	virtual void Draw(HDC hdc, RECT &paint_rect);
+	virtual void Act();
+	virtual bool Is_Finished();
+	static void Draw_In_Level(HDC hdc, RECT &brick_rect);
+
+	static const int Max_Animation_Step = 15;
+	int Animation_Step;
+
+private:
+	static AColor Red_Higlight, Blue_Highlight;
+	static const int Circle_Size = 7;
 };
 //------------------------------------------------------------------------------------------------------------

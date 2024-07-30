@@ -11,6 +11,8 @@ const AColor AsConfig::Blue_Highlight(AsConfig::Blue_Color, AsConfig::Global_Sca
 
 const AColor AsConfig::Teleport_Color(AsConfig::Blue_Color, AsConfig::Global_Scale, AsConfig::BG_Color);
 
+const AColor AsConfig::Advert_Blue_Table_Color(AsConfig::Blue_Color, AsConfig::Global_Scale);
+const AColor AsConfig::Advert_Red_Table_Color(AsConfig::Red_Color, 2 * AsConfig::Global_Scale);
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():
 	R(0), G(0), B(0), Pen(0), Brush(0)

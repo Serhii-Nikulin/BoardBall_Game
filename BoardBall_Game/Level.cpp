@@ -10,19 +10,19 @@ char AsLevel::Current_Level[Level_Height][Level_Width];
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//0
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 1,//1
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
 		2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2,//4
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//5
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//6
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//7
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9,//8
-		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,// -  Unbreakable_Bricks
+		1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,//5
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9 2, 2, 0,10,10, 0,//7
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
+		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,// -  Unbreakable_Bricks 
 		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, //- Multihits_Bricks
 		//8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
 		
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0,10,10, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
@@ -54,7 +54,7 @@ AsLevel::~AsLevel()
 }
 //------------------------------------------------------------------------------------------------------------
 AsLevel::AsLevel()
-	: Teleport_Bricks_Count(0),Teleport_Bricks_Pos(0), Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{},
+	: Teleport_Bricks_Count(0),Teleport_Bricks_Pos(0), Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{}, Advertisement(0),
 	Parachute_Color(AsConfig::Red_Color, AsConfig::Global_Scale, AsConfig::Blue_Color)
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -113,6 +113,8 @@ void AsLevel::Set_Current_Level(char level[Level_Height][Level_Width])
 			}
 		}
 	}
+
+	Advertisement = new AAdvertisement(3, 6, 2, 3);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Draw(HDC hdc, RECT& paint_area)
@@ -141,6 +143,9 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	}
 
 	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+	
+	if (Advertisement != 0)
+		Advertisement->Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter)
@@ -217,6 +222,10 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 		AActive_Brick_Teleport::Draw_In_Level(hdc, brick_rect, 0);
 		break;
 
+	case EBT_Ad:
+		AActive_Brick_Ad::Draw_In_Level(hdc, brick_rect);
+		break;
+
 	default:
 		AsConfig::Throw();
 	}
@@ -236,6 +245,18 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 
 	min_x = int(next_x_pos - ball->Radius - AsConfig::Level_X_Offset) / AsConfig::Cell_Width;
 	max_x = int(next_x_pos + ball->Radius - AsConfig::Level_X_Offset) / AsConfig::Cell_Width;
+
+	if (min_y < 0)
+		min_y = 0;
+
+	if (max_y >= Level_Height)
+		max_y = Level_Height - 1;
+
+	if (min_x < 0)
+		min_x = 0;
+
+	if (max_x >= Level_Width)
+		max_x = Level_Width - 1;
 
 	for (i = max_y; i >= min_y; --i)//y
 	{
@@ -381,6 +402,10 @@ void AsLevel::Act()
 	Act_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
 
 	Act_Objects((AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
+
+	if (Advertisement != 0)
+		Advertisement->Act();
+
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count)
@@ -498,6 +523,10 @@ void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_ty
 	case EBT_Teleport:
 		Add_Active_Brick_Teleport(level_x, level_y, ball, vertical_hit);
 		return;
+
+	case EBT_Ad:
+		active_brick = new AActive_Brick_Ad(brick_type, level_x, level_y);
+		break;
 
 	default:
 		AsConfig::Throw();

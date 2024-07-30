@@ -62,5 +62,6 @@ private:
 
 	int Falling_Letters_Count = 0;
 	AFalling_Letter *Falling_Letters[AsConfig::Max_Falling_Letters_Count] = {};
+	AAdvertisement *Advertisement;
 };
 //------------------------------------------------------------------------------------------------------------

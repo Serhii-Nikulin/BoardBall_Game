@@ -511,3 +511,137 @@ void AActive_Brick_Teleport::Draw_In_Level(HDC hdc, RECT &brick_rect, int step)
 //------------------------------------------------------------------------------------------------------------
 
 
+
+
+//AAdvertisement
+//------------------------------------------------------------------------------------------------------------
+AAdvertisement::AAdvertisement(int level_x, int level_y, int width, int height)
+	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height) 
+{
+	Ad_Rect.left = (AsConfig::Border_X_Offset + Level_X * AsConfig::Cell_Width) * AsConfig::Global_Scale;
+	Ad_Rect.top = (AsConfig::Border_Y_Offset + Level_Y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
+	Ad_Rect.right = Ad_Rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+	Ad_Rect.bottom = Ad_Rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
+}
+//------------------------------------------------------------------------------------------------------------
+void AAdvertisement::Act()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
+{
+	const int &scale = AsConfig::Global_Scale;
+	const int Ball_Size = 12 * scale - 1;
+	int x, y;
+
+	//white surface
+	AsConfig::White_Color.Select(hdc);
+	MoveToEx(hdc, Ad_Rect.left + 2 * scale, Ad_Rect.top + 15 * scale, 0);
+	LineTo(hdc, Ad_Rect.left + 17 * scale + 1, Ad_Rect.top + 8 * scale);
+	LineTo(hdc, Ad_Rect.left + 33 * scale - 1, Ad_Rect.top + 15 * scale);
+	LineTo(hdc, Ad_Rect.left + 17 * scale + 1, Ad_Rect.top + 22 * scale);
+	LineTo(hdc, Ad_Rect.left + 2 * scale, Ad_Rect.top + 15 * scale);
+
+	FloodFill(hdc, Ad_Rect.left + 18 * scale, Ad_Rect.top + 10 * scale, AsConfig::White_Color.Get_RGB() );
+
+	//blue table part
+	AsConfig::Advert_Blue_Table_Color.Select(hdc);
+	MoveToEx(hdc, Ad_Rect.left + 2 * scale + 1, Ad_Rect.top + 15 * scale, 0);
+	LineTo(hdc, Ad_Rect.left + 17 * scale + 1, Ad_Rect.top + 8 * scale);
+	LineTo(hdc, Ad_Rect.left + 32 * scale + 1, Ad_Rect.top + 15 * scale);
+	LineTo(hdc, Ad_Rect.left + 17 * scale + 1, Ad_Rect.top + 22 * scale);
+	LineTo(hdc, Ad_Rect.left + 2 * scale + 1, Ad_Rect.top + 15 * scale);
+
+	//red part
+	AsConfig::Advert_Red_Table_Color.Select(hdc);
+	MoveToEx(hdc, Ad_Rect.left + 3 * scale - 1, Ad_Rect.top + 17 * scale - 1, 0);
+	LineTo(hdc, Ad_Rect.left + 17 * scale + 1, Ad_Rect.top + 24 * scale - 1);
+	LineTo(hdc, Ad_Rect.left + 32 * scale, Ad_Rect.top + 17 * scale - 1);
+
+	//ball
+	x = Ad_Rect.left + 11 * scale;
+	y = Ad_Rect.top + 2 * scale;
+	AsConfig::Blue_Color.Select(hdc);
+	Ellipse(hdc, x, Ad_Rect.top + 14 * scale + 1, x + Ball_Size, Ad_Rect.top + 20 * scale - 1);//shadow
+
+	AsConfig::Red_Color.Select(hdc);
+	Ellipse(hdc, x, y, x + Ball_Size, y + Ball_Size);//ball
+
+	AsConfig::White_Color.Select(hdc);
+	Arc(hdc,
+		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
+		x + Ball_Size, y + Ball_Size,
+		x + (Ball_Size / 2), y,
+		x, y + (Ball_Size / 2));//highlight
+}
+//------------------------------------------------------------------------------------------------------------
+bool AAdvertisement::Is_Finished()
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AActive_Brick_Unbreakable
+//------------------------------------------------------------------------------------------------------------
+AActive_Brick_Ad::~AActive_Brick_Ad()
+{
+}
+// //------------------------------------------------------------------------------------------------------------
+AActive_Brick_Ad::AActive_Brick_Ad(EBrick_Type brick_type, int level_x, int level_y) :
+	AActive_Brick(brick_type, level_x, level_y), Animation_Step(0)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Ad::Draw(HDC hdc, RECT& paint_rect)
+{
+	const int scale = AsConfig::Global_Scale;
+	AsConfig::Red_Color.Select(hdc);
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Ad::Act()
+{
+	if (Animation_Step < Max_Animation_Step)
+	{
+		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+		Animation_Step += 1;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+bool AActive_Brick_Ad::Is_Finished()
+{
+	/*if (Animation_Step >= Max_Animation_Step)
+		return true;
+	else*/
+		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AActive_Brick_Ad::Draw_In_Level(HDC hdc, RECT &brick_rect)
+{
+	int i;
+	int x = brick_rect.left;
+	int y = brick_rect.top;
+	const int scale = AsConfig::Global_Scale;
+	int offset = 8 * scale;
+
+	for (i = 0; i < 2; i++)
+	{
+		AsConfig::Red_Color.Select(hdc);
+		Ellipse(hdc, x, y, x + Circle_Size * scale - 1, y + Circle_Size * scale - 1);
+
+		AsConfig::White_Color.Select(hdc);
+		Arc(hdc,
+			x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
+			x + (Circle_Size - 1) * scale, y + (Circle_Size - 1) * scale,
+			x + (Circle_Size / 2) * scale, y,
+			x, y + (Circle_Size / 2) * scale);
+
+		x += offset;
+	}
+	
+}
+//------------------------------------------------------------------------------------------------------------
+
+
