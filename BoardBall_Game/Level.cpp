@@ -13,16 +13,15 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//1
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,//2
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//3
-		2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2,//4
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,//4
 		1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,//5
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//6
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9 2, 2, 0,10,10, 0,//7
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//8
+		1, 1, 1, 1, 1, 1, 1, 1, 0,10,10, 0,//6
+		2, 2, 2, 2, 2, 2, 2, 2, 0,10,10, 0,//9 2, 2, 0,10,10, 0,//7
+		2, 2, 2, 2, 2, 2, 3, 3, 0,10,10, 0,//8
 		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,// -  Unbreakable_Bricks 
 		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, //- Multihits_Bricks
 		//8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
-		
-		0, 0, 0, 0, 0, 0, 0, 0, 0,10,10, 0,//9
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//9
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//11
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//12
@@ -114,7 +113,7 @@ void AsLevel::Set_Current_Level(char level[Level_Height][Level_Width])
 		}
 	}
 
-	Advertisement = new AAdvertisement(3, 6, 2, 3);
+	Advertisement = new AAdvertisement(9, 6, 2, 3);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Draw(HDC hdc, RECT& paint_area)
@@ -123,6 +122,12 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	RECT intersection_rect, brick_rect;
 		
 	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+
+	if (Advertisement != 0)
+		Advertisement->Clear_Prev_Animation(hdc, paint_area);
+
+	if (Advertisement != 0)
+		Advertisement->Draw(hdc, paint_area);
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
@@ -135,7 +140,7 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 				brick_rect.bottom = brick_rect.top + AsConfig::Global_Scale * AsConfig::Brick_Height;
 
 				if (IntersectRect(&intersection_rect, &paint_area, &brick_rect))
-						Draw_Brick(hdc, brick_rect, static_cast<EBrick_Type>(Current_Level[i][j]));
+						Draw_Brick(hdc, brick_rect, j, i);
 
 			}
 
@@ -143,9 +148,6 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	}
 
 	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
-	
-	if (Advertisement != 0)
-		Advertisement->Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter)
@@ -193,11 +195,16 @@ bool AsLevel::Get_Next_Falling_Letter(int &index, AFalling_Letter **falling_lett
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
+void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, int level_x, int level_y)
 {
+	EBrick_Type brick_type = static_cast<EBrick_Type>(Current_Level[level_y][level_x]);
+
 	switch (brick_type)
 	{
 	case EBT_None:
+		if (Advertisement != 0 and Advertisement->Has_Brick_At_Position(level_x, level_y) )
+			break;
+
 	case EBT_Blue:
 	case EBT_Red:
 		AActive_Brick_Red_Blue::Draw_In_Level(hdc, brick_rect, brick_type);
@@ -224,6 +231,9 @@ void AsLevel::Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type)
 
 	case EBT_Ad:
 		AActive_Brick_Ad::Draw_In_Level(hdc, brick_rect);
+		break;
+
+	case EBT_Invisible:
 		break;
 
 	default:
@@ -525,14 +535,19 @@ void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_ty
 		return;
 
 	case EBT_Ad:
-		active_brick = new AActive_Brick_Ad(brick_type, level_x, level_y);
+		active_brick = new AActive_Brick_Ad(brick_type, level_x, level_y, Advertisement);
+		Current_Level[level_y][level_x] = EBT_Invisible;
+		break;
+
+	case EBT_Invisible:
 		break;
 
 	default:
 		AsConfig::Throw();
 	}
 
-	Add_New_Active_Brick(active_brick);
+	if (active_brick != 0)
+		Add_New_Active_Brick(active_brick);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Add_Active_Brick_Teleport(int level_x, int level_y, ABall *ball, bool vertical_hit)

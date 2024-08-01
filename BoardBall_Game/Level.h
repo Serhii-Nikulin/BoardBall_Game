@@ -34,7 +34,7 @@ public:
 	AActive_Brick_Red_Blue Active_Brick;
 
 private:
-	void Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
+	void Draw_Brick(HDC hdc, RECT &brick_rect, int level_x, int level_y);
 	bool Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos);
 	bool Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
