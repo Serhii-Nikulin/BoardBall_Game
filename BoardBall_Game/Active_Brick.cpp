@@ -517,31 +517,38 @@ void AActive_Brick_Teleport::Draw_In_Level(HDC hdc, RECT &brick_rect, int step)
 //------------------------------------------------------------------------------------------------------------
 AAdvertisement::~AAdvertisement()
 {
-	delete[] Brick_Mask;
-	Brick_Mask = 0;
+	int i, j;
+	HRGN region;
+
+	for (i = 0; i < Height; i ++)
+		for (j = 0; j < Width; j++)
+		{
+			region = Brick_Regions[i * Width + j];
+
+			if (region != 0)
+				DeleteObject(region);
+		}
+
+	delete[] Brick_Regions;
+	Brick_Regions = 0;
 }
 //------------------------------------------------------------------------------------------------------------
 AAdvertisement::AAdvertisement(int level_x, int level_y, int width, int height)
-	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height) 
+	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height), Brick_Regions(0)
 {
-	Brick_Mask = new char[Width * Height];
-	memset(Brick_Mask, 0, Width * Height * sizeof(char) );
+	Empty_Region = CreateRectRgn(0, 0, 0, 0);
+
+	Brick_Regions = new HRGN[Width * Height];
+	memset(Brick_Regions, 0, Width * Height * sizeof(HRGN) );
 
 	Ad_Rect.left = (AsConfig::Level_X_Offset + Level_X * AsConfig::Cell_Width) * AsConfig::Global_Scale;
 	Ad_Rect.top = (AsConfig::Level_Y_Offset + Level_Y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
-	Ad_Rect.right = Ad_Rect.left + Width * AsConfig::Cell_Width * AsConfig::Global_Scale;
-	Ad_Rect.bottom = Ad_Rect.top + Height * AsConfig::Cell_Height * AsConfig::Global_Scale;
+	Ad_Rect.right = Ad_Rect.left + ((Width - 1) * AsConfig::Cell_Width + AsConfig::Brick_Width) * AsConfig::Global_Scale;
+	Ad_Rect.bottom = Ad_Rect.top + ((Height - 1) * AsConfig::Cell_Height + AsConfig::Brick_Height) * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
-{
-	RECT intersection_rect;
-
-	if (!IntersectRect(&intersection_rect, &paint_area, &Ad_Rect))
-		return;
-
-	AsConfig::BG_Color.Select(hdc);
-	Rectangle(hdc, Ad_Rect.left, Ad_Rect.top, Ad_Rect.right, Ad_Rect.bottom);
+{	
 }
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Act()
@@ -551,7 +558,7 @@ void AAdvertisement::Act()
 
 	for (i = 0; i < Height; i++)
 		for (j = 0; j < Width; j++)
-			if (Brick_Mask[i * Width + j] == 1)
+			if (Brick_Regions[i * Width + j] != 0)
 			{
 				rect.left = Ad_Rect.left + j * AsConfig::Cell_Width * AsConfig::Global_Scale;
 				rect.top = Ad_Rect.top + i * AsConfig::Cell_Height * AsConfig::Global_Scale;
@@ -564,53 +571,74 @@ void AAdvertisement::Act()
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 {
-	const int &scale = AsConfig::Global_Scale;
-	const int Ball_Size = 12 * scale - 1;
-	int x, y;
-
+	HRGN Region;
 	RECT intersection_rect;
+
+	int i, j;
+	int x, y;
+	const int &scale = AsConfig::Global_Scale;
+
 	if (!IntersectRect(&intersection_rect, &paint_area, &Ad_Rect))
 		return;
 	
+	SelectClipRgn(hdc, Empty_Region);
+
+	for (i = 0; i < Height; i++)
+		for (j = 0; j < Width; j++)
+		{
+			Region = Brick_Regions[i * Width + j];
+			if (Region != 0)
+				ExtSelectClipRgn(hdc, Region, RGN_OR);
+		}
+
+	AsConfig::BG_Color.Select(hdc);
+	AsConfig::Blue_Color.Select_Pen(hdc);
+	AsConfig::Round_Rect(hdc, Ad_Rect);
+	POINT table_points[4] = 
+	{
+		{Ad_Rect.left + 1, Ad_Rect.top + 14 * scale}, 
+		{Ad_Rect.left + 15 * scale + 1, Ad_Rect.top + 8 * scale}, 
+		{Ad_Rect.left + 30 * scale, Ad_Rect.top + 14 * scale}, 
+		{Ad_Rect.left + 15 * scale + 1, Ad_Rect.top + 20 * scale}
+	};
+
 	//white surface
 	AsConfig::White_Color.Select(hdc);
-	MoveToEx(hdc, Ad_Rect.left + 1 * scale + 1, Ad_Rect.top + 14 * scale, 0);
-	LineTo(hdc, Ad_Rect.left + 17 * scale - 1, Ad_Rect.top + 7 * scale);
-	LineTo(hdc, Ad_Rect.left + 32 * scale, Ad_Rect.top + 14 * scale);
-	LineTo(hdc, Ad_Rect.left + 17 * scale - 1, Ad_Rect.top + 21 * scale);
-	LineTo(hdc, Ad_Rect.left + 1 * scale + 1, Ad_Rect.top + 14 * scale);
-
-	FloodFill(hdc, Ad_Rect.left + 18 * scale, Ad_Rect.top + 10 * scale, AsConfig::White_Color.Get_RGB() );
-
+	Polygon(hdc, table_points, 4);
+	
 	//blue table part
 	AsConfig::Advert_Blue_Table_Color.Select(hdc);
-	MoveToEx(hdc, Ad_Rect.left + 2 * scale - 1, Ad_Rect.top + 14 * scale, 0);
-	LineTo(hdc, Ad_Rect.left + 17 * scale - 1, Ad_Rect.top + 7 * scale);
-	LineTo(hdc, Ad_Rect.left + 32 * scale - 1, Ad_Rect.top + 14 * scale);
-	LineTo(hdc, Ad_Rect.left + 17 * scale - 1, Ad_Rect.top + 21 * scale);
-	LineTo(hdc, Ad_Rect.left + 2 * scale - 1, Ad_Rect.top + 14 * scale);
+	MoveToEx(hdc, Ad_Rect.left + 1 * scale - 1, Ad_Rect.top + 14 * scale, 0);
+	LineTo(hdc, Ad_Rect.left + 15 * scale + 1, Ad_Rect.top + 8 * scale);
+	LineTo(hdc, Ad_Rect.left + 30 * scale, Ad_Rect.top + 14 * scale);
+	LineTo(hdc, Ad_Rect.left + 15 * scale + 1, Ad_Rect.top + 20 * scale);
+	LineTo(hdc, Ad_Rect.left + 1 * scale - 1, Ad_Rect.top + 14 * scale);
 
 	//red part
 	AsConfig::Advert_Red_Table_Color.Select(hdc);
-	MoveToEx(hdc, Ad_Rect.left + 2 * scale, Ad_Rect.top + 16 * scale - 1, 0);
-	LineTo(hdc, Ad_Rect.left + 17 * scale - 1, Ad_Rect.top + 23 * scale - 1);
-	LineTo(hdc, Ad_Rect.left + 31 * scale + 1, Ad_Rect.top + 16 * scale - 1);
+	MoveToEx(hdc, Ad_Rect.left + 1 * scale, Ad_Rect.top + 16 * scale - 1, 0);
+	LineTo(hdc, Ad_Rect.left + 15 * scale + 1, Ad_Rect.top + 22 * scale - 1);
+	LineTo(hdc, Ad_Rect.left + 30 * scale - 1, Ad_Rect.top + 16 * scale - 1);
+
+	//ball's shadow
+	x = Ad_Rect.left + 9 * scale + 1;
+	y = Ad_Rect.top + 3 * scale;
+	AsConfig::Blue_Color.Select(hdc);
+	
 
 	//ball
-	x = Ad_Rect.left + 11 * scale - 1;
-	y = Ad_Rect.top + 1 * scale - 1;
-	AsConfig::Blue_Color.Select(hdc);
-	Ellipse(hdc, x, Ad_Rect.top + 13 * scale + 1, x + Ball_Size, Ad_Rect.top + 19 * scale - 1);//shadow
-
 	AsConfig::Red_Color.Select(hdc);
 	Ellipse(hdc, x, y, x + Ball_Size, y + Ball_Size);//ball
 
-	AsConfig::White_Color.Select(hdc);
+	//ball's highlight
+	AsConfig::Letter_Color.Select(hdc);
 	Arc(hdc,
-		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
-		x + Ball_Size, y + Ball_Size,
-		x + (Ball_Size / 2), y,
-		x, y + (Ball_Size / 2));//highlight
+		x + 2 * AsConfig::Global_Scale - 1, y + 2 * AsConfig::Global_Scale - 1,
+		x + Ball_Size - 2 * AsConfig::Global_Scale + 1, y + Ball_Size - 2 * AsConfig::Global_Scale + 1,
+		x + (Ball_Size / 2) - 2 * AsConfig::Global_Scale, y,
+		x, y + (Ball_Size / 2) - 2 * AsConfig::Global_Scale);
+
+	SelectClipRgn(hdc, 0);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AAdvertisement::Is_Finished()
@@ -620,6 +648,10 @@ bool AAdvertisement::Is_Finished()
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Show_Under_Brick(int level_x, int level_y)
 {
+	RECT region_rect;
+
+	int i, j;
+	const int &scale = AsConfig::Global_Scale;
 	int x = level_x - Level_X;
 	int y = level_y - Level_Y;
 
@@ -629,7 +661,12 @@ void AAdvertisement::Show_Under_Brick(int level_x, int level_y)
 	if (y < 0 or y >= Height)
 		AsConfig::Throw();
 
-	Brick_Mask[y * Width + x] = 1;
+	region_rect.left = Ad_Rect.left + x * AsConfig::Cell_Width * scale;
+	region_rect.top = Ad_Rect.top + y * AsConfig::Cell_Height * scale;
+	region_rect.right = region_rect.left + AsConfig::Cell_Width * scale;
+	region_rect.bottom = region_rect.top + AsConfig::Cell_Height * scale;
+
+	Brick_Regions[y * Width + x] = CreateRectRgnIndirect(&region_rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AAdvertisement::Has_Brick_At_Position(int level_x, int level_y)

@@ -9,7 +9,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 {
 	SYSTEMTIME sys_time;
 	FILETIME file_time;
-
+	
 	GetSystemTime(&sys_time);
 	SystemTimeToFileTime(&sys_time, &file_time);
 	srand(file_time.dwLowDateTime);

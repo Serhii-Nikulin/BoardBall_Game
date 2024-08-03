@@ -17,7 +17,7 @@ char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,//5
 		1, 1, 1, 1, 1, 1, 1, 1, 0,10,10, 0,//6
 		2, 2, 2, 2, 2, 2, 2, 2, 0,10,10, 0,//9 2, 2, 0,10,10, 0,//7
-		2, 2, 2, 2, 2, 2, 3, 3, 0,10,10, 0,//8
+		2, 2, 2, 2, 2, 2, 2, 2, 0,10,10, 0,//8
 		//3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,// -  Unbreakable_Bricks 
 		//4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, //- Multihits_Bricks
 		//8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,// - Parachute_Bricks
@@ -124,10 +124,8 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
 
 	if (Advertisement != 0)
-		Advertisement->Clear_Prev_Animation(hdc, paint_area);
-
-	if (Advertisement != 0)
 		Advertisement->Draw(hdc, paint_area);
+
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{

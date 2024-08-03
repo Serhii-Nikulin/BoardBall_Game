@@ -173,7 +173,9 @@ private:
 	int Level_X, Level_Y;
 	int Width, Height;
 	RECT Ad_Rect;
-	char *Brick_Mask;
+	HRGN *Brick_Regions;
+	HRGN Empty_Region;
+	const int Ball_Size = 12 * AsConfig::Global_Scale;
 };
 //------------------------------------------------------------------------------------------------------------
 class AActive_Brick_Ad: public AActive_Brick
