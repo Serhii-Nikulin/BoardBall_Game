@@ -16,6 +16,7 @@ public:
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	void Init();
 	void Draw(HDC hdc, RECT &paint_area);
+	void Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	void Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	bool Get_Next_Falling_Letter(int &index, AFalling_Letter **falling_letter);
 
@@ -33,7 +34,7 @@ public:
 	AActive_Brick_Red_Blue Active_Brick;
 
 private:
-	void Draw_Brick(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
+	void Draw_Brick(HDC hdc, RECT &brick_rect, int level_x, int level_y);
 	bool Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos);
 	bool Check_Horizontal_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
 	bool Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level_x, int level_y, ABall *ball);
@@ -54,12 +55,13 @@ private:
 
 	RECT Level_Rect;
 
-	static const int Max_Active_Bricks_Count = 10;
+	static const int Max_Active_Bricks_Count = 20;
 	AActive_Brick *Active_Bricks[Max_Active_Bricks_Count];
 	static int Active_Bricks_Count;
 	const AColor Parachute_Color;
 
 	int Falling_Letters_Count = 0;
 	AFalling_Letter *Falling_Letters[AsConfig::Max_Falling_Letters_Count] = {};
+	AAdvertisement *Advertisement;
 };
 //------------------------------------------------------------------------------------------------------------
