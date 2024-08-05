@@ -534,7 +534,9 @@ AAdvertisement::~AAdvertisement()
 }
 //------------------------------------------------------------------------------------------------------------
 AAdvertisement::AAdvertisement(int level_x, int level_y, int width, int height)
-	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height), Brick_Regions(0), Offset(0), Shift_Y_Per_Iteration(1), Ball_X(0), Ball_Y(0)
+	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height), Brick_Regions(0), Offset(0), Ball_Center_X(0), 
+	Ball_Width(Ball_Size), Ball_Height(Ball_Size), Ball_Center_Y(0), 
+	Acceleration(1), Falling_Speed(0.0), Deformation_Ratio(1.0)
 {		
 	const int &scale = AsConfig::Global_Scale;
 
@@ -548,23 +550,8 @@ AAdvertisement::AAdvertisement(int level_x, int level_y, int width, int height)
 	Ad_Rect.right = Ad_Rect.left + ((Width - 1) * AsConfig::Cell_Width + AsConfig::Brick_Width) * scale;
 	Ad_Rect.bottom = Ad_Rect.top + ((Height - 1) * AsConfig::Cell_Height + AsConfig::Brick_Height) * scale;
 
-	Ball_X = Ad_Rect.left + 9 * scale + 1;
-	Ball_Y = Ad_Rect.top + 3 * scale;
-
-	RECT region_rect;
-	int x, y;
-
-	for (y = 0; y < Height; y++)
-		for (x = 0; x < Width; x++)
-		{
-			region_rect.left = Ad_Rect.left + x * AsConfig::Cell_Width * scale;
-			region_rect.top = Ad_Rect.top + y * AsConfig::Cell_Height * scale;
-			region_rect.right = region_rect.left + AsConfig::Cell_Width * scale;
-			region_rect.bottom = region_rect.top + AsConfig::Cell_Height * scale;
-
-			Brick_Regions[y * Width + x] = CreateRectRgnIndirect(&region_rect);
-		}
-
+	Ball_Center_X = Ad_Rect.left + 9 * scale + 1 + Ball_Width / 2;
+	Ball_Center_Y = Ad_Rect.top + 3 * scale + Ball_Height / 2;
 }
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -575,8 +562,9 @@ void AAdvertisement::Act()
 {
 	RECT rect;
 	int i, j;
-	int top_treshold = - (10 * AsConfig::Global_Scale);
-	int low_treshold = 2 * AsConfig::Global_Scale;
+	
+	if(AsConfig::Current_Timer_Tick % 5 != 0)
+		//return;
 
 	for (i = 0; i < Height; i++)
 		for (j = 0; j < Width; j++)
@@ -590,14 +578,19 @@ void AAdvertisement::Act()
 				InvalidateRect(AsConfig::Hwnd, &rect, FALSE);
 			}
 
-	Offset += Shift_Y_Per_Iteration;
+	Falling_Speed += Acceleration;
+	Offset = Top_Ball_Treshold + (int)(Falling_Speed * Falling_Speed / 2.0);
 
-	if (Offset > low_treshold or Offset < top_treshold)
-	{
-		Shift_Y_Per_Iteration = -Shift_Y_Per_Iteration;
-	}
-	
-	
+	int Deformation_Height = 3  * AsConfig::Global_Scale;
+
+	if (Offset >= Low_Ball_Treshold - Deformation_Height)
+		Deformation_Ratio = 0.5;
+	else
+		Deformation_Ratio = 1.0;
+
+	if (Offset > Low_Ball_Treshold or Offset < Top_Ball_Treshold)
+		Acceleration = -Acceleration;
+
 }
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
@@ -606,7 +599,10 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 	RECT intersection_rect;
 
 	int i, j;
-	
+	int x, y;
+	int deformation;
+	int ball_width, ball_height;
+	int shadow_width, shadow_height;
 	const int &scale = AsConfig::Global_Scale;
 
 	if (!IntersectRect(&intersection_rect, &paint_area, &Ad_Rect))
@@ -637,6 +633,18 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 	AsConfig::White_Color.Select(hdc);
 	Polygon(hdc, table_points, 4);
 	
+	//ball's shadow
+	AsConfig::Blue_Color.Select(hdc);
+
+	shadow_width = Ball_Width - 4 * scale;
+	shadow_height = 4 * scale;
+	deformation = (1.0 - Deformation_Ratio) * scale * 2;
+	ball_width = shadow_width + deformation;
+	ball_height = shadow_height - deformation;
+	x = Ball_Center_X - ball_width / 2;
+	y = Ball_Center_Y - ball_height  / 2 - Offset / 5 + 8 * scale;
+	Ellipse(hdc, x, y, x + ball_width, y + ball_height);
+
 	//blue table part
 	AsConfig::Advert_Blue_Table_Color.Select(hdc);
 	MoveToEx(hdc, Ad_Rect.left + 1 * scale - 1, Ad_Rect.top + 14 * scale, 0);
@@ -651,22 +659,23 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 	LineTo(hdc, Ad_Rect.left + 15 * scale + 1, Ad_Rect.top + 22 * scale - 1);
 	LineTo(hdc, Ad_Rect.left + 30 * scale - 1, Ad_Rect.top + 16 * scale - 1);
 
-	//ball's shadow
-	int y = Ball_Y + Offset;
-	AsConfig::Blue_Color.Select(hdc);
-	
-
 	//ball
+	deformation = (1.0 - Deformation_Ratio) * scale * 5;
+	ball_width = Ball_Width + deformation;
+	ball_height = Ball_Height - deformation;
+	x = Ball_Center_X - ball_width / 2;
+	y = Ball_Center_Y - ball_height / 2 + Offset;
+	
 	AsConfig::Red_Color.Select(hdc);
-	Ellipse(hdc, Ball_X, y, Ball_X + Ball_Size, y + Ball_Size);//ball
+	Ellipse(hdc, x, y, x + ball_width, y + ball_height);//ball
 
 	//ball's highlight
 	AsConfig::Letter_Color.Select(hdc);
 	Arc(hdc,
-		Ball_X + 2 * AsConfig::Global_Scale - 1, y + 2 * AsConfig::Global_Scale - 1,
-		Ball_X + Ball_Size - 2 * AsConfig::Global_Scale + 1, y + Ball_Size - 2 * AsConfig::Global_Scale + 1,
-		Ball_X + (Ball_Size / 2) - 2 * AsConfig::Global_Scale, y,
-		Ball_X, y + (Ball_Size / 2) - 2 * AsConfig::Global_Scale);
+		x + 2 * AsConfig::Global_Scale - 1, y + 2 * AsConfig::Global_Scale - 1,
+		x + ball_width - 2 * AsConfig::Global_Scale + 1, y + ball_height - 2 * AsConfig::Global_Scale + 1,
+		x + (ball_width / 2) - 2 * AsConfig::Global_Scale, y,
+		x, y + (ball_height / 2) - 2 * AsConfig::Global_Scale);
 
 	SelectClipRgn(hdc, 0);
 }

@@ -175,14 +175,18 @@ private:
 	RECT Ad_Rect;
 	HRGN *Brick_Regions;
 	HRGN Empty_Region;
-	const int Ball_Size = 12 * AsConfig::Global_Scale;
+
+	const static int Ball_Size = 12 * AsConfig::Global_Scale;
+
+	const int Top_Ball_Treshold = - (14 * AsConfig::Global_Scale);
+	const int Low_Ball_Treshold = 4 * AsConfig::Global_Scale;
 
 	int Offset;
-	int Shift_Y_Per_Iteration;
-	int Ball_X, Ball_Y;
-
-	int iteration = 0;
-	char direction = 1;
+	int Ball_Center_X, Ball_Center_Y;
+	int Ball_Width, Ball_Height;
+	double Acceleration;
+	double Falling_Speed;
+	double Deformation_Ratio;
 };
 //------------------------------------------------------------------------------------------------------------
 class AActive_Brick_Ad: public AActive_Brick

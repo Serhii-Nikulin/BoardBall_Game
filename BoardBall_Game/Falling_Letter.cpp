@@ -275,7 +275,7 @@ void AFalling_Letter::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 		return;
 
 	AsConfig::BG_Color.Select(hdc);
-	//Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right - 1, Prev_Letter_Cell.bottom - 1);
+	
 	Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right, Prev_Letter_Cell.bottom);
 }
 //------------------------------------------------------------------------------------------------------------
