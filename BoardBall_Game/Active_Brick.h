@@ -176,6 +176,13 @@ private:
 	HRGN *Brick_Regions;
 	HRGN Empty_Region;
 	const int Ball_Size = 12 * AsConfig::Global_Scale;
+
+	int Offset;
+	int Shift_Y_Per_Iteration;
+	int Ball_X, Ball_Y;
+
+	int iteration = 0;
+	char direction = 1;
 };
 //------------------------------------------------------------------------------------------------------------
 class AActive_Brick_Ad: public AActive_Brick

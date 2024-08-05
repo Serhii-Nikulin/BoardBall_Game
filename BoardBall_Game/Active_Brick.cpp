@@ -534,17 +534,37 @@ AAdvertisement::~AAdvertisement()
 }
 //------------------------------------------------------------------------------------------------------------
 AAdvertisement::AAdvertisement(int level_x, int level_y, int width, int height)
-	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height), Brick_Regions(0)
-{
-	Empty_Region = CreateRectRgn(0, 0, 0, 0);
+	:Level_X(level_x), Level_Y(level_y), Width(width), Height(height), Brick_Regions(0), Offset(0), Shift_Y_Per_Iteration(1), Ball_X(0), Ball_Y(0)
+{		
+	const int &scale = AsConfig::Global_Scale;
+
+	Empty_Region = CreateRectRgn(0, 0, 0, 0);											 
 
 	Brick_Regions = new HRGN[Width * Height];
 	memset(Brick_Regions, 0, Width * Height * sizeof(HRGN) );
 
-	Ad_Rect.left = (AsConfig::Level_X_Offset + Level_X * AsConfig::Cell_Width) * AsConfig::Global_Scale;
-	Ad_Rect.top = (AsConfig::Level_Y_Offset + Level_Y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
-	Ad_Rect.right = Ad_Rect.left + ((Width - 1) * AsConfig::Cell_Width + AsConfig::Brick_Width) * AsConfig::Global_Scale;
-	Ad_Rect.bottom = Ad_Rect.top + ((Height - 1) * AsConfig::Cell_Height + AsConfig::Brick_Height) * AsConfig::Global_Scale;
+	Ad_Rect.left = (AsConfig::Level_X_Offset + Level_X * AsConfig::Cell_Width) * scale;
+	Ad_Rect.top = (AsConfig::Level_Y_Offset + Level_Y * AsConfig::Cell_Height) * scale;
+	Ad_Rect.right = Ad_Rect.left + ((Width - 1) * AsConfig::Cell_Width + AsConfig::Brick_Width) * scale;
+	Ad_Rect.bottom = Ad_Rect.top + ((Height - 1) * AsConfig::Cell_Height + AsConfig::Brick_Height) * scale;
+
+	Ball_X = Ad_Rect.left + 9 * scale + 1;
+	Ball_Y = Ad_Rect.top + 3 * scale;
+
+	RECT region_rect;
+	int x, y;
+
+	for (y = 0; y < Height; y++)
+		for (x = 0; x < Width; x++)
+		{
+			region_rect.left = Ad_Rect.left + x * AsConfig::Cell_Width * scale;
+			region_rect.top = Ad_Rect.top + y * AsConfig::Cell_Height * scale;
+			region_rect.right = region_rect.left + AsConfig::Cell_Width * scale;
+			region_rect.bottom = region_rect.top + AsConfig::Cell_Height * scale;
+
+			Brick_Regions[y * Width + x] = CreateRectRgnIndirect(&region_rect);
+		}
+
 }
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -555,6 +575,8 @@ void AAdvertisement::Act()
 {
 	RECT rect;
 	int i, j;
+	int top_treshold = - (10 * AsConfig::Global_Scale);
+	int low_treshold = 2 * AsConfig::Global_Scale;
 
 	for (i = 0; i < Height; i++)
 		for (j = 0; j < Width; j++)
@@ -567,6 +589,15 @@ void AAdvertisement::Act()
 
 				InvalidateRect(AsConfig::Hwnd, &rect, FALSE);
 			}
+
+	Offset += Shift_Y_Per_Iteration;
+
+	if (Offset > low_treshold or Offset < top_treshold)
+	{
+		Shift_Y_Per_Iteration = -Shift_Y_Per_Iteration;
+	}
+	
+	
 }
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
@@ -575,7 +606,7 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 	RECT intersection_rect;
 
 	int i, j;
-	int x, y;
+	
 	const int &scale = AsConfig::Global_Scale;
 
 	if (!IntersectRect(&intersection_rect, &paint_area, &Ad_Rect))
@@ -621,22 +652,21 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 	LineTo(hdc, Ad_Rect.left + 30 * scale - 1, Ad_Rect.top + 16 * scale - 1);
 
 	//ball's shadow
-	x = Ad_Rect.left + 9 * scale + 1;
-	y = Ad_Rect.top + 3 * scale;
+	int y = Ball_Y + Offset;
 	AsConfig::Blue_Color.Select(hdc);
 	
 
 	//ball
 	AsConfig::Red_Color.Select(hdc);
-	Ellipse(hdc, x, y, x + Ball_Size, y + Ball_Size);//ball
+	Ellipse(hdc, Ball_X, y, Ball_X + Ball_Size, y + Ball_Size);//ball
 
 	//ball's highlight
 	AsConfig::Letter_Color.Select(hdc);
 	Arc(hdc,
-		x + 2 * AsConfig::Global_Scale - 1, y + 2 * AsConfig::Global_Scale - 1,
-		x + Ball_Size - 2 * AsConfig::Global_Scale + 1, y + Ball_Size - 2 * AsConfig::Global_Scale + 1,
-		x + (Ball_Size / 2) - 2 * AsConfig::Global_Scale, y,
-		x, y + (Ball_Size / 2) - 2 * AsConfig::Global_Scale);
+		Ball_X + 2 * AsConfig::Global_Scale - 1, y + 2 * AsConfig::Global_Scale - 1,
+		Ball_X + Ball_Size - 2 * AsConfig::Global_Scale + 1, y + Ball_Size - 2 * AsConfig::Global_Scale + 1,
+		Ball_X + (Ball_Size / 2) - 2 * AsConfig::Global_Scale, y,
+		Ball_X, y + (Ball_Size / 2) - 2 * AsConfig::Global_Scale);
 
 	SelectClipRgn(hdc, 0);
 }
@@ -650,7 +680,7 @@ void AAdvertisement::Show_Under_Brick(int level_x, int level_y)
 {
 	RECT region_rect;
 
-	int i, j;
+	
 	const int &scale = AsConfig::Global_Scale;
 	int x = level_x - Level_X;
 	int y = level_y - Level_Y;
