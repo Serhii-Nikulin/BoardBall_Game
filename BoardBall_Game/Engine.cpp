@@ -39,11 +39,9 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 
 	Border.Draw(hdc, paint_area);
 	Level.Draw(hdc, paint_area);
-
+	Platform.Draw(hdc, paint_area);
 	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 		Balls[i].Draw(hdc, paint_area);
-
-	Platform.Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Key_Down(EKey_Type key_type)

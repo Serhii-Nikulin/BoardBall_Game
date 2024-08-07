@@ -64,7 +64,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 		Clear_Parachute(hdc);
 		Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
 		break;
-
+	
 	case EBS_Lost:
 		if (Prev_Ball_State == EBS_On_Parachute)
 			Clear_Parachute(hdc);	
