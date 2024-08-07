@@ -54,6 +54,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
 	}
 
+
 	switch (Ball_State)
 	{
 	case EBS_On_Parachute:
