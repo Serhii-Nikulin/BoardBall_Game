@@ -32,7 +32,7 @@ private:
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
 
 	EGame_State Game_State;
-	ABall Ball;
+	ABall Balls[AsConfig::Max_Balls_Count];
 	AsLevel Level;
 	AsPlatform Platform;
 	AsBorder Border;

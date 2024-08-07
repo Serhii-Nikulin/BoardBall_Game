@@ -74,5 +74,7 @@ public:
 
 	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
+
+	static const int Max_Balls_Count = 13;
 };
 //------------------------------------------------------------------------------------------------------------

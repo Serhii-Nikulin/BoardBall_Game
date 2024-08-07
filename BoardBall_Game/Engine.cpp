@@ -33,16 +33,23 @@ void AsEngine::Init_Engine(HWND hwnd)
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 {
+	int i;
+
 	SetGraphicsMode(hdc, GM_ADVANCED);
 
 	Border.Draw(hdc, paint_area);
 	Level.Draw(hdc, paint_area);
-	Ball.Draw(hdc, paint_area);
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+		Balls[i].Draw(hdc, paint_area);
+
 	Platform.Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Key_Down(EKey_Type key_type)
 {
+	int i;
+
 	switch (key_type)
 	{
 	case EKT_Left:
@@ -56,7 +63,10 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 	case EKT_Space:
 		if (Platform.Get_State() == EPS_Ready)
 		{
-			Ball.Set_State(EBS_Normal);
+			for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+				if (Balls[i].Get_State() == EBS_On_Platform)
+					Balls[i].Set_State(EBS_Normal);
+
 			Platform.Set_State(EPS_Normal);
 		}  
 		break;
@@ -67,25 +77,29 @@ int AsEngine::On_Key_Down(EKey_Type key_type)
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Timer()
 {
+	int i;
 	AsConfig::Current_Timer_Tick += 1;
 
 	switch (Game_State)
 	{
 	case EGS_Test_Ball:
-		Ball.Set_For_Test();
+		Balls[0].Set_For_Test();
 		Game_State = EGS_Play_Level;
 		break;
 
 	case EGS_Play_Level:
-		Ball.Move();
-
-		if (Ball.Get_State() == EBS_Lost)
+		for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 		{
-			Game_State = EGS_Lost_Ball;
-			Platform.Set_State(EPS_Meltdown);
+			Balls[i].Move();
+
+			if (Balls[i].Get_State() == EBS_Lost)
+			{
+				Game_State = EGS_Lost_Ball;
+				Platform.Set_State(EPS_Meltdown);
+			}	
 		}
 
-		if (Ball.Is_Test_Finished())
+		if (Balls[0].Is_Test_Finished())
 			Game_State = EGS_Test_Ball;
 
 		break;
@@ -102,8 +116,10 @@ int AsEngine::On_Timer()
 		if (Platform.Get_State() == EPS_Ready)
 		{
 			Game_State = EGS_Play_Level;
-			Ball.Set_State(EBS_On_Platform);
-			Ball.Redraw_Ball();
+			for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+				Balls[i].Set_State(EBS_On_Platform);
+
+			Balls[0].Redraw_Ball();
 		}
 		break;
 	}
