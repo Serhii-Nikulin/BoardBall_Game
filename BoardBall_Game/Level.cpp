@@ -48,13 +48,17 @@ char AsLevel::Test_Level[Level_Height][Level_Width] = {
 //------------------------------------------------------------------------------------------------------------
 AsLevel::~AsLevel()
 {
+	Clear_All_Activity();
+
 	delete[] Teleport_Bricks_Pos;
 	Teleport_Bricks_Pos = 0;
 }
 //------------------------------------------------------------------------------------------------------------
 AsLevel::AsLevel()
-	: Teleport_Bricks_Count(0),Teleport_Bricks_Pos(0), Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), Active_Bricks{}, Advertisement(0),
-	Parachute_Color(AsConfig::Red_Color, AsConfig::Global_Scale, AsConfig::Blue_Color)
+	: Teleport_Bricks_Count(0),Teleport_Bricks_Pos(0), Level_Rect{}, Active_Brick(EBT_Blue, 0, 0), 
+	Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), 
+	Active_Bricks{}, Advertisement(0), Parachute_Color(AsConfig::Red_Color, AsConfig::Global_Scale, AsConfig::Blue_Color), 
+	Should_Stop_Level(false)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Init()
@@ -126,6 +130,11 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	if (Advertisement != 0)
 		Advertisement->Draw(hdc, paint_area);
 
+	if (Should_Stop_Level)
+	{
+		Clear_All_Activity();
+		Should_Stop_Level = false;
+	}
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
@@ -710,5 +719,33 @@ void AsLevel::Draw_Parachute_In_Level(HDC hdc, RECT brick_rect)
 		AsConfig::Round_Rect(hdc, bottom_rect);
 		top_rect.left += width;
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Stop()
+{
+	Should_Stop_Level = true;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Clear_All_Activity()
+{
+	Delete_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
+
+	Delete_Objects((AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Delete_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count)
+{
+	int i;
+
+	for (i = 0; i < objects_max_count; i++)
+	{
+		if (objects_array[i])
+		{
+			delete objects_array[i];
+			objects_array[i] = 0;
+		}
+		object_count = 0;
+	}
+
 }
 //------------------------------------------------------------------------------------------------------------

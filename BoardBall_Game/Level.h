@@ -30,8 +30,10 @@ public:
 	void Set_Current_Level(char level[Level_Height][Level_Width]);
 	void Act();
 	void Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count);
+	void Stop();
 
 	AActive_Brick_Red_Blue Active_Brick;
+	bool Should_Stop_Level;
 
 private:
 	void Draw_Brick(HDC hdc, RECT &brick_rect, int level_x, int level_y);
@@ -46,6 +48,8 @@ private:
 	void Add_New_Active_Brick(AActive_Brick *active_brick);
 	AActive_Brick_Teleport *Select_Destination_Teleport(int source_x, int source_y);
 	void Draw_Parachute_In_Level(HDC hdc, RECT brick_rect);
+	void Clear_All_Activity();
+	void Delete_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count);
 
 	int Teleport_Bricks_Count;
 	SPoint *Teleport_Bricks_Pos;
