@@ -27,7 +27,7 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 //ABall
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
-	: Ball_State(EBS_Normal), Prev_Ball_State(EBS_Normal), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
+	: Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Rest_Distance(0.0), 
 	Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
@@ -41,6 +41,9 @@ void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
 void ABall::Draw(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
+
+	if (Ball_State == EBS_Disabled)
+		return;
 
 	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
 		return;
@@ -85,7 +88,7 @@ void ABall::Move()
 	double next_x_pos, next_y_pos;
 	bool got_hit;
 
-	if (Ball_State == EBS_Lost or Ball_State == EBS_Teleporting or Ball_State == EBS_On_Platform)
+	if (Ball_State == EBS_Disabled or Ball_State == EBS_Lost or Ball_State == EBS_Teleporting or Ball_State == EBS_On_Platform)
 		return;
 
 	Rest_Distance += Ball_Speed;
@@ -174,6 +177,10 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 {
 	switch (new_state)
 	{
+	case EBS_Disabled:
+		Ball_Speed = 0.0;
+		Rest_Distance = 0.0;
+
 	case EBS_On_Platform:
 		Center_X_Pos = x_pos;
 		Center_Y_Pos = y_pos;

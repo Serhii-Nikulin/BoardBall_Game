@@ -79,6 +79,11 @@ int AsEngine::On_Timer()
 {
 	int i;
 	AsConfig::Current_Timer_Tick += 1;
+	int active_balls = 0;
+	int lost_balls = 0;
+
+	int active_balls_count = 0;
+	int lost_balls_count = 0;
 
 	switch (Game_State)
 	{
@@ -90,13 +95,20 @@ int AsEngine::On_Timer()
 	case EGS_Play_Level:
 		for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 		{
-			Balls[i].Move();
+			if (Balls[i].Get_State() == EBS_Disabled)
+				continue;
+			++active_balls_count;
 
 			if (Balls[i].Get_State() == EBS_Lost)
-			{
-				Game_State = EGS_Lost_Ball;
-				Platform.Set_State(EPS_Meltdown);
-			}	
+				++lost_balls_count;
+
+			Balls[i].Move();
+		}
+
+		if (active_balls_count == lost_balls_count)
+		{
+			Game_State = EGS_Lost_Ball;
+			Platform.Set_State(EPS_Meltdown);
 		}
 
 		if (Balls[0].Is_Test_Finished())
@@ -116,10 +128,16 @@ int AsEngine::On_Timer()
 		if (Platform.Get_State() == EPS_Ready)
 		{
 			Game_State = EGS_Play_Level;
-			for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+
+			for (i = 0; i < 3; i++)
 				Balls[i].Set_State(EBS_On_Platform);
 
+			for (NULL; i < AsConfig::Max_Balls_Count; i++)
+			{
+				Balls[i].Set_State(EBS_Disabled);
+			}
 			Balls[0].Redraw_Ball();
+
 		}
 		break;
 	}
@@ -129,6 +147,9 @@ int AsEngine::On_Timer()
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------
+
+//Restart_Level
+//Play_Level
 void AsEngine::Act()
 {
 	int index = 0;

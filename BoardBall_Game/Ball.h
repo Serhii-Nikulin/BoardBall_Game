@@ -5,7 +5,14 @@
 //------------------------------------------------------------------------------------------------------------
 enum EBall_State
 {
-	EBS_Normal, EBS_Lost, EBS_On_Platform, EBS_On_Parachute, EBS_Off_Parachute, EBS_Teleporting
+	EBS_Disabled,
+
+	EBS_Normal, 
+	EBS_Lost, 
+	EBS_On_Platform, 
+	EBS_On_Parachute, 
+	EBS_Off_Parachute, 
+	EBS_Teleporting
 };
 //------------------------------------------------------------------------------------------------------------
 class ABall;
