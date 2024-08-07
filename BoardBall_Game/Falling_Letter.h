@@ -30,7 +30,6 @@ class AFalling_Letter: public AGraphics_Object
 	void Set_Brick_Letter_Colors(bool is_switch_color, const AColor **front_color, const AColor **back_color);
 
 	const EBrick_Type Brick_Type;
-	const ELetter_Type Letter_Type;
 	int Rotation_Step;
 	int X, Y;
 
@@ -55,4 +54,5 @@ public:
 	static void Init();
 	static ELetter_Type Get_Random_Letter_Type();
 	RECT Letter_Cell, Prev_Letter_Cell;
+	const ELetter_Type Letter_Type;
 };

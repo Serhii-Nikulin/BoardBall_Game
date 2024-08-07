@@ -26,13 +26,15 @@ public:
 	void Draw_Frame(HDC hdc, RECT &paint_area);
 	int On_Key_Down(EKey_Type key_type);
 	int On_Timer();
+	void Restart_Level();
+	void Play_Level();
 
 private:
 	void Act();
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
 
 	EGame_State Game_State;
-	ABall Ball;
+	ABall Balls[AsConfig::Max_Balls_Count];
 	AsLevel Level;
 	AsPlatform Platform;
 	AsBorder Border;

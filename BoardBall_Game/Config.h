@@ -43,7 +43,7 @@ public:
 	static const int Global_Scale = 3;
 	static const int FPS = 20;
 	static int Current_Timer_Tick;
-
+	
 	static const int Border_X_Offset = 6;//Min_X
 	static const int Border_Y_Offset = 4;//Min_Y
 	static const int Max_X_Pos = 200;
@@ -74,5 +74,7 @@ public:
 
 	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
+
+	static const int Max_Balls_Count = 13;
 };
 //------------------------------------------------------------------------------------------------------------

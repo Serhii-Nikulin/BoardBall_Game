@@ -158,6 +158,7 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 
 	switch (Platform_State)
 	{
+	case EPS_Ready:
 	case EPS_Normal:
 		Draw_Normal_State(hdc, paint_area);
 		break;
@@ -408,13 +409,13 @@ void AsPlatform::Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Move(bool to_left)
 {
-	if (Platform_State != EPS_Normal)
+	if (!(Platform_State == EPS_Normal))
 		return;
 
 	if (to_left)
 	{
 		X_Pos -= X_Step;
-
+		
 		if (X_Pos < AsConfig::Border_X_Offset)
 			X_Pos = AsConfig::Border_X_Offset;
 
