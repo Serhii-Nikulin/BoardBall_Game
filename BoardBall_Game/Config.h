@@ -41,6 +41,7 @@ public:
 
 	static HWND Hwnd;
 	static const int Global_Scale = 3;
+	static const double D_Global_Scale;
 	static const int FPS = 20;
 	static int Current_Timer_Tick;
 	

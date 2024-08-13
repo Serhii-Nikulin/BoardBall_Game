@@ -44,29 +44,30 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 		Balls[i].Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
-int AsEngine::On_Key_Down(EKey_Type key_type)
+int AsEngine::On_Key(EKey_Type key_type, bool key_down)
 {
 	int i;
 
 	switch (key_type)
 	{
 	case EKT_Left:
-		Platform.Move(true);
+		Platform.Move(true, key_down);
 		break;
 
 	case EKT_Right:
-		Platform.Move(false);
+		Platform.Move(false, key_down);
 		break;
 
 	case EKT_Space:
-		if (Platform.Get_State() == EPS_Ready)
-		{
-			for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-				if (Balls[i].Get_State() == EBS_On_Platform)
-					Balls[i].Set_State(EBS_Normal);
+		if (key_down)
+			if (Platform.Get_State() == EPS_Ready)
+			{
+				for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+					if (Balls[i].Get_State() == EBS_On_Platform)
+						Balls[i].Set_State(EBS_Normal);
 
-			Platform.Set_State(EPS_Normal);
-		}  
+				Platform.Set_State(EPS_Normal);
+			}  
 		break;
 	}
 
@@ -114,11 +115,11 @@ void AsEngine::Restart_Level()
 
 	Game_State = EGS_Play_Level;
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 		Balls[i].Set_State(EBS_On_Platform);
 
 	for (NULL; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Set_State(EBS_Disabled);
+		//Balls[i].Set_State(EBS_Disabled);
 
 	Balls[0].Redraw_Ball();
 }
@@ -128,7 +129,17 @@ void AsEngine::Play_Level()
 	int i;
 	int active_balls_count = 0;
 	int lost_balls_count = 0;
+	double max_speed = fabs(Platform.Speed);
+	double rest_distance = max_speed;
 
+	while (rest_distance > 0.0)
+	{
+		Platform.Shift_Per_Step(max_speed);
+		rest_distance -= AsConfig::Moving_Step_Size;
+	}
+
+	Platform.Redraw();
+	
 	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 	{
 		if (Balls[i].Get_State() == EBS_Disabled)
@@ -140,6 +151,14 @@ void AsEngine::Play_Level()
 			++lost_balls_count;
 
 		Balls[i].Move();
+
+		double x, y;
+
+		Balls[i].Get_Center(x, y);
+
+		/*if (x >= Platform.X_Pos and x < Platform.X_Pos + Platform.Width)
+			if (y >= AsConfig::Platform_Y_Pos and y < AsConfig::Platform_Y_Pos + 7)
+				int yy = 0; */
 	}
 
 	if (active_balls_count == lost_balls_count)
@@ -175,7 +194,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 	/*switch (falling_letter->Letter_Type)
 	{
 		case ELT_O: 
-			break;
+			break;			
 		case ELT_M: 
 			break;
 		case ELT_I: 
