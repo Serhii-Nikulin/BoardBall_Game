@@ -41,6 +41,7 @@ public:
 
 	static HWND Hwnd;
 	static const int Global_Scale = 3;
+	static const double D_Global_Scale;
 	static const int FPS = 20;
 	static int Current_Timer_Tick;
 	
@@ -75,6 +76,7 @@ public:
 	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
 
-	static const int Max_Balls_Count = 13;
+	static const int Max_Balls_Count = 40;
+	static const int Max_Movers_Count = 10;
 };
 //------------------------------------------------------------------------------------------------------------

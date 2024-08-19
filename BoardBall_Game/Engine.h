@@ -11,6 +11,25 @@ enum EGame_State
 };
 //------------------------------------------------------------------------------------------------------------
 const int Timer_ID = WM_USER + 1;
+
+//------------------------------------------------------------------------------------------------------------
+class AsBall_Set: public AMover
+{
+public:
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
+	void Draw(HDC hdc, RECT &paint_area);
+	void Release_From_Platform();
+	void Set_On_Platform();
+	bool All_Balls_Are_Lost();
+	void Set_For_Test();
+	bool Is_Test_Finished();
+
+private:
+	ABall Balls[AsConfig::Max_Balls_Count];
+};
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
@@ -24,20 +43,23 @@ public:
 
 	void Init_Engine(HWND hwnd);
 	void Draw_Frame(HDC hdc, RECT &paint_area);
-	int On_Key_Down(EKey_Type key_type);
+	int On_Key(EKey_Type key_type, bool key_down);
 	int On_Timer();
-	void Restart_Level();
 	void Play_Level();
 
 private:
 	void Act();
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
+	void Shift_Mover();
 
 	EGame_State Game_State;
-	ABall Balls[AsConfig::Max_Balls_Count];
 	AsLevel Level;
-	AsPlatform Platform;
 	AsBorder Border;
+	AsPlatform Platform;
+	AsBall_Set Ball_Set;
+	AMover *Movers[AsConfig::Max_Movers_Count];
+
+	double Rest_Distance;
 };
 //------------------------------------------------------------------------------------------------------------
 
