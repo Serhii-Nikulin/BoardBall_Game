@@ -59,6 +59,39 @@ got_hit:
 	return true;
 }
 //------------------------------------------------------------------------------------------------------------
+void AsPlatform::Begin_Movement()
+{
+	Prev_Platform_Rect = Platform_Rect;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Finish_Movement()
+{
+	Redraw();
+}
+//------------------------------------------------------------------------------------------------------------
+double AsPlatform::Get_Speed()
+{
+	return Speed;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Shift_Per_Step(double max_speed)
+{
+	double step = AsConfig::Moving_Step_Size * Get_Speed() / max_speed;
+
+	X_Pos += step;
+
+	if (Platform_Moving_State == EPMS_Moving_Left)
+	{
+		if (X_Pos < AsConfig::Border_X_Offset)
+			X_Pos = AsConfig::Border_X_Offset;
+	}
+	else if (Platform_Moving_State == EPMS_Moving_Right)
+	{
+		if (X_Pos > AsConfig::Max_X_Pos - Width + 1)
+			X_Pos = AsConfig::Max_X_Pos - Width + 1;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset)
 {
 	double angle_to_normal;
@@ -462,23 +495,5 @@ bool AsPlatform::Hit_By(AFalling_Letter *falling_letter)
 		return true;
 	else
 		return false;
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Shift_Per_Step(double max_speed)
-{
-	double step = AsConfig::Moving_Step_Size * Speed / max_speed;
-
-	X_Pos += step;
-
-	if (Platform_Moving_State == EPMS_Moving_Left)
-	{
-		if (X_Pos < AsConfig::Border_X_Offset)
-			X_Pos = AsConfig::Border_X_Offset;
-	}
-	else if (Platform_Moving_State == EPMS_Moving_Right)
-	{
-		if (X_Pos > AsConfig::Max_X_Pos - Width + 1)
-			X_Pos = AsConfig::Max_X_Pos - Width + 1;
-	}
 }
 //------------------------------------------------------------------------------------------------------------

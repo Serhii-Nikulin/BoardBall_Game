@@ -18,12 +18,16 @@ enum EPlatform_Moving_State
 	EPMS_Moving_Right
 };
 //------------------------------------------------------------------------------------------------------------
-class AsPlatform: public AHit_Checker
+class AsPlatform: public AHit_Checker, public AMover
 {
 public:
 	AsPlatform();
 
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
 	void Draw(HDC hdc, RECT &paint_area);
 	void Redraw();
 	void Act();
@@ -31,11 +35,10 @@ public:
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
 	bool Hit_By(AFalling_Letter *falling_letter);
-	void Shift_Per_Step(double max_speed);
 
 	int Width;
 	int Inner_Width;
-	double Speed;
+	double X_Pos;
 
 private:
 	void Clear_BG(HDC hdc);
@@ -70,7 +73,7 @@ private:
 	static const int Normal_Width = 28 * AsConfig::Global_Scale;
 	static int Meltdown_Platform_Y_Pos[Normal_Width];
 	static const int X_Step = 2 * AsConfig::Global_Scale;
-	double X_Pos;
+	double Speed;
 	int Normal_Platform_Image_Width;
 	int Normal_Platform_Image_Height;
 	int* Normal_Platform_Image;

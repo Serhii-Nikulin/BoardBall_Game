@@ -42,7 +42,7 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 		ball->Reflect(false);//from right vertical
 	}
 
-	if (next_y_pos + ball->Radius > AsConfig::Max_Y_Pos)
+	if (next_y_pos - 2 * ball->Radius > AsConfig::Max_Y_Pos)
 	{
 		if (AsConfig::Has_Floor)
 		{
@@ -51,7 +51,7 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 		}
 		else
 		{
-			if (next_y_pos - ball->Radius * 4 > AsConfig::Max_Y_Pos);
+			if (next_y_pos - ball->Radius * 2 > AsConfig::Max_Y_Pos)
 				ball->Set_State(EBS_Lost);
 		}
 	}

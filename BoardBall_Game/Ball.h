@@ -3,6 +3,17 @@
 #include "Config.h"
 
 //------------------------------------------------------------------------------------------------------------
+class AMover
+{
+public:
+	virtual ~AMover();
+	virtual void Begin_Movement() = 0;
+	virtual void Finish_Movement() = 0;
+	virtual void Shift_Per_Step(double max_speed) = 0;
+	virtual double Get_Speed() = 0;
+	
+};
+//------------------------------------------------------------------------------------------------------------
 enum EBall_State
 {
 	EBS_Disabled,
@@ -16,6 +27,7 @@ enum EBall_State
 };
 //------------------------------------------------------------------------------------------------------------
 class ABall;
+//------------------------------------------------------------------------------------------------------------
 class AHit_Checker
 {
 public:
@@ -23,12 +35,15 @@ public:
 	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
 };
 //------------------------------------------------------------------------------------------------------------
-class ABall
+class ABall: public AMover
 {
 public:
 	ABall();
 	void Draw(HDC hdc, RECT &paint_area);
-	void Move();
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
 	void Redraw_Ball();
 	void Redraw_Parachute();
 
@@ -48,7 +63,6 @@ public:
 
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
-	double Ball_Speed;
 	double prev_angle_to_normal = 0;
 	double Rest_Test_Distance;
 
@@ -61,11 +75,11 @@ private:
 	RECT Ball_Rect, Prev_Ball_Rect;
 	RECT Parachute_Rect, Prev_Parachute_Rect;
 
+	double Ball_Speed;
 	double Center_X_Pos;
 	double Center_Y_Pos;
 	double Ball_Direction;
 	bool Testing_Is_Active;
-	double Rest_Distance;
 	static int Counter_Hit_Checker;
 	static const int Hit_Checkers_Count = 3;
 	static const int Parachute_Size = 15;
