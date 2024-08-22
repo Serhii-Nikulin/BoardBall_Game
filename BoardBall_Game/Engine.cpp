@@ -63,7 +63,7 @@ void AsBall_Set::Set_On_Platform()
 {
 	int i;
 
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	for (i = 0; i < 1; i++)
 		Balls[i].Set_State(EBS_On_Platform);
 
 	for (NULL; i < AsConfig::Max_Balls_Count; i++)
@@ -103,6 +103,105 @@ void AsBall_Set::Set_For_Test()
 bool AsBall_Set::Is_Test_Finished()
 {
 	return Balls[0].Is_Test_Finished();
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBall_Set::Triple_Ball()
+{
+	int i;
+	double current_x, current_y;
+	double x_max, y_max;
+	double max_y_distance = 0, current_distance;
+
+	ABall *current_ball, *remote_ball = 0;
+	ABall *left_candidate = 0, *right_candidate = 0;
+	double direction;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() == EBS_Disabled or current_ball->Get_State() == EBS_Lost)
+			continue;
+
+		current_ball->Get_Center(current_x, current_y);
+		current_distance = AsConfig::Max_Y_Pos - current_y;
+
+		if (current_distance > max_y_distance)
+		{
+			max_y_distance = current_distance;
+			/*x_max = current_x;
+			y_max = current_y;*/
+			remote_ball = current_ball;
+		}
+	}
+	
+	if (remote_ball == 0)
+		return;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() == EBS_Disabled or current_ball->Get_State() == EBS_Lost)
+		{
+			if (left_candidate == 0)
+				left_candidate = current_ball;
+			else
+			{
+				right_candidate = current_ball;
+				break;
+			}
+		}
+	}
+
+	direction = remote_ball->Get_Direction();
+
+	if (left_candidate != 0)
+	{
+		*left_candidate = *remote_ball;
+		left_candidate->Set_Direction(direction - M_PI / 8.0);
+		//left_candidate->Set_State(EBS_Normal, x_max, y_max, direction - M_PI / 8.0);
+	}
+
+	if(right_candidate != 0)
+	{
+		*right_candidate = *remote_ball;
+		right_candidate->Set_Direction(direction + M_PI / 8.0);
+		//right_candidate->Set_State(EBS_Normal, x_max, y_max, direction + M_PI / 8.0);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBall_Set::Inverse_Direction()
+{
+	int i;
+	ABall *current_ball;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() != EBS_Normal)
+			continue;
+
+		current_ball->Set_Direction(current_ball->Get_Direction() + M_PI);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBall_Set::Accelerate()
+{
+	int i;
+	ABall *current_ball;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() != EBS_Normal)
+			continue;
+
+		current_ball->Set_Speed(current_ball->Get_Speed() * AsConfig::Acceleration);
+	}
+		
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -230,6 +329,8 @@ void AsEngine::Play_Level()
 		Platform.Set_State(EPS_Meltdown);
 		Level.Stop();
 	}
+	else
+		Ball_Set.Accelerate();
 
 	if (Ball_Set.Is_Test_Finished() )
 		Game_State = EGS_Test_Ball;
@@ -253,13 +354,14 @@ void AsEngine::Act()
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 {
-	/*switch (falling_letter->Letter_Type)
+	switch (falling_letter->Letter_Type)
 	{
 		case ELT_O: 
 			break;			
 		case ELT_M: 
 			break;
 		case ELT_I: 
+			Ball_Set.Inverse_Direction();
 			break;
 		case ELT_C: 
 			break;
@@ -270,6 +372,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		case ELT_G:
 			break;
 		case ELT_T: 
+			Ball_Set.Triple_Ball();
 			break;
 		case ELT_L: 
 			break;
@@ -280,7 +383,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		default:
 			AsConfig::Throw();
 
-	}*/
+	}
 
 	falling_letter->Finalize();
 }

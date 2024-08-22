@@ -36,8 +36,7 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 
 //ABall
 //------------------------------------------------------------------------------------------------------------
-ABall::ABall()
-	: Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
+ABall::ABall(): Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -114,6 +113,11 @@ void ABall::Finish_Movement()
 double ABall::Get_Speed()
 {
 	return Ball_Speed;
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Set_Speed(double speed)
+{
+	Ball_Speed = speed;
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Shift_Per_Step(double max_speed)

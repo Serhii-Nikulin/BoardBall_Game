@@ -76,7 +76,9 @@ public:
 	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
 
-	static const int Max_Balls_Count = 40;
+	static const int Max_Balls_Count = 10;
 	static const int Max_Movers_Count = 10;
+
+	static const double Acceleration;
 };
 //------------------------------------------------------------------------------------------------------------

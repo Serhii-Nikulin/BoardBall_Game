@@ -44,6 +44,7 @@ public:
 	virtual void Finish_Movement();
 	virtual void Shift_Per_Step(double max_speed);
 	virtual double Get_Speed();
+	void Set_Speed(double speed);
 	void Redraw_Ball();
 	void Redraw_Parachute();
 

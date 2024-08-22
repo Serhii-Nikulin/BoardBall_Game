@@ -26,7 +26,9 @@ public:
 	bool All_Balls_Are_Lost();
 	void Set_For_Test();
 	bool Is_Test_Finished();
-
+	void Triple_Ball();
+	void Inverse_Direction();
+	void Accelerate();
 private:
 	ABall Balls[AsConfig::Max_Balls_Count];
 };
