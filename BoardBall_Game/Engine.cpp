@@ -187,6 +187,20 @@ void AsBall_Set::Inverse_Direction()
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void AsBall_Set::Reset_Balls_Speed()
+{
+	int i = 0;
+
+	ABall *current_ball;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+		if (current_ball->Get_State() == EBS_Normal)
+			current_ball->Set_Speed(AsConfig::Ball_Normal_Speed);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Accelerate()
 {
 	int i;
@@ -363,7 +377,8 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		case ELT_I: 
 			Ball_Set.Inverse_Direction();
 			break;
-		case ELT_C: 
+		case ELT_C:
+			Ball_Set.Reset_Balls_Speed();
 			break;
 		case ELT_K: 
 			break;

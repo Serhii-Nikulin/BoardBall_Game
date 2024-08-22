@@ -80,5 +80,6 @@ public:
 	static const int Max_Movers_Count = 10;
 
 	static const double Acceleration;
+	static const double Ball_Normal_Speed;
 };
 //------------------------------------------------------------------------------------------------------------

@@ -102,6 +102,7 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 	double platform_ball_x, platform_ball_y;
 	double dx, dy;
 	double direction;
+	double speed;
 
 	double ball_left_x = next_x_pos - ball->Radius;
 	double ball_right_x = next_x_pos + ball->Radius;
@@ -113,7 +114,7 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 	dx = next_x_pos - platform_ball_x;
 	dy = platform_ball_y - next_y_pos;
 
-	if ((ball_right_x > X_Pos + x_offset and ball_left_x < X_Pos + Circle_Size - 1 + x_offset) 
+	if ( (ball_right_x > X_Pos + x_offset and ball_left_x < X_Pos + Circle_Size - 1 + x_offset) 
 		and 
 		(ball_low_y > AsConfig::Platform_Y_Pos and ball_top_y < AsConfig::Platform_Y_Pos + Circle_Size - 1) )
 	{
@@ -134,11 +135,16 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 		if (ball->Get_State() == EBS_On_Parachute)
 			ball->Set_State(EBS_Off_Parachute);
 		else
-			ball->Set_State(EBS_Normal, (int)(next_x_pos + AsConfig::Global_Scale * cos(direction)), (int)(next_y_pos - AsConfig::Global_Scale * sin(direction)), direction);
+		{
+			speed = ball->Get_Speed();
+			ball->Set_State(EBS_Normal, (int)(next_x_pos + AsConfig::Global_Scale * cos(direction)), (int)(next_y_pos - AsConfig::Global_Scale * sin(direction) ), direction);
+			ball->Set_Speed(speed);
+		}
 
 		ball->prev_angle_to_normal = angle_to_normal;
 		return true;
 	}
+
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------

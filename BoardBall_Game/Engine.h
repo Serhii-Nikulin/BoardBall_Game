@@ -28,6 +28,7 @@ public:
 	bool Is_Test_Finished();
 	void Triple_Ball();
 	void Inverse_Direction();
+	void Reset_Balls_Speed();
 	void Accelerate();
 private:
 	ABall Balls[AsConfig::Max_Balls_Count];

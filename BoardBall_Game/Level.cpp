@@ -498,7 +498,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 		{
 			letter_x = (AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) * AsConfig::Global_Scale;
 			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
-			letter_type = ELT_T;//AFalling_Letter::Get_Random_Letter_Type();
+			letter_type = ELT_C;//AFalling_Letter::Get_Random_Letter_Type();
 
 			falling_letter = new AFalling_Letter(brick_type, letter_type, letter_x, letter_y);
 			Falling_Letters[i] = falling_letter;
@@ -728,9 +728,9 @@ void AsLevel::Stop()
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Clear_All_Activity()
 {
-	Delete_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
+	Delete_Objects( (AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
 
-	Delete_Objects((AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
+	Delete_Objects( (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Delete_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count)
@@ -746,6 +746,5 @@ void AsLevel::Delete_Objects(AGraphics_Object **objects_array, const int objects
 		}
 		object_count = 0;
 	}
-
 }
 //------------------------------------------------------------------------------------------------------------
