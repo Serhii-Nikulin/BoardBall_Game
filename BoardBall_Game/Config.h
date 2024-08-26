@@ -81,5 +81,8 @@ public:
 
 	static const double Acceleration;
 	static const double Ball_Normal_Speed;
+
+	static const int Max_Life_Count = 12;
+	static const int Initial_Life_Count = 5;
 };
 //------------------------------------------------------------------------------------------------------------

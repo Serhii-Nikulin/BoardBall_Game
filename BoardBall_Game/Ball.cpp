@@ -80,7 +80,6 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 
 	case EBS_Teleporting:
 		return;
-
 	}
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))

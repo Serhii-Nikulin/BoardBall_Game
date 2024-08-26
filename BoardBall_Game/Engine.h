@@ -1,6 +1,7 @@
 #pragma once
 #include "Border.h"
-#include "Ball.h"
+#include "Ball_Set.h"
+//#include "Ball.h"
 #include "Platform.h"
 #include "Level.h"
 
@@ -11,28 +12,6 @@ enum EGame_State
 };
 //------------------------------------------------------------------------------------------------------------
 const int Timer_ID = WM_USER + 1;
-
-//------------------------------------------------------------------------------------------------------------
-class AsBall_Set: public AMover
-{
-public:
-	virtual void Begin_Movement();
-	virtual void Finish_Movement();
-	virtual void Shift_Per_Step(double max_speed);
-	virtual double Get_Speed();
-	void Draw(HDC hdc, RECT &paint_area);
-	void Release_From_Platform();
-	void Set_On_Platform();
-	bool All_Balls_Are_Lost();
-	void Set_For_Test();
-	bool Is_Test_Finished();
-	void Triple_Ball();
-	void Inverse_Direction();
-	void Reset_Balls_Speed();
-	void Accelerate();
-private:
-	ABall Balls[AsConfig::Max_Balls_Count];
-};
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
@@ -53,7 +32,7 @@ public:
 private:
 	void Act();
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
-	void Shift_Mover();
+	void Shift_Movers();
 
 	EGame_State Game_State;
 	AsLevel Level;
@@ -63,6 +42,7 @@ private:
 	AMover *Movers[AsConfig::Max_Movers_Count];
 
 	double Rest_Distance;
+	int Life_Count;
 };
 //------------------------------------------------------------------------------------------------------------
 
