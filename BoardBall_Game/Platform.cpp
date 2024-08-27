@@ -74,6 +74,60 @@ double AsPlatform::Get_Speed()
 	return Speed;
 }
 //------------------------------------------------------------------------------------------------------------
+void AsPlatform::Act()
+{
+	switch (Platform_State)
+	{
+	case EPS_Meltdown:
+	case EPS_Roll_In:
+	case EPS_Expand_Roll_In:
+		Redraw();
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Draw(HDC hdc, RECT& paint_area)
+{
+	RECT intersection_rect;
+	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+		return;
+
+	switch (Platform_State)
+	{
+	case EPS_Ready:
+	case EPS_Normal:
+		Draw_Normal_State(hdc, paint_area);
+		break;
+
+	case EPS_Pre_Meltdown:
+		Draw_Normal_State(hdc, paint_area);
+		Set_State(EPS_Meltdown);
+		break;
+
+	case EPS_Meltdown:
+		Draw_Meltdown_State(hdc, paint_area);
+		break;
+
+	case EPS_Roll_In:
+		Draw_Roll_In_State(hdc, paint_area);
+		break;
+
+	case EPS_Expand_Roll_In:
+		Draw_Expandig_Roll_In_State(hdc, paint_area);
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+	AsConfig::Throw();
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Is_Finished()
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Shift_Per_Step(double max_speed)
 {
 	double step = AsConfig::Moving_Step_Size * Get_Speed() / max_speed;
@@ -148,18 +202,6 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Act()
-{
-	switch (Platform_State)
-	{
-	case EPS_Meltdown:
-	case EPS_Roll_In:
-	case EPS_Expand_Roll_In:
-		Redraw();
-		break;
-	}
-}
-//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Set_State(EPlatform_State new_state)
 {
 	int i, len;
@@ -192,38 +234,6 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 EPlatform_State AsPlatform::Get_State()
 {
 	return Platform_State;
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw(HDC hdc, RECT& paint_area)
-{
-	RECT intersection_rect;
-	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
-		return;
-
-	switch (Platform_State)
-	{
-	case EPS_Ready:
-	case EPS_Normal:
-		Draw_Normal_State(hdc, paint_area);
-		break;
-	
-	case EPS_Pre_Meltdown:
-		Draw_Normal_State(hdc, paint_area);
-		Set_State(EPS_Meltdown);
-		break;
-
-	case EPS_Meltdown:
-		Draw_Meltdown_State(hdc, paint_area);
-		break;
-
-	case EPS_Roll_In:
-		Draw_Roll_In_State(hdc, paint_area);
-		break;
-
-	case EPS_Expand_Roll_In:
-		Draw_Expandig_Roll_In_State(hdc, paint_area);
-		break;
-	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Clear_BG(HDC hdc)

@@ -120,43 +120,6 @@ void AsLevel::Set_Current_Level(char level[Level_Height][Level_Width])
 	Advertisement = new AAdvertisement(9, 6, 2, 3);
 }
 //------------------------------------------------------------------------------------------------------------
-void AsLevel::Draw(HDC hdc, RECT& paint_area)
-{
-	int i, j;
-	RECT intersection_rect, brick_rect;
-		
-	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
-
-	if (Advertisement != 0)
-		Advertisement->Draw(hdc, paint_area);
-
-	if (Should_Stop_Level)
-	{
-		Clear_All_Activity();
-		Should_Stop_Level = false;
-	}
-
-	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
-	{
-		for (i = 0; i < Level_Height; ++i)
-			for (j = 0; j < Level_Width; ++j)
-			{
-				brick_rect.left = (AsConfig::Level_X_Offset + j * AsConfig::Cell_Width) * AsConfig::Global_Scale;
-				brick_rect.top = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * i) * AsConfig::Global_Scale;
-				brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
-				brick_rect.bottom = brick_rect.top + AsConfig::Global_Scale * AsConfig::Brick_Height;
-
-				if (IntersectRect(&intersection_rect, &paint_area, &brick_rect))
-						Draw_Brick(hdc, brick_rect, j, i);
-
-			}
-
-		Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count);
-	}
-
-	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
-}
-//------------------------------------------------------------------------------------------------------------
 void AsLevel::Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter)
 {
 	int i;
@@ -320,6 +283,63 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
+void AsLevel::Act()
+{
+	Act_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
+
+	Act_Objects((AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
+
+	if (Advertisement != 0)
+		Advertisement->Act();
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Draw(HDC hdc, RECT& paint_area)
+{
+	int i, j;
+	RECT intersection_rect, brick_rect;
+
+	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+
+	if (Advertisement != 0)
+		Advertisement->Draw(hdc, paint_area);
+
+	if (Should_Stop_Level)
+	{
+		Clear_All_Activity();
+		Should_Stop_Level = false;
+	}
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
+	{
+		for (i = 0; i < Level_Height; ++i)
+			for (j = 0; j < Level_Width; ++j)
+			{
+				brick_rect.left = (AsConfig::Level_X_Offset + j * AsConfig::Cell_Width) * AsConfig::Global_Scale;
+				brick_rect.top = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * i) * AsConfig::Global_Scale;
+				brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
+				brick_rect.bottom = brick_rect.top + AsConfig::Global_Scale * AsConfig::Brick_Height;
+
+				if (IntersectRect(&intersection_rect, &paint_area, &brick_rect))
+					Draw_Brick(hdc, brick_rect, j, i);
+
+			}
+
+		Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count);
+	}
+
+	Drow_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsLevel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+	AsConfig::Throw();
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsLevel::Is_Finished()
+{
+	return false;// code stub
+}
+//------------------------------------------------------------------------------------------------------------
 bool AsLevel::Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos)
 {
 	double min_distance_to_horizon, min_distance_to_vertical, another_distance;
@@ -412,17 +432,6 @@ bool AsLevel::Check_Vertical_Hit(double next_x_pos, double next_y_pos, int level
 	}
 
 	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-void AsLevel::Act()
-{
-	Act_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
-
-	Act_Objects((AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count, Falling_Letters_Count);
-
-	if (Advertisement != 0)
-		Advertisement->Act();
-
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count)

@@ -1,6 +1,17 @@
 #include "Ball.h"
 
 //------------------------------------------------------------------------------------------------------------
+//AGraphics_Object
+AGraphics_Object::~AGraphics_Object()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+//AMover
 AMover::~AMover()
 {
 }
@@ -11,7 +22,6 @@ AMover::~AMover()
 
 //------------------------------------------------------------------------------------------------------------
 //AHit_Checker
-//------------------------------------------------------------------------------------------------------------
 const double ABall::Radius = 2;
 int ABall::Counter_Hit_Checker = 0;
 AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
@@ -46,6 +56,35 @@ void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
 		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
 }
 //------------------------------------------------------------------------------------------------------------
+void ABall::Begin_Movement()
+{
+	Prev_Ball_Rect = Ball_Rect;
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Finish_Movement()
+{
+	Redraw_Ball();
+
+	if (Ball_State == EBS_On_Parachute)
+	{
+		Prev_Parachute_Rect = Parachute_Rect;
+
+		Parachute_Rect.bottom = Ball_Rect.bottom;
+		Parachute_Rect.top = Parachute_Rect.bottom - Parachute_Size * AsConfig::Global_Scale;
+
+		Redraw_Parachute();
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+double ABall::Get_Speed()
+{
+	return Ball_Speed;
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Act()
+{//code stub
+}
+//------------------------------------------------------------------------------------------------------------
 void ABall::Draw(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
@@ -72,7 +111,7 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 		Clear_Parachute(hdc);
 		Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
 		break;
-	
+
 	case EBS_Lost:
 		if (Prev_Ball_State == EBS_On_Parachute)
 			Clear_Parachute(hdc);	
@@ -89,29 +128,14 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Begin_Movement()
+void ABall::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
-	Prev_Ball_Rect = Ball_Rect;
+	AsConfig::Throw();
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Finish_Movement()
+bool ABall::Is_Finished()
 {
-	Redraw_Ball();
-
-	if (Ball_State == EBS_On_Parachute)
-	{
-		Prev_Parachute_Rect = Parachute_Rect;
-
-		Parachute_Rect.bottom = Ball_Rect.bottom;
-		Parachute_Rect.top = Parachute_Rect.bottom - Parachute_Size * AsConfig::Global_Scale;
-
-		Redraw_Parachute();
-	}
-}
-//------------------------------------------------------------------------------------------------------------
-double ABall::Get_Speed()
-{
-	return Ball_Speed;
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Set_Speed(double speed)

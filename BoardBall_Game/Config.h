@@ -84,5 +84,7 @@ public:
 
 	static const int Max_Life_Count = 12;
 	static const int Initial_Life_Count = 5;
+
+	static const int Max_Modules_Count = 10;
 };
 //------------------------------------------------------------------------------------------------------------

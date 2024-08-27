@@ -1,6 +1,6 @@
 #include "Config.h"
 
-const double AsConfig::D_Global_Scale = 3.0;
+const double AsConfig::D_Global_Scale = (double)Global_Scale;
 const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Color(237, 38, 36);
 const AColor AsConfig::Blue_Color(63, 72, 204);

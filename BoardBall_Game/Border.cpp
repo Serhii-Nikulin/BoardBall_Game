@@ -10,23 +10,6 @@ AsBorder::AsBorder()
 	Floor_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsBorder::Draw(HDC hdc, RECT &paint_area)
-{
-	int i;
-
-	for (i = 0; i < 50; ++i)
-		Draw_Element(hdc, 3 + i * 4, 0, true, paint_area);//top horizontal part
-
-	for (i = 0; i < 50; ++i)
-		Draw_Element(hdc, 2, 1 + i * 4, false, paint_area);//left part
-
-	for (i = 0; i < 50; ++i)
-		Draw_Element(hdc, 201, 1 + i * 4, false, paint_area);//right part
-
-	if (AsConfig::Has_Floor)
-		Draw_Floor(hdc, paint_area);
-}
-//------------------------------------------------------------------------------------------------------------
 bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 {
 	bool got_hit = false;
@@ -63,6 +46,37 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 	}
 
  	return got_hit;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Act()
+{//code stub
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Draw(HDC hdc, RECT &paint_area)
+{
+	int i;
+
+	for (i = 0; i < 50; ++i)
+		Draw_Element(hdc, 3 + i * 4, 0, true, paint_area);//top horizontal part
+
+	for (i = 0; i < 50; ++i)
+		Draw_Element(hdc, 2, 1 + i * 4, false, paint_area);//left part
+
+	for (i = 0; i < 50; ++i)
+		Draw_Element(hdc, 201, 1 + i * 4, false, paint_area);//right part
+
+	if (AsConfig::Has_Floor)
+		Draw_Floor(hdc, paint_area);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+	AsConfig::Throw();
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsBorder::Is_Finished()
+{
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Redraw_Floor()
