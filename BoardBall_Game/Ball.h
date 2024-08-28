@@ -3,6 +3,17 @@
 #include "Config.h"
 
 //------------------------------------------------------------------------------------------------------------
+class AGraphics_Object
+{
+public:
+	virtual ~AGraphics_Object();
+
+	virtual void Act() = 0;
+	virtual void Draw(HDC HDC, RECT &paint_area) = 0;
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area) = 0;
+	virtual bool Is_Finished() = 0;
+};
+//------------------------------------------------------------------------------------------------------------
 class AMover
 {
 public:
@@ -35,15 +46,20 @@ public:
 	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
 };
 //------------------------------------------------------------------------------------------------------------
-class ABall: public AMover
+class ABall: public AMover, public AGraphics_Object
 {
 public:
 	ABall();
-	void Draw(HDC hdc, RECT &paint_area);
 	virtual void Begin_Movement();
 	virtual void Finish_Movement();
 	virtual void Shift_Per_Step(double max_speed);
 	virtual double Get_Speed();
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
 	void Set_Speed(double speed);
 	void Redraw_Ball();
 	void Redraw_Parachute();

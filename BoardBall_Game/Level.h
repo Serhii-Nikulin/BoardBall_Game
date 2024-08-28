@@ -8,14 +8,19 @@ struct SPoint
 	int X, Y;
 };
 //------------------------------------------------------------------------------------------------------------
-class AsLevel: public AHit_Checker
+class AsLevel: public AHit_Checker, public AGraphics_Object
 {
 public:
 	~AsLevel();
 	AsLevel();
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
 	void Init();
-	void Draw(HDC hdc, RECT &paint_area);
 	void Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	void Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	bool Get_Next_Falling_Letter(int &index, AFalling_Letter **falling_letter);
@@ -28,7 +33,6 @@ public:
 
 	static char Test_Level[Level_Height][Level_Width];
 	void Set_Current_Level(char level[Level_Height][Level_Width]);
-	void Act();
 	void Act_Objects(AGraphics_Object **objects_array, const int objects_max_count, int &object_count);
 	void Stop();
 

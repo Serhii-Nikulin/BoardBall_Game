@@ -6,7 +6,7 @@ AsPlatform::AsPlatform() :
 	Platform_State(EPS_Missing), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2),
 	Prev_Platform_Rect{}, Platform_Rect{},	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), 
 	Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
-	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0)
+	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false)
 {}
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -66,12 +66,86 @@ void AsPlatform::Begin_Movement()
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Finish_Movement()
 {
+	if (Platform_State == EPMS_Stop)
+		return;
+
 	Redraw();
 }
 //------------------------------------------------------------------------------------------------------------
 double AsPlatform::Get_Speed()
 {
 	return Speed;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Act()
+{
+	switch (Platform_State)
+	{
+	case EPS_Meltdown:
+	case EPS_Roll_In:
+	case EPS_Expand_Roll_In:
+		Redraw();
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Draw(HDC hdc, RECT& paint_area)
+{
+	RECT intersection_rect;
+	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+		return;
+
+	switch (Platform_State)
+	{
+	case EPS_Ready:
+	case EPS_Normal:
+		Draw_Normal_State(hdc, paint_area);
+		break;
+
+	case EPS_Pre_Meltdown:
+		Draw_Normal_State(hdc, paint_area);
+		Set_State(EPS_Meltdown);
+		break;
+
+	case EPS_Meltdown:
+		Draw_Meltdown_State(hdc, paint_area);
+		break;
+
+	case EPS_Roll_In:
+		Draw_Roll_In_State(hdc, paint_area);
+		break;
+
+	case EPS_Expand_Roll_In:
+		Draw_Expandig_Roll_In_State(hdc, paint_area);
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+	RECT intersection_rect;
+
+	if (! IntersectRect(&intersection_rect, &paint_area, &Platform_Rect) )
+		return;
+
+	switch (Platform_State)
+	{
+	case EPS_Ready:
+	case EPS_Normal:
+	case EPS_Pre_Meltdown:
+	case EPS_Roll_In:
+	case EPS_Expand_Roll_In:
+		AsConfig::BG_Color.Select(hdc);
+		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
+
+	default:
+		return;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Is_Finished()
+{
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Shift_Per_Step(double max_speed)
@@ -148,18 +222,6 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Act()
-{
-	switch (Platform_State)
-	{
-	case EPS_Meltdown:
-	case EPS_Roll_In:
-	case EPS_Expand_Roll_In:
-		Redraw();
-		break;
-	}
-}
-//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Set_State(EPlatform_State new_state)
 {
 	int i, len;
@@ -194,44 +256,6 @@ EPlatform_State AsPlatform::Get_State()
 	return Platform_State;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw(HDC hdc, RECT& paint_area)
-{
-	RECT intersection_rect;
-	if (!IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
-		return;
-
-	switch (Platform_State)
-	{
-	case EPS_Ready:
-	case EPS_Normal:
-		Draw_Normal_State(hdc, paint_area);
-		break;
-	
-	case EPS_Pre_Meltdown:
-		Draw_Normal_State(hdc, paint_area);
-		Set_State(EPS_Meltdown);
-		break;
-
-	case EPS_Meltdown:
-		Draw_Meltdown_State(hdc, paint_area);
-		break;
-
-	case EPS_Roll_In:
-		Draw_Roll_In_State(hdc, paint_area);
-		break;
-
-	case EPS_Expand_Roll_In:
-		Draw_Expandig_Roll_In_State(hdc, paint_area);
-		break;
-	}
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Clear_BG(HDC hdc)
-{
-	AsConfig::BG_Color.Select(hdc);
-	Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
-}
-//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
 {
 	Highlight_Color.Select_Pen(hdc);
@@ -251,9 +275,6 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	int scale = AsConfig::Global_Scale;
 	RECT intersection_rect{};
 	RECT inner_rect{};
-
-	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
-		Clear_BG(hdc);
 
 	//draw side parts
 	Platform_Circle_Color.Select(hdc);
@@ -412,9 +433,6 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	XFORM xform, prev_xform;
 	double rotation_angle;
 
-	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect))
-		Clear_BG(hdc);
-
 	Platform_Circle_Color.Select(hdc);
 	Ellipse(hdc, (int)x, y, (int)x + roller_size - 1, y + roller_size);
 
@@ -468,36 +486,30 @@ void AsPlatform::Move(bool to_left, bool key_down)
 		return;
 
 	if (to_left)
-	{
-		if (Platform_Moving_State == EPMS_Moving_Left)
-		{
-			if (! key_down)
-			{
-				Platform_Moving_State = EPMS_Stop;
-				Speed = 0.0;
-			}
-		}
-		else
-		{
-			Platform_Moving_State = EPMS_Moving_Left;	
-			Speed = -X_Step;
-		}
-	}
+		Left_Key_Down = key_down;
 	else
+		Right_Key_Down = key_down;
+
+	if (Left_Key_Down and Right_Key_Down)
+		return;
+
+	if (!Left_Key_Down and !Right_Key_Down)
 	{
-		if (Platform_Moving_State == EPMS_Moving_Right)
-		{
-			if (! key_down)
-			{
-				Platform_Moving_State = EPMS_Stop;
-				Speed = 0.0;
-			}
-		}
-		else
-		{
-			Platform_Moving_State = EPMS_Moving_Right;	
-			Speed = X_Step;
-		}
+		Platform_Moving_State = EPMS_Stop;
+		Speed = 0.0;
+		return;
+	}
+
+	if (Left_Key_Down)
+	{
+		Platform_Moving_State = EPMS_Moving_Left;	
+		Speed = -X_Step;
+	}
+
+	if(Right_Key_Down)
+	{
+		Platform_Moving_State = EPMS_Moving_Right;	
+		Speed = X_Step;
 	}
 }
 //------------------------------------------------------------------------------------------------------------

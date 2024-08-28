@@ -19,7 +19,7 @@ enum EPlatform_Moving_State
 	EPMS_Moving_Right
 };
 //------------------------------------------------------------------------------------------------------------
-class AsPlatform: public AHit_Checker, public AMover
+class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
 {
 public:
 	AsPlatform();
@@ -29,9 +29,13 @@ public:
 	virtual void Finish_Movement();
 	virtual void Shift_Per_Step(double max_speed);
 	virtual double Get_Speed();
-	void Draw(HDC hdc, RECT &paint_area);
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
 	void Redraw();
-	void Act();
 	void Set_State(EPlatform_State platform_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
@@ -42,7 +46,6 @@ public:
 	double X_Pos;
 
 private:
-	void Clear_BG(HDC hdc);
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Get_Normal_Platform_Image(HDC hdc);
@@ -60,6 +63,7 @@ private:
 	RECT Prev_Platform_Rect, Platform_Rect;
 
 	int Rolling_Step;
+	bool Left_Key_Down, Right_Key_Down;
 
 	static const int Circle_Size = 7;
 	static const int Roll_In_Platform_End_X_Pos = AsConfig::Border_X_Offset + (AsConfig::Max_X_Pos - AsConfig::Border_X_Offset) / 2 - Circle_Size / 2;

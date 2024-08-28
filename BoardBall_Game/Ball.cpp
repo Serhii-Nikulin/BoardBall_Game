@@ -1,6 +1,17 @@
 #include "Ball.h"
 
 //------------------------------------------------------------------------------------------------------------
+//AGraphics_Object
+AGraphics_Object::~AGraphics_Object()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+//AMover
 AMover::~AMover()
 {
 }
@@ -11,7 +22,6 @@ AMover::~AMover()
 
 //------------------------------------------------------------------------------------------------------------
 //AHit_Checker
-//------------------------------------------------------------------------------------------------------------
 const double ABall::Radius = 2;
 int ABall::Counter_Hit_Checker = 0;
 AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
@@ -46,49 +56,6 @@ void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
 		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Draw(HDC hdc, RECT &paint_area)
-{
-	RECT intersection_rect;
-
-	if (Ball_State == EBS_Disabled)
-		return;
-
-	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
-		return;
-
-	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
-	{
-		AsConfig::BG_Color.Select(hdc);
-		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
-	}
-
-	switch (Ball_State)
-	{
-	case EBS_On_Parachute:
-		Draw_Parachute(hdc, paint_area);
-		break;
-
-	case EBS_Off_Parachute:
-		Clear_Parachute(hdc);
-		Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
-		break;
-	
-	case EBS_Lost:
-		if (Prev_Ball_State == EBS_On_Parachute)
-			Clear_Parachute(hdc);	
-		return;
-
-	case EBS_Teleporting:
-		return;
-	}
-
-	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
-	{
-		AsConfig::White_Color.Select(hdc);
-		Ellipse(hdc, Ball_Rect.left, Ball_Rect.top, Ball_Rect.right - 1, Ball_Rect.bottom - 1);
-	}
-}
-//------------------------------------------------------------------------------------------------------------
 void ABall::Begin_Movement()
 {
 	Prev_Ball_Rect = Ball_Rect;
@@ -96,6 +63,9 @@ void ABall::Begin_Movement()
 //------------------------------------------------------------------------------------------------------------
 void ABall::Finish_Movement()
 {
+	if (Ball_State == EBS_Disabled or Ball_State == EBS_Lost)
+		return;
+
 	Redraw_Ball();
 
 	if (Ball_State == EBS_On_Parachute)
@@ -112,6 +82,66 @@ void ABall::Finish_Movement()
 double ABall::Get_Speed()
 {
 	return Ball_Speed;
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Act()
+{//code stub
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Draw(HDC hdc, RECT &paint_area)
+{
+	RECT intersection_rect;
+
+	if (Ball_State == EBS_Disabled)
+		return;
+
+	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
+		return;
+
+	switch (Ball_State)
+	{
+	case EBS_On_Parachute:
+		Draw_Parachute(hdc, paint_area);
+		break;
+
+	case EBS_Off_Parachute:
+		Clear_Parachute(hdc);
+		Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
+		break;
+
+	case EBS_Lost:
+		if (Prev_Ball_State == EBS_On_Parachute)
+			Clear_Parachute(hdc);	
+		return;
+
+	case EBS_Teleporting:
+		return;
+	}
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
+	{
+		AsConfig::White_Color.Select(hdc);
+		Ellipse(hdc, Ball_Rect.left, Ball_Rect.top, Ball_Rect.right - 1, Ball_Rect.bottom - 1);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+	RECT intersection_rect;
+
+	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
+		return;
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
+	{
+		AsConfig::BG_Color.Select(hdc);
+		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+bool ABall::Is_Finished()
+{
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Set_Speed(double speed)
