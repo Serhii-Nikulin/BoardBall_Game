@@ -63,6 +63,9 @@ void ABall::Begin_Movement()
 //------------------------------------------------------------------------------------------------------------
 void ABall::Finish_Movement()
 {
+	if (Ball_State == EBS_Disabled or Ball_State == EBS_Lost)
+		return;
+
 	Redraw_Ball();
 
 	if (Ball_State == EBS_On_Parachute)
@@ -95,12 +98,6 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
 		return;
 
-	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
-	{
-		AsConfig::BG_Color.Select(hdc);
-		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
-	}
-
 	switch (Ball_State)
 	{
 	case EBS_On_Parachute:
@@ -130,7 +127,16 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void ABall::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
-	AsConfig::Throw();
+	RECT intersection_rect;
+
+	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
+		return;
+
+	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
+	{
+		AsConfig::BG_Color.Select(hdc);
+		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 bool ABall::Is_Finished()

@@ -56,7 +56,10 @@ void AsBall_Set::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
-	AsConfig::Throw();
+	int i;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+		Balls[i].Clear_Prev_Animation(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsBall_Set::Is_Finished()

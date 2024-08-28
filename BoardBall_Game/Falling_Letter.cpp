@@ -61,11 +61,11 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 	if (Rotation_Step == 4 or Rotation_Step == 12)
 	{
 		back_color->Select(hdc);
-		Rectangle(hdc, X, Y + brick_half_height - AsConfig::Global_Scale, X + AsConfig::Brick_Width * AsConfig::Global_Scale, Y + brick_half_height);
+		Rectangle(hdc, X, Y + brick_half_height - AsConfig::Global_Scale, X + AsConfig::Brick_Width * AsConfig::Global_Scale - 1, Y + brick_half_height);
 
 		//Front side
 		front_color->Select(hdc);
-		Rectangle(hdc, X, Y + brick_half_height, X + AsConfig::Brick_Width * AsConfig::Global_Scale, Y + brick_half_height + AsConfig::Global_Scale - 1);
+		Rectangle(hdc, X, Y + brick_half_height, X + AsConfig::Brick_Width * AsConfig::Global_Scale - 1, Y + brick_half_height + AsConfig::Global_Scale - 1);
 	}
 	else
 	{
@@ -87,11 +87,11 @@ void AFalling_Letter::Draw_Brick_Letter(HDC hdc)
 			back_part_offset = -back_part_offset;
 
 		back_color->Select(hdc);
-		Rectangle(hdc, 0, -brick_half_height - back_part_offset, AsConfig::Brick_Width * AsConfig::Global_Scale, +brick_half_height - back_part_offset);
+		Rectangle(hdc, 0, -brick_half_height - back_part_offset, AsConfig::Brick_Width * AsConfig::Global_Scale - 1, +brick_half_height - back_part_offset);
 
 		//Front side
 		front_color->Select(hdc);
-		Rectangle(hdc, 0, -(int)brick_half_height, AsConfig::Brick_Width * AsConfig::Global_Scale, +(int)brick_half_height);
+		Rectangle(hdc, 0, -(int)brick_half_height, AsConfig::Brick_Width * AsConfig::Global_Scale - 1, +(int)brick_half_height);
 
 		if (Rotation_Step > 4 and Rotation_Step < 12)
 		{

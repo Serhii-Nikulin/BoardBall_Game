@@ -46,7 +46,6 @@ public:
 	double X_Pos;
 
 private:
-	void Clear_BG(HDC hdc);
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Get_Normal_Platform_Image(HDC hdc);
@@ -64,6 +63,7 @@ private:
 	RECT Prev_Platform_Rect, Platform_Rect;
 
 	int Rolling_Step;
+	bool Left_Key_Down, Right_Key_Down;
 
 	static const int Circle_Size = 7;
 	static const int Roll_In_Platform_End_X_Pos = AsConfig::Border_X_Offset + (AsConfig::Max_X_Pos - AsConfig::Border_X_Offset) / 2 - Circle_Size / 2;

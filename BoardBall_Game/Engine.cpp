@@ -50,6 +50,10 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 
 	for (i = 0; i < AsConfig::Max_Modules_Count; i++)
 		if (Modules[i] != 0)
+			Modules[i]->Clear_Prev_Animation(hdc, paint_area);
+
+	for (i = 0; i < AsConfig::Max_Modules_Count; i++)
+		if (Modules[i] != 0)
 			Modules[i]->Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
@@ -231,7 +235,6 @@ void AsEngine::Shift_Movers()
 			if (y >= AsConfig::Platform_Y_Pos and y < AsConfig::Platform_Y_Pos + 7)
  				int yy = 0; 
 	}*/
-
 
 	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
 		if (Movers[i] != 0)

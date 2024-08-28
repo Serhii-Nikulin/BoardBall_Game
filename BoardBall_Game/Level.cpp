@@ -298,17 +298,6 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 	int i, j;
 	RECT intersection_rect, brick_rect;
 
-	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
-
-	if (Advertisement != 0)
-		Advertisement->Draw(hdc, paint_area);
-
-	if (Should_Stop_Level)
-	{
-		Clear_All_Activity();
-		Should_Stop_Level = false;
-	}
-
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
 		for (i = 0; i < Level_Height; ++i)
@@ -332,7 +321,16 @@ void AsLevel::Draw(HDC hdc, RECT& paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
-	AsConfig::Throw();
+	Clear_Objects(hdc, paint_area, (AGraphics_Object **)&Falling_Letters, AsConfig::Max_Falling_Letters_Count);
+
+	if (Advertisement != 0)
+		Advertisement->Draw(hdc, paint_area);
+
+	if (Should_Stop_Level)
+	{
+		Clear_All_Activity();
+		Should_Stop_Level = false;
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsLevel::Is_Finished()

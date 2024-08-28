@@ -71,7 +71,17 @@ void AsBorder::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
-	AsConfig::Throw();
+	RECT intersection_rect;
+
+	if (AsConfig::Has_Floor)
+		return;
+
+	if (! IntersectRect(&intersection_rect, &paint_area, &Floor_Rect) )
+		return;
+
+	AsConfig::BG_Color.Select(hdc);
+
+	AsConfig::Round_Rect(hdc, Floor_Rect, 0);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsBorder::Is_Finished()
