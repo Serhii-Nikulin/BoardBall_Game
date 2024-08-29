@@ -9,7 +9,10 @@ enum EPlatform_State
 	EPS_Pre_Meltdown,
 	EPS_Meltdown, 
 	EPS_Roll_In, 
-	EPS_Expand_Roll_In
+	EPS_Expand_Roll_In,
+	EPS_Adhesive_Init,
+	EPS_Adhesive,
+	EPS_Adhesive_Finalize
 };
 
 enum EPlatform_Moving_State
@@ -53,6 +56,8 @@ private:
 	bool Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, const AColor **color);
 	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
+	void Draw_Adhesive_State(HDC hdc, RECT &paint_area);
+	void Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int heigth);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	EPlatform_State Platform_State;

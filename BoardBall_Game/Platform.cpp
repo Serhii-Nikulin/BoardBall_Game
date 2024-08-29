@@ -118,6 +118,10 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 	case EPS_Expand_Roll_In:
 		Draw_Expandig_Roll_In_State(hdc, paint_area);
 		break;
+
+	case EPS_Adhesive_Init:
+		Draw_Adhesive_State(hdc, paint_area);
+		break;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -478,6 +482,39 @@ void AsPlatform::Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area)
 	}
 
 	Draw_Normal_State(hdc, paint_area);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Draw_Adhesive_State(HDC hdc, RECT &paint_area)
+{
+	Draw_Normal_State(hdc, paint_area);
+
+	AsConfig::White_Color.Select(hdc);
+	AsConfig::BG_Color.Select_Pen(hdc);
+
+	Draw_Adhesive_Spot(hdc, 0, 7, 5);
+	Draw_Adhesive_Spot(hdc, 5, 5, 5);
+	Draw_Adhesive_Spot(hdc, 7, 9, 5);
+
+	AsConfig::White_Color.Select(hdc);
+
+	Draw_Adhesive_Spot(hdc, 0, 7, 4);
+	Draw_Adhesive_Spot(hdc, 5, 5, 4);
+	Draw_Adhesive_Spot(hdc, 7, 9, 4);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int height)
+{
+	RECT spot_rect;
+
+	int x = (int)((X_Pos + 6.0) * AsConfig::D_Global_Scale);
+	int y = (AsConfig::Platform_Y_Pos + 1) * AsConfig::Global_Scale;
+
+	spot_rect.left = x + x_offset * AsConfig::Global_Scale - 1;
+	spot_rect.right = spot_rect.left + width * AsConfig::Global_Scale + 1;
+	spot_rect.top = y - height * AsConfig::Global_Scale;
+	spot_rect.bottom = y + height * AsConfig::Global_Scale - 1;
+
+	Chord(hdc, spot_rect.left, spot_rect.top, spot_rect.right, spot_rect.bottom, x, y, spot_rect.right, y);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Move(bool to_left, bool key_down)
