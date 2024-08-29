@@ -26,7 +26,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	/*Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); */
 	AActive_Brick_Red_Blue::Setup_Colors();
-	Platform.Set_State(EPS_Adhesive_Init);
+	
 	Platform.Redraw();
 	
 	SetTimer(AsConfig::Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
@@ -169,7 +169,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 			Ball_Set.Reset_Balls_Speed();
 			break;
 		case ELT_K:
-
+			Platform.Set_State(EPS_Adhesive_Init);
 			break;
 		case ELT_W: 
 			break;				  

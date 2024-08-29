@@ -1,12 +1,13 @@
 #include "Platform.h"
 
 int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
+const double AsPlatform::Max_Adhesive_Spot_Height_Ratio = 1.0;
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Missing), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(103 - Width / 2),
+	Platform_State(EPS_Missing), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2),
 	Prev_Platform_Rect{}, Platform_Rect{},	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), 
 	Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
-	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false)
+	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
 {}
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -86,6 +87,19 @@ void AsPlatform::Act()
 	case EPS_Expand_Roll_In:
 		Redraw();
 		break;
+	case EPS_Adhesive_Init:
+		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
+		{
+			Adhesive_Spot_Height_Ratio += 0.02;
+			Redraw(false);
+
+		}
+		else
+		{
+			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
+			Set_State(EPS_Adhesive);
+		}	
+		break;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -120,6 +134,7 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 		break;
 
 	case EPS_Adhesive_Init:
+	case EPS_Adhesive:
 		Draw_Adhesive_State(hdc, paint_area);
 		break;
 	}
@@ -129,7 +144,7 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
 
-	if (! IntersectRect(&intersection_rect, &paint_area, &Platform_Rect) )
+	if (! IntersectRect(&intersection_rect, &paint_area, &Prev_Platform_Rect) )
 		return;
 
 	switch (Platform_State)
@@ -139,6 +154,8 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	case EPS_Pre_Meltdown:
 	case EPS_Roll_In:
 	case EPS_Expand_Roll_In:
+	case EPS_Adhesive_Init:
+	case EPS_Adhesive:
 		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
 
@@ -249,6 +266,13 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		len = sizeof(Meltdown_Platform_Y_Pos) / sizeof(int);
 		for (i = 0; i < len; i++)
 			Meltdown_Platform_Y_Pos[i] = Platform_Rect.top;
+		break;
+
+	case EPS_Adhesive_Init:
+		Adhesive_Spot_Height_Ratio = 0.2;
+		break;
+
+	case EPS_Adhesive:
 		break;
 	}
 
@@ -404,24 +428,28 @@ bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, 
 	return true;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Redraw()
+void AsPlatform::Redraw(bool update_rect)
 {
 	int platform_width;
-	Prev_Platform_Rect = Platform_Rect;
 
-	if (Platform_State == EPS_Roll_In)
-		platform_width = Circle_Size;
-	else
-		platform_width = Width;
-
-	Platform_Rect.left = int(X_Pos * AsConfig::D_Global_Scale);
-	Platform_Rect.top = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
-	Platform_Rect.right = int(Platform_Rect.left + platform_width * AsConfig::D_Global_Scale);
-	Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
-
-	if (Platform_State == EPS_Meltdown)
+	if (update_rect)
 	{
-		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
+		Prev_Platform_Rect = Platform_Rect;
+
+		if (Platform_State == EPS_Roll_In)
+			platform_width = Circle_Size;
+		else
+			platform_width = Width;
+
+		Platform_Rect.left = int(X_Pos * AsConfig::D_Global_Scale);
+		Platform_Rect.top = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
+		Platform_Rect.right = int(Platform_Rect.left + platform_width * AsConfig::D_Global_Scale);
+		Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
+
+		if (Platform_State == EPS_Meltdown)
+		{
+			Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
+		}
 	}
 
 	InvalidateRect(AsConfig::Hwnd, &Prev_Platform_Rect, FALSE);
@@ -460,6 +488,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	Draw_Circle_Highlight(hdc, (int)x, y);
 
 	X_Pos -= Rolling_Platform_Speed;
+
 	if (X_Pos <= Roll_In_Platform_End_X_Pos)
 	{
 		X_Pos = Roll_In_Platform_End_X_Pos - 1;
@@ -491,13 +520,13 @@ void AsPlatform::Draw_Adhesive_State(HDC hdc, RECT &paint_area)
 	AsConfig::White_Color.Select(hdc);
 	AsConfig::BG_Color.Select_Pen(hdc);
 
-	Draw_Adhesive_Spot(hdc, 0, 7, 5);
+	Draw_Adhesive_Spot(hdc, 0, 7, 4);
 	Draw_Adhesive_Spot(hdc, 5, 5, 5);
 	Draw_Adhesive_Spot(hdc, 7, 9, 5);
 
 	AsConfig::White_Color.Select(hdc);
 
-	Draw_Adhesive_Spot(hdc, 0, 7, 4);
+	Draw_Adhesive_Spot(hdc, 0, 7, 3);
 	Draw_Adhesive_Spot(hdc, 5, 5, 4);
 	Draw_Adhesive_Spot(hdc, 7, 9, 4);
 }
@@ -509,17 +538,22 @@ void AsPlatform::Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int height
 	int x = (int)((X_Pos + 6.0) * AsConfig::D_Global_Scale);
 	int y = (AsConfig::Platform_Y_Pos + 1) * AsConfig::Global_Scale;
 
+	int spot_height = int( (double)height * AsConfig::D_Global_Scale * Adhesive_Spot_Height_Ratio);
+
 	spot_rect.left = x + x_offset * AsConfig::Global_Scale - 1;
 	spot_rect.right = spot_rect.left + width * AsConfig::Global_Scale + 1;
-	spot_rect.top = y - height * AsConfig::Global_Scale;
-	spot_rect.bottom = y + height * AsConfig::Global_Scale - 1;
+	spot_rect.top = y - spot_height;
+	spot_rect.bottom = y + spot_height - 1;
 
 	Chord(hdc, spot_rect.left, spot_rect.top, spot_rect.right, spot_rect.bottom, x, y, spot_rect.right, y);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Move(bool to_left, bool key_down)
 {
-	if (Platform_State != EPS_Normal)
+	/*if (Platform_State != EPS_Normal)
+		return;*/
+
+	if ( !(Platform_State == EPS_Normal or Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Init) )
 		return;
 
 	if (to_left)

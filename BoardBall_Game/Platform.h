@@ -38,7 +38,7 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
-	void Redraw();
+	void Redraw(bool update_rect = true);
 	void Set_State(EPlatform_State platform_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
@@ -87,5 +87,8 @@ private:
 	int Normal_Platform_Image_Width;
 	int Normal_Platform_Image_Height;
 	int* Normal_Platform_Image;
+
+	double Adhesive_Spot_Height_Ratio;
+	static const double Max_Adhesive_Spot_Height_Ratio;
 };
 //------------------------------------------------------------------------------------------------------------
