@@ -21,6 +21,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Add_Hit_Checker(&Platform);
 
 	AFalling_Letter::Init();
+	Platform.Init(&Ball_Set);
 	Level.Init();
 	Level.Set_Current_Level(AsLevel::Level_01);
 	/*Ball.Set_State(EBS_Normal);
@@ -71,17 +72,13 @@ int AsEngine::On_Key(EKey_Type key_type, bool key_down)
 
 	case EKT_Space:
 		if (key_down)
-			if (Platform.Get_State() == EPS_Ready)
-			{
-				Ball_Set.Release_From_Platform();
-				Platform.Set_State(EPS_Normal);
-			}  
-
+			Platform.On_Space_Key(key_down);
 		break;
 	}
 
 	return 0;
 }
+
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Timer()
 {

@@ -5,10 +5,15 @@ const double AsPlatform::Max_Adhesive_Spot_Height_Ratio = 1.0;
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
 	Platform_State(EPS_Missing), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2),
-	Prev_Platform_Rect{}, Platform_Rect{},	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), 
+	Prev_Platform_Rect{}, Platform_Rect{},	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0),
 	Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
 	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
 {}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Init(AsBall_Set *ball_set)
+{
+	Ball_Set = ball_set;
+}
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 {
@@ -16,6 +21,9 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	double inner_low_y;
 	double inner_left_x;
 	double inner_right_x;
+
+	double x_pos, y_pos;
+	double speed;
 
 	if (next_y_pos < AsConfig::Platform_Y_Pos)
 		return false;
@@ -53,8 +61,14 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 got_hit:
 
 	if (ball->Get_State() == EBS_On_Parachute)
-	{
 		ball->Set_State(EBS_Off_Parachute);
+
+	if (Platform_State == EPS_Adhesive)
+	{
+		speed = ball->Get_Speed();
+		ball->Get_Center(x_pos, y_pos);
+		ball->Set_State(EBS_On_Platform, x_pos, y_pos, ball->Get_Direction() );
+		ball->Set_Speed(speed);
 	}
 
 	return true;
@@ -185,6 +199,18 @@ void AsPlatform::Shift_Per_Step(double max_speed)
 		if (X_Pos > AsConfig::Max_X_Pos - Width + 1)
 			X_Pos = AsConfig::Max_X_Pos - Width + 1;
 	}
+
+	if (Platform_State == EPS_Adhesive)
+	{
+		if (Platform_Moving_State == EPMS_Moving_Left)
+		{
+			Ball_Set->Shift_By_Platform(M_PI, Speed);
+		}
+		else if (Platform_Moving_State == EPMS_Moving_Right)
+		{
+			Ball_Set->Shift_By_Platform(0.0, Speed);
+		}
+	}		
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset)
@@ -269,6 +295,9 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		break;
 
 	case EPS_Adhesive_Init:
+		if (Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Finalize)
+			return;
+
 		Adhesive_Spot_Height_Ratio = 0.2;
 		break;
 
@@ -593,5 +622,23 @@ bool AsPlatform::Hit_By(AFalling_Letter *falling_letter)
 		return true;
 	else
 		return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::On_Space_Key(bool key_down)
+{
+	if (! key_down)
+		return;
+
+	switch (Platform_State)
+	{
+	case EPS_Ready:
+		Ball_Set->Release_From_Platform();
+		Set_State(EPS_Normal);
+		break;
+
+	case EPS_Adhesive:
+		Ball_Set->Release_Next_Ball();
+		break;
+	}
 }
 //------------------------------------------------------------------------------------------------------------

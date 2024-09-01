@@ -435,3 +435,21 @@ void ABall::Clear_Parachute(HDC hdc)
 	AsConfig::Round_Rect(hdc, Parachute_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
+void ABall::Shift_With_Direction(double direction, double platform_speed)
+{
+	double prev_direction = Ball_Direction;
+	double prev_speed = Ball_Speed;
+	EBall_State prev_ball_state = Ball_State;
+
+
+	Ball_Direction = direction;
+	Ball_Speed = platform_speed;
+	Ball_State = EBS_Normal;
+
+	Shift_Per_Step(platform_speed);
+
+	Ball_Direction = prev_direction;
+	Ball_Speed = prev_speed;
+	Ball_State = prev_ball_state;
+}
+//------------------------------------------------------------------------------------------------------------

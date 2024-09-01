@@ -1,5 +1,6 @@
 #pragma once
 #include "Falling_Letter.h"
+#include "Ball_Set.h"
 
 enum EPlatform_State
 {
@@ -26,6 +27,7 @@ class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
 {
 public:
 	AsPlatform();
+	void Init(AsBall_Set *ball_set);
 
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	virtual void Begin_Movement();
@@ -43,6 +45,7 @@ public:
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
 	bool Hit_By(AFalling_Letter *falling_letter);
+	void On_Space_Key(bool key_down);
 
 	int Width;
 	int Inner_Width;
@@ -59,6 +62,8 @@ private:
 	void Draw_Adhesive_State(HDC hdc, RECT &paint_area);
 	void Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int heigth);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
+
+	AsBall_Set *Ball_Set;
 
 	EPlatform_State Platform_State;
 	EPlatform_Moving_State Platform_Moving_State;
