@@ -78,7 +78,7 @@ public:
 
 	void Draw_Teleporting(HDC hdc, int step);
 
-	void Shift_With_Direction(double direction, double platform_speed);
+	void Shift_With_Direction(double direction, double platform_speed, double max_speed);
 
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;

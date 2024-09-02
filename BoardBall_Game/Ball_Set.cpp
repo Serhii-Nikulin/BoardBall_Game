@@ -230,7 +230,7 @@ void AsBall_Set::Accelerate()
 
 }
 //------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Release_Next_Ball()
+bool AsBall_Set::Release_Next_Ball()
 {
 	int i;
 	double x_pos, y_pos, speed, direction;
@@ -246,12 +246,15 @@ void AsBall_Set::Release_Next_Ball()
 			direction = current_ball->Get_Direction();
 			current_ball->Get_Center(x_pos, y_pos);
 			current_ball->Set_State(EBS_Normal, x_pos, y_pos, direction);
-			return;
+			current_ball->Set_Speed(speed);
+			return true;
 		}
 	}
+
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Shift_By_Platform(double direction, double platform_speed)
+void AsBall_Set::Shift_By_Platform(double direction, double platform_speed, double max_speed)
 {
 	int i;
 	ABall *current_ball;
@@ -262,7 +265,7 @@ void AsBall_Set::Shift_By_Platform(double direction, double platform_speed)
 
 		if (current_ball->Get_State() == EBS_On_Platform)
 		{
-			current_ball->Shift_With_Direction(direction, platform_speed);
+			current_ball->Shift_With_Direction(direction, platform_speed, max_speed);
 		}
 	}
 }

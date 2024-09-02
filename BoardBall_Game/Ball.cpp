@@ -155,6 +155,8 @@ void ABall::Shift_Per_Step(double max_speed)
 	double next_x_pos, next_y_pos;
 	double next_step;
 	bool got_hit = true;
+	int prev_hits_count = 0;
+	int max_hits_count = 10;
 
 	if (Ball_State == EBS_Disabled or Ball_State == EBS_Lost or Ball_State == EBS_Teleporting or Ball_State == EBS_On_Platform)
 		return;
@@ -173,7 +175,17 @@ void ABall::Shift_Per_Step(double max_speed)
 		for (i = 0; i < Hit_Checkers_Count; ++i)
 			got_hit |= Hit_Checkers[i]->Check_Hit(next_x_pos, next_y_pos, this);
 
-		if (! got_hit)
+		if (got_hit)
+		{
+			++prev_hits_count;
+
+			if (prev_hits_count >= 10)
+			{
+				Ball_Direction += M_PI / 8.0;
+				prev_hits_count = 0;
+			}
+		}
+		else
 		{
 			Center_X_Pos = next_x_pos;
 			Center_Y_Pos = next_y_pos;
@@ -181,6 +193,9 @@ void ABall::Shift_Per_Step(double max_speed)
 			if (Testing_Is_Active)
 				Rest_Test_Distance -= next_step;
 		}
+
+		/*if (Ball_State == EBS_On_Platform)
+			break;*/
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -435,18 +450,20 @@ void ABall::Clear_Parachute(HDC hdc)
 	AsConfig::Round_Rect(hdc, Parachute_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
-void ABall::Shift_With_Direction(double direction, double platform_speed)
+void ABall::Shift_With_Direction(double direction, double platform_speed, double max_speed)
 {
 	double prev_direction = Ball_Direction;
 	double prev_speed = Ball_Speed;
 	EBall_State prev_ball_state = Ball_State;
 
+	/*if (platform_speed < 0.0)
+		platform_speed *= -1;*/
 
 	Ball_Direction = direction;
 	Ball_Speed = platform_speed;
 	Ball_State = EBS_Normal;
 
-	Shift_Per_Step(platform_speed);
+	Shift_Per_Step(max_speed);
 
 	Ball_Direction = prev_direction;
 	Ball_Speed = prev_speed;

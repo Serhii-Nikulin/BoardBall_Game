@@ -25,8 +25,8 @@ public:
 	void Reset_Balls_Speed();
 	void Accelerate();
 
-	void Release_Next_Ball();
-	void Shift_By_Platform(double direction, double platform_speed);
+	bool Release_Next_Ball();
+	void Shift_By_Platform(double direction, double platform_speed, double max_speed);
 
 private:
 	ABall Balls[AsConfig::Max_Balls_Count];

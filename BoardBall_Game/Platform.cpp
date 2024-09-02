@@ -114,6 +114,20 @@ void AsPlatform::Act()
 			Set_State(EPS_Adhesive);
 		}	
 		break;
+
+	case EPS_Adhesive_Finalize:
+		if (Adhesive_Spot_Height_Ratio > 0.0)
+		{
+			Adhesive_Spot_Height_Ratio -= 0.02;
+			Redraw(false);
+
+		}
+		else
+		{
+			Adhesive_Spot_Height_Ratio = 0.0;
+			Set_State(EPS_Normal);
+		}	
+		break;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -149,6 +163,7 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 
 	case EPS_Adhesive_Init:
 	case EPS_Adhesive:
+	case EPS_Adhesive_Finalize:
 		Draw_Adhesive_State(hdc, paint_area);
 		break;
 	}
@@ -170,6 +185,7 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	case EPS_Expand_Roll_In:
 	case EPS_Adhesive_Init:
 	case EPS_Adhesive:
+	case EPS_Adhesive_Finalize:
 		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
 
@@ -192,23 +208,29 @@ void AsPlatform::Shift_Per_Step(double max_speed)
 	if (Platform_Moving_State == EPMS_Moving_Left)
 	{
 		if (X_Pos < AsConfig::Border_X_Offset)
+		{
 			X_Pos = AsConfig::Border_X_Offset;
+			Speed = 0.0;
+		}
 	}
 	else if (Platform_Moving_State == EPMS_Moving_Right)
 	{
 		if (X_Pos > AsConfig::Max_X_Pos - Width + 1)
+		{
 			X_Pos = AsConfig::Max_X_Pos - Width + 1;
+			Speed = 0.0;
+		}
 	}
 
-	if (Platform_State == EPS_Adhesive)
+	if (Platform_State == EPS_Adhesive and Speed != 0)
 	{
 		if (Platform_Moving_State == EPMS_Moving_Left)
 		{
-			Ball_Set->Shift_By_Platform(M_PI, Speed);
+			Ball_Set->Shift_By_Platform(M_PI, fabs(Speed), max_speed);
 		}
 		else if (Platform_Moving_State == EPMS_Moving_Right)
 		{
-			Ball_Set->Shift_By_Platform(0.0, Speed);
+			Ball_Set->Shift_By_Platform(0.0, fabs(Speed), max_speed);
 		}
 	}		
 }
@@ -295,13 +317,19 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		break;
 
 	case EPS_Adhesive_Init:
-		if (Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Finalize)
+		if (Platform_State == EPS_Adhesive)
 			return;
+
+		if (Platform_State == EPS_Adhesive_Finalize)
+			break;
 
 		Adhesive_Spot_Height_Ratio = 0.2;
 		break;
 
 	case EPS_Adhesive:
+		break;
+
+	case EPS_Adhesive_Finalize:
 		break;
 	}
 
@@ -582,7 +610,7 @@ void AsPlatform::Move(bool to_left, bool key_down)
 	/*if (Platform_State != EPS_Normal)
 		return;*/
 
-	if ( !(Platform_State == EPS_Normal or Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Init) )
+	if ( !(Platform_State == EPS_Normal or Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Init or Platform_State == EPS_Adhesive_Finalize) )
 		return;
 
 	if (to_left)

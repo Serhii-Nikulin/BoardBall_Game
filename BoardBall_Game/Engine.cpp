@@ -156,6 +156,12 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 	switch (falling_letter->Letter_Type)
 	{
 		case ELT_O: 
+			if (! (Platform.Get_State() == EPS_Adhesive or Platform.Get_State() == EPS_Adhesive_Init))
+				break;
+
+			while (Ball_Set.Release_Next_Ball() );
+
+			Platform.Set_State(EPS_Adhesive_Finalize);
 			break;			
 		case ELT_M: 
 			break;
