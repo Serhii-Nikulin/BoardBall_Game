@@ -79,11 +79,15 @@ public:
 	void Draw_Teleporting(HDC hdc, int step);
 
 	void Shift_With_Direction(double direction, double platform_speed, double max_speed);
+	void Release();
 
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
 	double prev_angle_to_normal = 0;
 	double Rest_Test_Distance;
+
+	int Time_Of_Release;
+
 
 private:
 
@@ -103,6 +107,7 @@ private:
 	static const int Hit_Checkers_Count = 3;
 	static const int Parachute_Size = 15;
 	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
+	static const int Time_On_Platform = 3 * AsConfig::FPS;
 	int Test_Iteration;
 
 };

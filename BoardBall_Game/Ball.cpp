@@ -47,7 +47,7 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 //ABall
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall(): Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
-	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
+	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Time_Of_Release(0), Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {}
 //------------------------------------------------------------------------------------------------------------
 void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
@@ -252,6 +252,7 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 		Center_Y_Pos = y_pos;
 		Ball_Speed = 0.0;
 		Ball_Direction = direction;
+		Time_Of_Release = AsConfig::Current_Timer_Tick + Time_On_Platform;
 		break;
 
 	case EBS_Normal:
@@ -468,5 +469,14 @@ void ABall::Shift_With_Direction(double direction, double platform_speed, double
 	Ball_Direction = prev_direction;
 	Ball_Speed = prev_speed;
 	Ball_State = prev_ball_state;
+}
+//------------------------------------------------------------------------------------------------------------
+void ABall::Release()
+{
+	double speed = Ball_Speed;
+	double direction = Ball_Direction;
+	Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, direction);
+	Set_Speed(speed);
+	Time_Of_Release = 0;
 }
 //------------------------------------------------------------------------------------------------------------

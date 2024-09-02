@@ -43,7 +43,18 @@ double AsBall_Set::Get_Speed()
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Act()
-{//code stub
+{
+	int i;
+	ABall *current_ball = 0;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() == EBS_On_Platform)
+			if (current_ball->Time_Of_Release != 0 and current_ball->Time_Of_Release <= AsConfig::Current_Timer_Tick)
+				current_ball->Release();
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Draw(HDC hdc, RECT &paint_area)
@@ -233,7 +244,6 @@ void AsBall_Set::Accelerate()
 bool AsBall_Set::Release_Next_Ball()
 {
 	int i;
-	double x_pos, y_pos, speed, direction;
 	ABall *current_ball;
 
 	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
@@ -242,11 +252,7 @@ bool AsBall_Set::Release_Next_Ball()
 
 		if (current_ball->Get_State() == EBS_On_Platform)
 		{
-			speed = current_ball->Get_Speed();
-			direction = current_ball->Get_Direction();
-			current_ball->Get_Center(x_pos, y_pos);
-			current_ball->Set_State(EBS_Normal, x_pos, y_pos, direction);
-			current_ball->Set_Speed(speed);
+			current_ball->Release();
 			return true;
 		}
 	}

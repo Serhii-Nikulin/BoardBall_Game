@@ -140,6 +140,7 @@ void AsEngine::Act()
 	int index = 0;
 	AFalling_Letter *falling_letter;
 
+	Ball_Set.Act();
 	Platform.Act();
 	Level.Act();
 
@@ -158,8 +159,6 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		case ELT_O: 
 			if (! (Platform.Get_State() == EPS_Adhesive or Platform.Get_State() == EPS_Adhesive_Init))
 				break;
-
-			while (Ball_Set.Release_Next_Ball() );
 
 			Platform.Set_State(EPS_Adhesive_Finalize);
 			break;			

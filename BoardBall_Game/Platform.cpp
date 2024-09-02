@@ -330,6 +330,9 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		break;
 
 	case EPS_Adhesive_Finalize:
+		while (Ball_Set->Release_Next_Ball() )
+		{
+		}
 		break;
 	}
 
