@@ -65,7 +65,7 @@ public:
 	void Redraw_Parachute();
 
 	EBall_State Get_State();
-	void Set_State(EBall_State new_state, double x_pos = 103, double y_pos = AsConfig::Platform_Y_Pos - Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4);
+	void Set_State(EBall_State new_state, double x_pos = AsConfig::Start_Ball_Position_On_Platform, double y_pos = AsConfig::Platform_Y_Pos - Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4);
 	void Get_Center(double &x_pos, double &y_pos);
 	void Set_For_Test();
 	double Get_Direction();
@@ -78,10 +78,16 @@ public:
 
 	void Draw_Teleporting(HDC hdc, int step);
 
+	void Shift_With_Direction(double direction, double platform_speed, double max_speed);
+	void Release();
+
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
 	double prev_angle_to_normal = 0;
 	double Rest_Test_Distance;
+
+	int Time_Of_Release;
+
 
 private:
 
@@ -101,6 +107,7 @@ private:
 	static const int Hit_Checkers_Count = 3;
 	static const int Parachute_Size = 15;
 	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
+	static const int Time_On_Platform = 3 * AsConfig::FPS;
 	int Test_Iteration;
 
 };

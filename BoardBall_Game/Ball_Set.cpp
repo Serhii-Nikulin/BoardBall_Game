@@ -43,7 +43,18 @@ double AsBall_Set::Get_Speed()
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Act()
-{//code stub
+{
+	int i;
+	ABall *current_ball = 0;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() == EBS_On_Platform)
+			if (current_ball->Time_Of_Release != 0 and current_ball->Time_Of_Release <= AsConfig::Current_Timer_Tick)
+				current_ball->Release();
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Draw(HDC hdc, RECT &paint_area)
@@ -80,7 +91,7 @@ void AsBall_Set::Set_On_Platform()
 {
 	int i;
 
-	for (i = 0; i < 1; i++)
+	for (i = 0; i < 5; i++)
 		Balls[i].Set_State(EBS_On_Platform);
 
 	for (NULL; i < AsConfig::Max_Balls_Count; i++)
@@ -228,5 +239,40 @@ void AsBall_Set::Accelerate()
 		current_ball->Set_Speed(current_ball->Get_Speed() * AsConfig::Acceleration);
 	}
 
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsBall_Set::Release_Next_Ball()
+{
+	int i;
+	ABall *current_ball;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() == EBS_On_Platform)
+		{
+			current_ball->Release();
+			return true;
+		}
+	}
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBall_Set::Shift_By_Platform(double direction, double platform_speed, double max_speed)
+{
+	int i;
+	ABall *current_ball;
+
+	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
+	{
+		current_ball = &Balls[i];
+
+		if (current_ball->Get_State() == EBS_On_Platform)
+		{
+			current_ball->Shift_With_Direction(direction, platform_speed, max_speed);
+		}
+	}
 }
 //------------------------------------------------------------------------------------------------------------

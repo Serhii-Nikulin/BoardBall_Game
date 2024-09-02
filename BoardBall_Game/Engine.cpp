@@ -21,12 +21,13 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Add_Hit_Checker(&Platform);
 
 	AFalling_Letter::Init();
+	Platform.Init(&Ball_Set);
 	Level.Init();
 	Level.Set_Current_Level(AsLevel::Level_01);
 	/*Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); */
 	AActive_Brick_Red_Blue::Setup_Colors();
-
+	
 	Platform.Redraw();
 	
 	SetTimer(AsConfig::Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
@@ -71,17 +72,13 @@ int AsEngine::On_Key(EKey_Type key_type, bool key_down)
 
 	case EKT_Space:
 		if (key_down)
-			if (Platform.Get_State() == EPS_Ready)
-			{
-				Ball_Set.Release_From_Platform();
-				Platform.Set_State(EPS_Normal);
-			}  
-
+			Platform.On_Space_Key(key_down);
 		break;
 	}
 
 	return 0;
 }
+
 //------------------------------------------------------------------------------------------------------------
 int AsEngine::On_Timer()
 {
@@ -143,6 +140,7 @@ void AsEngine::Act()
 	int index = 0;
 	AFalling_Letter *falling_letter;
 
+	Ball_Set.Act();
 	Platform.Act();
 	Level.Act();
 
@@ -159,6 +157,10 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 	switch (falling_letter->Letter_Type)
 	{
 		case ELT_O: 
+			if (! (Platform.Get_State() == EPS_Adhesive or Platform.Get_State() == EPS_Adhesive_Init))
+				break;
+
+			Platform.Set_State(EPS_Adhesive_Finalize);
 			break;			
 		case ELT_M: 
 			break;
@@ -168,7 +170,8 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		case ELT_C:
 			Ball_Set.Reset_Balls_Speed();
 			break;
-		case ELT_K: 
+		case ELT_K:
+			Platform.Set_State(EPS_Adhesive_Init);
 			break;
 		case ELT_W: 
 			break;				  
