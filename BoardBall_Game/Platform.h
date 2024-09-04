@@ -2,6 +2,7 @@
 #include "Falling_Letter.h"
 #include "Ball_Set.h"
 
+//------------------------------------------------------------------------------------------------------------
 enum EPlatform_State
 {
 	EPS_Missing, 
@@ -15,7 +16,15 @@ enum EPlatform_State
 	EPS_Adhesive,
 	EPS_Adhesive_Finalize
 };
-
+//------------------------------------------------------------------------------------------------------------
+enum EPlatform_Substate_Adhesive
+{
+	EPSA_Unknown,
+	EPSA_Init,
+	EPSA_Active,
+	EPSA_Finalize
+};
+//------------------------------------------------------------------------------------------------------------
 enum EPlatform_Moving_State
 {
 	EPMS_Stop,
@@ -66,6 +75,7 @@ private:
 	AsBall_Set *Ball_Set;
 
 	EPlatform_State Platform_State;
+	EPlatform_Substate_Adhesive Platform_Substate_Adhesive;
 	EPlatform_Moving_State Platform_Moving_State;
 
 	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color;
@@ -94,6 +104,8 @@ private:
 	int* Normal_Platform_Image;
 
 	double Adhesive_Spot_Height_Ratio;
+	static const double Step_Adhesive_Spot_Height_Ratio;
+	static const double Min_Adhesive_Spot_Height_Ratio;
 	static const double Max_Adhesive_Spot_Height_Ratio;
 };
 //------------------------------------------------------------------------------------------------------------

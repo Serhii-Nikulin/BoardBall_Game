@@ -107,7 +107,7 @@ private:
 	static const int Hit_Checkers_Count = 3;
 	static const int Parachute_Size = 15;
 	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
-	static const int Time_On_Platform = 3 * AsConfig::FPS;
+	static const int Time_On_Platform = 7 * AsConfig::FPS;
 	int Test_Iteration;
 
 };

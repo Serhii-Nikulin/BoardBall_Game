@@ -480,7 +480,7 @@ void AsLevel::Redraw_Brick(int level_x, int level_y)
 	brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
 	brick_rect.bottom = brick_rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
 
-	InvalidateRect(AsConfig::Hwnd, &brick_rect, FALSE);
+	AsConfig::Invalidate_Rect(brick_rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type)
@@ -507,8 +507,8 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
 			letter_type = ELT_K;//AFalling_Letter::Get_Random_Letter_Type();
 
-			if (AsConfig::Rand(2) == 0)
-				letter_type = ELT_O;
+			if (AsConfig::Rand(2) == 1)
+				letter_type = ELT_T;
 
 			falling_letter = new AFalling_Letter(brick_type, letter_type, letter_x, letter_y);
 			Falling_Letters[i] = falling_letter;

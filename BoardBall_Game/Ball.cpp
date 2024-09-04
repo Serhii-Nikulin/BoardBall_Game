@@ -206,14 +206,14 @@ void ABall::Redraw_Ball()
 	Ball_Rect.right = (int)((Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
 	Ball_Rect.bottom = (int)((Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
 
-	InvalidateRect(AsConfig::Hwnd, &Prev_Ball_Rect, FALSE);
-	InvalidateRect(AsConfig::Hwnd, &Ball_Rect, FALSE);
+	AsConfig::Invalidate_Rect(Prev_Ball_Rect);
+	AsConfig::Invalidate_Rect(Ball_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Redraw_Parachute()
 {
-	InvalidateRect(AsConfig::Hwnd, &Prev_Parachute_Rect, FALSE);
-	InvalidateRect(AsConfig::Hwnd, &Parachute_Rect, FALSE);
+	AsConfig::Invalidate_Rect(Prev_Parachute_Rect);
+	AsConfig::Invalidate_Rect(Parachute_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Set_For_Test()

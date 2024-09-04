@@ -68,7 +68,7 @@ AActive_Brick_Red_Blue::AActive_Brick_Red_Blue(EBrick_Type brick_type, int level
 void AActive_Brick_Red_Blue::Act()
 {
 	if (++Fade_Step < Max_Fade_Step)
-		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+		AsConfig::Invalidate_Rect(Brick_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
@@ -213,7 +213,7 @@ void AActive_Brick_Unbreakable::Act()
 {
 	if (Animation_Step < Max_Animation_Step)
 	{
-		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+		AsConfig::Invalidate_Rect(Brick_Rect);
 		Animation_Step += 1;
 	}
 }
@@ -252,7 +252,7 @@ void AActive_Brick_Multihit::Act()
 	if (Rotation_Step <= Max_Rotation_Step)
 	{
 		++Rotation_Step;
-		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+		AsConfig::Invalidate_Rect(Brick_Rect);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -379,7 +379,7 @@ void AActive_Brick_Teleport::Act()
 	if (Animation_Step <= Max_Animation_Step)
 	{
 		++Animation_Step;
-		InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+		AsConfig::Invalidate_Rect(Brick_Rect);
 	}
 	else
 	{
@@ -565,7 +565,7 @@ void AAdvertisement::Act()
 				rect.right = rect.left + AsConfig::Cell_Width * AsConfig::Global_Scale;
 				rect.bottom = rect.top + AsConfig::Cell_Width * AsConfig::Global_Scale;
 
-				InvalidateRect(AsConfig::Hwnd, &rect, FALSE);
+				AsConfig::Invalidate_Rect(rect);
 			}
 
 	Falling_Speed += Acceleration;
@@ -730,7 +730,7 @@ void AActive_Brick_Ad::Draw(HDC hdc, RECT& paint_rect)
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Ad::Act()
 {
-	//InvalidateRect(AsConfig::Hwnd, &Brick_Rect, FALSE);
+	AsConfig::Invalidate_Rect(Brick_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Ad::Is_Finished()
