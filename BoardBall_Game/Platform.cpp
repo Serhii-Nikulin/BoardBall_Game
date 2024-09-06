@@ -103,30 +103,36 @@ void AsPlatform::Act()
 	case EPS_Expand_Roll_In:
 		Redraw();
 		break;
-	case EPS_Adhesive_Init:
-		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
+	case EPS_Adhesive:
+		switch (Platform_Substate_Adhesive)
 		{
-			Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
-		}
-		else
-		{
-			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
-			Set_State(EPS_Adhesive);
-		}	
-		Redraw(false);
-		break;
+		case EPSA_Init:
+			if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
+			{
+				Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
+			}
+			else
+			{
+				Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
+				Platform_Substate_Adhesive = EPSA_Active;
+			}	
+			Redraw(false);
+			break;
 
-	case EPS_Adhesive_Finalize:
-		if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
-		{
-			Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
-		}
-		else
-		{
-			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-			Set_State(EPS_Normal);
-		}
-		Redraw(false);
+		case EPSA_Finalize:
+			if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
+			{
+				Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
+			}
+			else
+			{
+				Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
+				Platform_Substate_Adhesive = EPSA_Unknown;
+				Set_State(EPS_Normal);
+			}
+			Redraw(false);
+			break;
+		}	
 		break;
 	}
 }
@@ -162,9 +168,7 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 		Draw_Expandig_Roll_In_State(hdc, paint_area);
 		break;
 
-	case EPS_Adhesive_Init:
 	case EPS_Adhesive:
-	case EPS_Adhesive_Finalize:
 		Draw_Adhesive_State(hdc, paint_area);
 		break;
 	}
@@ -184,9 +188,7 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	case EPS_Pre_Meltdown:
 	case EPS_Roll_In:
 	case EPS_Expand_Roll_In:
-	case EPS_Adhesive_Init:
 	case EPS_Adhesive:
-	case EPS_Adhesive_Finalize:
 		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
 
@@ -296,14 +298,26 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 {
 	int i, len;
 
+	if (new_state == Platform_State and Platform_State == EPS_Adhesive)
+		if (Platform_Substate_Adhesive == EPSA_Finalize)
+			Platform_Substate_Adhesive = EPSA_Init;
+
 	if (Platform_State == new_state)
 		return;
 
 	switch (new_state)
 	{
 	case EPS_Normal:
-		if (Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Init)
-			return Set_State(EPS_Adhesive_Finalize);
+		if (Platform_Substate_Adhesive == EPSA_Active or Platform_Substate_Adhesive == EPSA_Init)
+		{
+			if (Platform_Substate_Adhesive == EPSA_Active)
+				while (Ball_Set->Release_Next_Ball() )
+				{
+				}
+
+			Platform_Substate_Adhesive = EPSA_Finalize;
+			return;
+		}
 		break;
 
 	case EPS_Roll_In:
@@ -311,7 +325,7 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		Rolling_Step = Max_Rolling_Step - 1;
 		Inner_Width = 0;
 		break;
-	
+
 	case EPS_Pre_Meltdown:
 		Speed = 0.0;
 		break;
@@ -322,24 +336,17 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 			Meltdown_Platform_Y_Pos[i] = Platform_Rect.top;
 		break;
 
-	case EPS_Adhesive_Init:
-		if (Platform_State == EPS_Adhesive)
-			return;
-
-		if (Platform_State == EPS_Adhesive_Finalize)
+	case EPS_Adhesive:
+		switch (Platform_Substate_Adhesive)
+		{
+		case EPSA_Unknown:
+			Platform_Substate_Adhesive = EPSA_Init;
+			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
 			break;
 
-		Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-		break;
-
-	case EPS_Adhesive:
-		break;
-
-	case EPS_Adhesive_Finalize:
-		while (Ball_Set->Release_Next_Ball() )
-		{
-		}
-		break;
+		case EPSA_Finalize:
+			Platform_Substate_Adhesive = EPSA_Init;
+		}		
 	}
 
 	Platform_State = new_state;
@@ -619,7 +626,7 @@ void AsPlatform::Move(bool to_left, bool key_down)
 	/*if (Platform_State != EPS_Normal)
 		return;*/
 
-	if ( !(Platform_State == EPS_Normal or Platform_State == EPS_Adhesive or Platform_State == EPS_Adhesive_Init or Platform_State == EPS_Adhesive_Finalize) )
+	if (! (Platform_State == EPS_Normal or Platform_State == EPS_Adhesive) )
 		return;
 
 	if (to_left)
@@ -674,7 +681,8 @@ void AsPlatform::On_Space_Key(bool key_down)
 		break;
 
 	case EPS_Adhesive:
-		Ball_Set->Release_Next_Ball();
+		if (Platform_Substate_Adhesive == EPSA_Active)
+			Ball_Set->Release_Next_Ball();
 		break;
 	}
 }

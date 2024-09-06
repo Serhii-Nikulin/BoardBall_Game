@@ -12,9 +12,7 @@ enum EPlatform_State
 	EPS_Meltdown, 
 	EPS_Roll_In, 
 	EPS_Expand_Roll_In,
-	EPS_Adhesive_Init,
-	EPS_Adhesive,
-	EPS_Adhesive_Finalize
+	EPS_Adhesive
 };
 //------------------------------------------------------------------------------------------------------------
 enum EPlatform_Substate_Adhesive

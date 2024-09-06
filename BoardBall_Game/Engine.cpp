@@ -140,7 +140,7 @@ void AsEngine::Act()
 	int index = 0;
 	AFalling_Letter *falling_letter;
 
-	//Ball_Set.Act();
+	Ball_Set.Act();
 	Platform.Act();
 	Level.Act();
 
@@ -156,46 +156,46 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 {
 	switch (falling_letter->Letter_Type)
 	{
-		case ELT_O: 
-			Platform.Set_State(EPS_Normal);
-			break;			
-		case ELT_M: 
-			break;
-		case ELT_I: 
-			Ball_Set.Inverse_Direction();
-			Platform.Set_State(EPS_Normal);
-			break;
-		case ELT_C:
-			Ball_Set.Reset_Balls_Speed();
-			Platform.Set_State(EPS_Normal);
-			break;
-		case ELT_K:
-			Platform.Set_State(EPS_Adhesive_Init);
-			break;
-		case ELT_W: 
-			break;				  
-		case ELT_G:
-			if (Life_Count < AsConfig::Max_Life_Count)
-				++Life_Count;
-			Platform.Set_State(EPS_Normal);
-			break;
-		case ELT_T: 
-			Ball_Set.Triple_Ball();
-			Platform.Set_State(EPS_Normal);
-			break;
-		case ELT_L:
-			Platform.Set_State(EPS_Normal);
-			break;
-		case ELT_P: 
-			AsConfig::Has_Floor = true;
-			Border.Redraw_Floor();
-			Platform.Set_State(EPS_Normal);
-			break;
-		case ELT_Plus:
-			Platform.Set_State(EPS_Normal);
-			break;
-		default:
-			AsConfig::Throw();
+	case ELT_O: 
+		Platform.Set_State(EPS_Normal);
+		break;			
+	case ELT_M: 
+		break;
+	case ELT_I: 
+		Ball_Set.Inverse_Direction();
+		Platform.Set_State(EPS_Normal);
+		break;
+	case ELT_C:
+		Ball_Set.Reset_Balls_Speed();
+		Platform.Set_State(EPS_Normal);
+		break;
+	case ELT_K:
+		Platform.Set_State(EPS_Adhesive);
+		break;
+	case ELT_W: 
+		break;				  
+	case ELT_G:
+		if (Life_Count < AsConfig::Max_Life_Count)
+			++Life_Count;
+		Platform.Set_State(EPS_Normal);
+		break;
+	case ELT_T: 
+		Ball_Set.Triple_Ball();
+		Platform.Set_State(EPS_Normal);
+		break;
+	case ELT_L:
+		Platform.Set_State(EPS_Normal);
+		break;
+	case ELT_P: 
+		AsConfig::Has_Floor = true;
+		Border.Redraw_Floor();
+		Platform.Set_State(EPS_Normal);
+		break;
+	case ELT_Plus:
+		Platform.Set_State(EPS_Normal);
+		break;
+	default:
+		AsConfig::Throw();
 
 	}
 

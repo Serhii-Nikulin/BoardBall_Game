@@ -23,6 +23,7 @@ AMover::~AMover()
 //------------------------------------------------------------------------------------------------------------
 //AHit_Checker
 const double ABall::Radius = 2;
+const double ABall::Min_Ball_Direction = M_PI / 8.0;
 int ABall::Counter_Hit_Checker = 0;
 AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
 //------------------------------------------------------------------------------------------------------------

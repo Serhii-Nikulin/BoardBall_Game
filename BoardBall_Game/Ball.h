@@ -83,6 +83,7 @@ public:
 
 	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
+	static const double Min_Ball_Direction;
 	double prev_angle_to_normal = 0;
 	double Rest_Test_Distance;
 
