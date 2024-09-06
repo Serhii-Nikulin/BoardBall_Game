@@ -16,7 +16,7 @@ const AColor AsConfig::Advert_Blue_Table_Color(AsConfig::Blue_Color, AsConfig::G
 const AColor AsConfig::Advert_Red_Table_Color(AsConfig::Red_Color, 2 * AsConfig::Global_Scale);
 
 const double AsConfig::Acceleration = 1.001;
-const double AsConfig::Ball_Normal_Speed = 3.0;
+const double AsConfig::Ball_Normal_Speed = 3.0 * 2;
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():
 	R(0), G(0), B(0), Pen(0), Brush(0)
@@ -101,5 +101,10 @@ void AsConfig::Round_Rect(HDC hdc, RECT &rect, int corner_radius)
 void AsConfig::Throw()
 {
 	throw 13;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsConfig::Invalidate_Rect(RECT &rect)
+{
+	InvalidateRect(AsConfig::Hwnd, &rect, FALSE);
 }
 //------------------------------------------------------------------------------------------------------------

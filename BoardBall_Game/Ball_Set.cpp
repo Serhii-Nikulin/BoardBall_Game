@@ -91,7 +91,7 @@ void AsBall_Set::Set_On_Platform()
 {
 	int i;
 
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < 1; i++)
 		Balls[i].Set_State(EBS_On_Platform);
 
 	for (NULL; i < AsConfig::Max_Balls_Count; i++)

@@ -88,7 +88,7 @@ bool AsBorder::Is_Finished()
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Redraw_Floor()
 {
-	InvalidateRect(AsConfig::Hwnd, &Floor_Rect, FALSE);
+	AsConfig::Invalidate_Rect(Floor_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area)
