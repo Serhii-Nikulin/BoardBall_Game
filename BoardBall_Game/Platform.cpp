@@ -6,8 +6,8 @@ const double AsPlatform::Min_Adhesive_Spot_Height_Ratio = 0.0;
 const double AsPlatform::Max_Adhesive_Spot_Height_Ratio = 1.0;
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Missing), Platform_Substate_Adhesive(EPSA_Unknown), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), 
-	X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{},	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0),
+	Platform_State(EPS_Missing), Platform_Substate_Meltdown(EPSM_Unknown), Platform_Substate_Adhesive(EPSA_Unknown), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), 
+	X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0),
 	Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
 	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
 {}
@@ -99,42 +99,65 @@ void AsPlatform::Act()
 	switch (Platform_State)
 	{
 	case EPS_Meltdown:
+		Act_For_Meltdown_State();
+		break;
+
 	case EPS_Roll_In:
 	case EPS_Expand_Roll_In:
 		Redraw();
 		break;
-	case EPS_Adhesive:
-		switch (Platform_Substate_Adhesive)
-		{
-		case EPSA_Init:
-			if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
-			{
-				Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
-			}
-			else
-			{
-				Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
-				Platform_Substate_Adhesive = EPSA_Active;
-			}	
-			Redraw(false);
-			break;
 
-		case EPSA_Finalize:
-			if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
-			{
-				Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
-			}
-			else
-			{
-				Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-				Platform_Substate_Adhesive = EPSA_Unknown;
-				Set_State(EPS_Normal);
-			}
-			Redraw(false);
-			break;
-		}	
+	case EPS_Adhesive:
+		Act_For_Adhesive_State();
 		break;
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Act_For_Meltdown_State()
+{
+	switch (Platform_Substate_Meltdown)
+	{
+	case EPSM_Init:
+		Platform_Substate_Meltdown = EPSM_Active;
+		break;
+
+	case EPSM_Active:
+		Redraw();
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Act_For_Adhesive_State()
+{
+	switch (Platform_Substate_Adhesive)
+	{
+	case EPSA_Init:
+		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
+		{
+			Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
+		}
+		else
+		{
+			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
+			Platform_Substate_Adhesive = EPSA_Active;
+		}	
+		Redraw(false);
+		break;
+
+	case EPSA_Finalize:
+		if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
+		{
+			Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
+		}
+		else
+		{
+			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
+			Platform_Substate_Adhesive = EPSA_Unknown;
+			Set_State(EPS_Normal);
+		}
+		Redraw(false);
+		break;
+	}	
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw(HDC hdc, RECT& paint_area)
@@ -151,13 +174,14 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 		Draw_Normal_State(hdc, paint_area);
 		break;
 
-	case EPS_Pre_Meltdown:
+	/*case EPS_Pre_Meltdown:
 		Draw_Normal_State(hdc, paint_area);
 		Set_State(EPS_Meltdown);
-		break;
+		break;*/
 
 	case EPS_Meltdown:
-		Draw_Meltdown_State(hdc, paint_area);
+		if (Platform_Substate_Meltdown == EPSM_Active)
+			Draw_Meltdown_State(hdc, paint_area);
 		break;
 
 	case EPS_Roll_In:
@@ -183,15 +207,14 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 
 	switch (Platform_State)
 	{
+	case EPS_Meltdown:
 	case EPS_Ready:
 	case EPS_Normal:
-	case EPS_Pre_Meltdown:
 	case EPS_Roll_In:
 	case EPS_Expand_Roll_In:
 	case EPS_Adhesive:
 		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
-
 	default:
 		return;
 	}
@@ -326,11 +349,14 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		Inner_Width = 0;
 		break;
 
-	case EPS_Pre_Meltdown:
+	/*case EPS_Pre_Meltdown:
 		Speed = 0.0;
-		break;
+		break;*/
 
 	case EPS_Meltdown:
+		Speed = 0.0;
+		Platform_Substate_Meltdown = EPSM_Init;
+
 		len = sizeof(Meltdown_Platform_Y_Pos) / sizeof(int);
 		for (i = 0; i < len; i++)
 			Meltdown_Platform_Y_Pos[i] = Platform_Rect.top;

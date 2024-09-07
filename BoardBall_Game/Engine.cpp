@@ -1,5 +1,4 @@
-#include "Engine.h"
-
+#include "Engine.h" 
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
@@ -125,7 +124,7 @@ void AsEngine::Play_Level()
 	if (Ball_Set.All_Balls_Are_Lost() )
 	{
 		Game_State = EGS_Lost_Ball;
-		Platform.Set_State(EPS_Pre_Meltdown);
+		Platform.Set_State(EPS_Meltdown);
 		Level.Stop();
 	}
 	else
@@ -243,7 +242,7 @@ void AsEngine::Shift_Movers()
  				int yy = 0; 
 	}*/
 
-	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
+ 	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
 		if (Movers[i] != 0)
 			Movers[i]->Finish_Movement();
 }
