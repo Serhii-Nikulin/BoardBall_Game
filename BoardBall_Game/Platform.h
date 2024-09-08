@@ -9,8 +9,7 @@ enum EPlatform_State
 	EPS_Ready, 
 	EPS_Normal,
 	EPS_Meltdown, 
-	EPS_Roll_In, 
-	EPS_Expand_Roll_In,
+	EPS_Rolling,
 	EPS_Adhesive
 };
 //------------------------------------------------------------------------------------------------------------
@@ -19,6 +18,13 @@ enum EPlatform_Substate_Meltdown
 	EPSM_Unknown,
 	EPSM_Init,
 	EPSM_Active
+};
+//------------------------------------------------------------------------------------------------------------
+enum EPlatform_Substate_Rolling
+{
+	EPSR_Unknown,
+	EPSR_Roll_In, 
+	EPSR_Expand_Roll_In,
 };
 //------------------------------------------------------------------------------------------------------------
 enum EPlatform_Substate_Adhesive
@@ -66,7 +72,9 @@ public:
 
 private:
 	void Act_For_Meltdown_State();
+	void Act_For_Rolling_State();
 	void Act_For_Adhesive_State();
+	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Get_Normal_Platform_Image(HDC hdc);
@@ -82,6 +90,7 @@ private:
 
 	EPlatform_State Platform_State;
 	EPlatform_Substate_Meltdown Platform_Substate_Meltdown;
+	EPlatform_Substate_Rolling Platform_Substate_Rolling;
 	EPlatform_Substate_Adhesive Platform_Substate_Adhesive;
 	EPlatform_Moving_State Platform_Moving_State;
 

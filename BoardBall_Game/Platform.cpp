@@ -6,9 +6,9 @@ const double AsPlatform::Min_Adhesive_Spot_Height_Ratio = 0.0;
 const double AsPlatform::Max_Adhesive_Spot_Height_Ratio = 1.0;
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Missing), Platform_Substate_Meltdown(EPSM_Unknown), Platform_Substate_Adhesive(EPSA_Unknown), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), 
-	X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0),
-	Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
+	Platform_State(EPS_Missing), Platform_Substate_Meltdown(EPSM_Unknown), Platform_Substate_Rolling(EPSR_Unknown), Platform_Substate_Adhesive(EPSA_Unknown), Platform_Moving_State(EPMS_Stop), 
+	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, 
+	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
 	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -102,9 +102,8 @@ void AsPlatform::Act()
 		Act_For_Meltdown_State();
 		break;
 
-	case EPS_Roll_In:
-	case EPS_Expand_Roll_In:
-		Redraw();
+	case EPS_Rolling:
+		Act_For_Rolling_State();
 		break;
 
 	case EPS_Adhesive:
@@ -125,6 +124,41 @@ void AsPlatform::Act_For_Meltdown_State()
 		Redraw();
 		break;
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Act_For_Rolling_State()
+{
+	switch (Platform_Substate_Rolling)
+	{
+	case EPSR_Roll_In:
+		Rolling_Step += 1;
+		Rolling_Step %= Max_Rolling_Step;
+		X_Pos -= Rolling_Platform_Speed;
+
+		if (X_Pos <= Roll_In_Platform_End_X_Pos)
+		{
+			X_Pos = Roll_In_Platform_End_X_Pos - 1;
+			Platform_Substate_Rolling = EPSR_Expand_Roll_In;
+		}
+		break;
+
+	case EPSR_Expand_Roll_In:
+		if (Inner_Width < Normal_Inner_Width)
+		{
+			Inner_Width += 2;
+			X_Pos -= 1;
+			Platform_Rect.left = (int)X_Pos;
+		}
+		else
+		{
+			Inner_Width = Normal_Inner_Width;
+			Platform_State = EPS_Ready;
+			Platform_Substate_Rolling = EPSR_Unknown;
+		}
+		break;
+	}
+
+	Redraw();
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act_For_Adhesive_State()
@@ -184,16 +218,26 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 			Draw_Meltdown_State(hdc, paint_area);
 		break;
 
-	case EPS_Roll_In:
-		Draw_Roll_In_State(hdc, paint_area);
-		break;
-
-	case EPS_Expand_Roll_In:
-		Draw_Expandig_Roll_In_State(hdc, paint_area);
+	case EPS_Rolling:
+		Draw_Rolling_State(hdc, paint_area);
 		break;
 
 	case EPS_Adhesive:
 		Draw_Adhesive_State(hdc, paint_area);
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Draw_Rolling_State(HDC hdc, RECT &paint_area)
+{
+	switch (Platform_Substate_Rolling)
+	{
+	case EPSR_Roll_In:
+		Draw_Roll_In_State(hdc, paint_area);
+		break;
+
+	case EPSR_Expand_Roll_In:
+		Draw_Normal_State(hdc, paint_area);
 		break;
 	}
 }
@@ -210,8 +254,7 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	case EPS_Meltdown:
 	case EPS_Ready:
 	case EPS_Normal:
-	case EPS_Roll_In:
-	case EPS_Expand_Roll_In:
+	case EPS_Rolling:
 	case EPS_Adhesive:
 		AsConfig::BG_Color.Select(hdc);
 		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
@@ -343,10 +386,11 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		}
 		break;
 
-	case EPS_Roll_In:
+	case EPS_Rolling:
 		X_Pos = AsConfig::Max_X_Pos;
 		Rolling_Step = Max_Rolling_Step - 1;
 		Inner_Width = 0;
+		Platform_Substate_Rolling = EPSR_Roll_In;
 		break;
 
 	/*case EPS_Pre_Meltdown:
@@ -535,7 +579,7 @@ void AsPlatform::Redraw(bool update_rect)
 	{
 		Prev_Platform_Rect = Platform_Rect;
 
-		if (Platform_State == EPS_Roll_In)
+		if (Platform_Substate_Rolling == EPSR_Roll_In)
 			platform_width = Circle_Size;
 		else
 			platform_width = Width;
@@ -569,9 +613,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 
 	GetWorldTransform(hdc, &prev_xform);
 
-	Rolling_Step %= Max_Rolling_Step;
 	rotation_angle = 2.0 * M_PI * Rolling_Step / (double)Max_Rolling_Step;
-	Rolling_Step += 1;
 
 	xform.eM11 = (FLOAT)cos(rotation_angle); xform.eM12 = (FLOAT)-sin(rotation_angle);
 	xform.eM21 = (FLOAT)sin(rotation_angle); xform.eM22 = (FLOAT)cos(rotation_angle);
@@ -585,31 +627,6 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	SetWorldTransform(hdc, &prev_xform);
 
 	Draw_Circle_Highlight(hdc, (int)x, y);
-
-	X_Pos -= Rolling_Platform_Speed;
-
-	if (X_Pos <= Roll_In_Platform_End_X_Pos)
-	{
-		X_Pos = Roll_In_Platform_End_X_Pos - 1;
-		Platform_State = EPS_Expand_Roll_In;
-	}
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area)
-{
-	if (Inner_Width < Normal_Inner_Width)
-	{
-		Inner_Width += 2;
-		X_Pos -= 1;
-		Platform_Rect.left = (int)X_Pos;
-	}
-	else
-	{
-		Inner_Width = Normal_Inner_Width;
-		Platform_State = EPS_Ready;
-	}
-
-	Draw_Normal_State(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Adhesive_State(HDC hdc, RECT &paint_area)
