@@ -6,9 +6,10 @@ const double AsPlatform::Min_Adhesive_Spot_Height_Ratio = 0.0;
 const double AsPlatform::Max_Adhesive_Spot_Height_Ratio = 1.0;
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Platform_State(EPS_Missing), Platform_Substate_Meltdown(EPSM_Unknown), Platform_Substate_Rolling(EPSR_Unknown), Platform_Substate_Adhesive(EPSA_Unknown), Platform_Moving_State(EPMS_Stop), 
-	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, 
-	Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
+	Platform_State(EPS_Regular), Platform_Substate_Regular(EPlatform_Substate_Regular::Missing), Platform_Substate_Meltdown(EPSM_Unknown), Platform_Substate_Rolling(EPSR_Unknown), 
+	Platform_Substate_Adhesive(EPSA_Unknown), Platform_Moving_State(EPMS_Stop), Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), 
+	X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), 
+	Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), 
 	Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
 {}
 //------------------------------------------------------------------------------------------------------------
@@ -152,7 +153,7 @@ void AsPlatform::Act_For_Rolling_State()
 		else
 		{
 			Inner_Width = Normal_Inner_Width;
-			Platform_State = EPS_Ready;
+			Set_State(EPlatform_Substate_Regular::Ready);
 			Platform_Substate_Rolling = EPSR_Unknown;
 		}
 		break;
@@ -187,7 +188,7 @@ void AsPlatform::Act_For_Adhesive_State()
 		{
 			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
 			Platform_Substate_Adhesive = EPSA_Unknown;
-			Set_State(EPS_Normal);
+			Set_State(EPlatform_Substate_Regular::Normal);
 		}
 		Redraw(false);
 		break;
@@ -203,9 +204,9 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 
 	switch (Platform_State)
 	{
-	case EPS_Ready:
-	case EPS_Normal:
-		Draw_Normal_State(hdc, paint_area);
+	case EPS_Regular:
+		if (Platform_Substate_Regular == EPlatform_Substate_Regular::Ready or Platform_Substate_Regular == EPlatform_Substate_Regular::Normal)
+			Draw_Normal_State(hdc, paint_area);
 		break;
 
 	/*case EPS_Pre_Meltdown:
@@ -252,8 +253,10 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	switch (Platform_State)
 	{
 	case EPS_Meltdown:
-	case EPS_Ready:
-	case EPS_Normal:
+	case EPS_Regular:
+		if (Platform_Substate_Regular == EPlatform_Substate_Regular::Missing)
+			break;
+
 	case EPS_Rolling:
 	case EPS_Adhesive:
 		AsConfig::BG_Color.Select(hdc);
@@ -291,7 +294,7 @@ void AsPlatform::Shift_Per_Step(double max_speed)
 		}
 	}
 
-	if (Platform_State == EPS_Adhesive and Speed != 0)
+	if (Platform_State == EPS_Adhesive and Platform_Substate_Adhesive == EPSA_Active and Speed != 0)
 	{
 		if (Platform_Moving_State == EPMS_Moving_Left)
 		{
@@ -373,18 +376,8 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 
 	switch (new_state)
 	{
-	case EPS_Normal:
-		if (Platform_Substate_Adhesive == EPSA_Active or Platform_Substate_Adhesive == EPSA_Init)
-		{
-			if (Platform_Substate_Adhesive == EPSA_Active)
-				while (Ball_Set->Release_Next_Ball() )
-				{
-				}
-
-			Platform_Substate_Adhesive = EPSA_Finalize;
-			return;
-		}
-		break;
+	case EPS_Regular:
+		AsConfig::Throw();		
 
 	case EPS_Rolling:
 		X_Pos = AsConfig::Max_X_Pos;
@@ -420,6 +413,29 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 	}
 
 	Platform_State = new_state;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Set_State(EPlatform_Substate_Regular new_regular_state)
+{
+	if (Platform_State == EPS_Regular and Platform_Substate_Regular == new_regular_state)
+		return;
+
+	if (new_regular_state == EPlatform_Substate_Regular::Ready)
+	{
+		if (Platform_Substate_Adhesive == EPSA_Active or Platform_Substate_Adhesive == EPSA_Init)
+		{
+			if (Platform_Substate_Adhesive == EPSA_Active)
+				while (Ball_Set->Release_Next_Ball() )
+				{
+				}
+
+			Platform_Substate_Adhesive = EPSA_Finalize;
+			return;
+		}
+	}
+
+	Platform_State = EPS_Regular;
+	Platform_Substate_Regular = new_regular_state;
 }
 //------------------------------------------------------------------------------------------------------------
 EPlatform_State AsPlatform::Get_State()
@@ -466,7 +482,7 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	//draw highlight
 	Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
 
-	if (Normal_Platform_Image == 0 and Platform_State == EPS_Ready)
+	if (Normal_Platform_Image == 0 and Has_State(EPlatform_Substate_Regular::Ready) )
 		Get_Normal_Platform_Image(hdc);	
 }
 //------------------------------------------------------------------------------------------------------------
@@ -527,7 +543,7 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 	}
 
 	if (moved_columns_count == 0)
-		Platform_State = EPS_Missing;
+		Set_State(EPlatform_Substate_Regular::Missing);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, const AColor **color)
@@ -669,7 +685,7 @@ void AsPlatform::Move(bool to_left, bool key_down)
 	/*if (Platform_State != EPS_Normal)
 		return;*/
 
-	if (! (Platform_State == EPS_Normal or Platform_State == EPS_Adhesive) )
+	if (! ( Has_State(EPlatform_Substate_Regular::Normal) or Platform_State == EPS_Adhesive) ) 
 		return;
 
 	if (to_left)
@@ -700,6 +716,17 @@ void AsPlatform::Move(bool to_left, bool key_down)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Has_State(EPlatform_Substate_Regular regular_state)
+{
+	if (Platform_State != EPS_Regular)
+		return false;
+
+	if (Platform_Substate_Regular == regular_state)
+		return true;
+	else
+		return false;
+}
+//------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Hit_By(AFalling_Letter *falling_letter)
 {
 	RECT intersection_rect, falling_letter_rect;
@@ -716,17 +743,13 @@ void AsPlatform::On_Space_Key(bool key_down)
 	if (! key_down)
 		return;
 
-	switch (Platform_State)
+	if (Has_State(EPlatform_Substate_Regular::Ready) )
 	{
-	case EPS_Ready:
 		Ball_Set->Release_From_Platform();
-		Set_State(EPS_Normal);
-		break;
-
-	case EPS_Adhesive:
-		if (Platform_Substate_Adhesive == EPSA_Active)
-			Ball_Set->Release_Next_Ball();
-		break;
+		Set_State(EPlatform_Substate_Regular::Normal);
 	}
+	else
+		if (Platform_State == EPS_Adhesive)
+			Ball_Set->Release_Next_Ball();
 }
 //------------------------------------------------------------------------------------------------------------

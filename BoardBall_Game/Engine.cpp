@@ -95,7 +95,7 @@ int AsEngine::On_Timer()
 		break;
 
 	case EGS_Lost_Ball:
-		if (Platform.Get_State() == EPS_Missing)
+		if (Platform.Has_State(EPlatform_Substate_Regular::Missing) )
 		{
 			Game_State = EGS_Restart_Level;
 			Platform.Set_State(EPS_Rolling);		
@@ -103,7 +103,7 @@ int AsEngine::On_Timer()
 		break;
 
 	case EGS_Restart_Level:
-		if (Platform.Get_State() == EPS_Ready)
+		if (Platform.Has_State(EPlatform_Substate_Regular::Ready) )
 		{
 			Game_State = EGS_Play_Level;
 			Ball_Set.Set_On_Platform();
@@ -139,7 +139,9 @@ void AsEngine::Act()
 	int index = 0;
 	AFalling_Letter *falling_letter;
 
-	Ball_Set.Act();
+	if (! Platform.Has_State(EPlatform_Substate_Regular::Ready) )
+		Ball_Set.Act();
+
 	Platform.Act();
 	Level.Act();
 
@@ -156,17 +158,17 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 	switch (falling_letter->Letter_Type)
 	{
 	case ELT_O: 
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;			
 	case ELT_M: 
 		break;
 	case ELT_I: 
 		Ball_Set.Inverse_Direction();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_C:
 		Ball_Set.Reset_Balls_Speed();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_K:
 		Platform.Set_State(EPS_Adhesive);
@@ -176,22 +178,22 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 	case ELT_G:
 		if (Life_Count < AsConfig::Max_Life_Count)
 			++Life_Count;
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_T: 
 		Ball_Set.Triple_Ball();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_L:
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_P: 
 		AsConfig::Has_Floor = true;
 		Border.Redraw_Floor();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_Plus:
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	default:
 		AsConfig::Throw();

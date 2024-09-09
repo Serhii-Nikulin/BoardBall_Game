@@ -5,12 +5,18 @@
 //------------------------------------------------------------------------------------------------------------
 enum EPlatform_State
 {
-	EPS_Missing, 
-	EPS_Ready, 
-	EPS_Normal,
+	EPS_Regular,
 	EPS_Meltdown, 
 	EPS_Rolling,
 	EPS_Adhesive
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EPlatform_Substate_Regular : unsigned char
+{
+	Unknown,
+	Missing,
+	Ready,
+	Normal
 };
 //------------------------------------------------------------------------------------------------------------
 enum EPlatform_Substate_Meltdown
@@ -61,8 +67,10 @@ public:
 
 	void Redraw(bool update_rect = true);
 	void Set_State(EPlatform_State platform_state);
+	void Set_State(EPlatform_Substate_Regular new_regular_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
+	bool Has_State(EPlatform_Substate_Regular regular_state);
 	bool Hit_By(AFalling_Letter *falling_letter);
 	void On_Space_Key(bool key_down);
 
@@ -89,6 +97,7 @@ private:
 	AsBall_Set *Ball_Set;
 
 	EPlatform_State Platform_State;
+	EPlatform_Substate_Regular Platform_Substate_Regular;
 	EPlatform_Substate_Meltdown Platform_Substate_Meltdown;
 	EPlatform_Substate_Rolling Platform_Substate_Rolling;
 	EPlatform_Substate_Adhesive Platform_Substate_Adhesive;
