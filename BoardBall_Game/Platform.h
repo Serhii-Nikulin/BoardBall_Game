@@ -3,12 +3,12 @@
 #include "Ball_Set.h"
 
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_State
+enum class EPlatform_State: unsigned char
 {
-	EPS_Regular,
-	EPS_Meltdown, 
-	EPS_Rolling,
-	EPS_Adhesive
+	Regular,
+	Meltdown, 
+	Rolling,
+	Adhesive
 };
 //------------------------------------------------------------------------------------------------------------
 enum class EPlatform_Substate_Regular : unsigned char
@@ -19,33 +19,50 @@ enum class EPlatform_Substate_Regular : unsigned char
 	Normal
 };
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_Substate_Meltdown
+enum class EPlatform_Substate_Meltdown: unsigned char
 {
-	EPSM_Unknown,
-	EPSM_Init,
-	EPSM_Active
+	Unknown,
+	Init,
+	Active
 };
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_Substate_Rolling
+enum class EPlatform_Substate_Rolling: unsigned char
 {
-	EPSR_Unknown,
-	EPSR_Roll_In, 
-	EPSR_Expand_Roll_In,
+	Unknown,
+	Roll_In, 
+	Expand_Roll_In,
 };
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_Substate_Adhesive
+enum class EPlatform_Substate_Adhesive: unsigned char
 {
-	EPSA_Unknown,
-	EPSA_Init,
-	EPSA_Active,
-	EPSA_Finalize
+	Unknown,
+	Init,
+	Active,
+	Finalize
 };
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_Moving_State
+enum class EPlatform_Moving_State: unsigned char
 {
-	EPMS_Stop,
-	EPMS_Moving_Left,
-	EPMS_Moving_Right
+	Stop,
+	Moving_Left,
+	Moving_Right
+};
+//------------------------------------------------------------------------------------------------------------
+class AsPlatform_State
+{
+public:
+	AsPlatform_State();
+	operator EPlatform_State() const;
+	void operator = (const EPlatform_State &new_platform_state);
+
+	EPlatform_Substate_Regular Regular;
+	EPlatform_Substate_Meltdown Meltdown;
+	EPlatform_Substate_Rolling Rolling;
+	EPlatform_Substate_Adhesive Adhesive;
+	EPlatform_Moving_State Moving_State;
+
+private:
+	EPlatform_State Current_State;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
@@ -96,12 +113,7 @@ private:
 
 	AsBall_Set *Ball_Set;
 
-	EPlatform_State Platform_State;
-	EPlatform_Substate_Regular Platform_Substate_Regular;
-	EPlatform_Substate_Meltdown Platform_Substate_Meltdown;
-	EPlatform_Substate_Rolling Platform_Substate_Rolling;
-	EPlatform_Substate_Adhesive Platform_Substate_Adhesive;
-	EPlatform_Moving_State Platform_Moving_State;
+	AsPlatform_State Platform_State;
 
 	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color;
 

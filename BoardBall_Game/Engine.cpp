@@ -98,7 +98,7 @@ int AsEngine::On_Timer()
 		if (Platform.Has_State(EPlatform_Substate_Regular::Missing) )
 		{
 			Game_State = EGS_Restart_Level;
-			Platform.Set_State(EPS_Rolling);		
+			Platform.Set_State(EPlatform_State::Rolling);		
 		}
 		break;
 
@@ -124,7 +124,7 @@ void AsEngine::Play_Level()
 	if (Ball_Set.All_Balls_Are_Lost() )
 	{
 		Game_State = EGS_Lost_Ball;
-		Platform.Set_State(EPS_Meltdown);
+		Platform.Set_State(EPlatform_State::Meltdown);
 		Level.Stop();
 	}
 	else
@@ -171,7 +171,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_K:
-		Platform.Set_State(EPS_Adhesive);
+		Platform.Set_State(EPlatform_State::Adhesive);
 		break;
 	case ELT_W: 
 		break;				  
