@@ -1,5 +1,4 @@
-#include "Engine.h"
-
+#include "Engine.h" 
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
@@ -96,15 +95,15 @@ int AsEngine::On_Timer()
 		break;
 
 	case EGS_Lost_Ball:
-		if (Platform.Get_State() == EPS_Missing)
+		if (Platform.Has_State(EPlatform_Substate_Regular::Missing) )
 		{
 			Game_State = EGS_Restart_Level;
-			Platform.Set_State(EPS_Roll_In);		
+			Platform.Set_State(EPlatform_State::Rolling);		
 		}
 		break;
 
 	case EGS_Restart_Level:
-		if (Platform.Get_State() == EPS_Ready)
+		if (Platform.Has_State(EPlatform_Substate_Regular::Ready) )
 		{
 			Game_State = EGS_Play_Level;
 			Ball_Set.Set_On_Platform();
@@ -125,7 +124,7 @@ void AsEngine::Play_Level()
 	if (Ball_Set.All_Balls_Are_Lost() )
 	{
 		Game_State = EGS_Lost_Ball;
-		Platform.Set_State(EPS_Pre_Meltdown);
+		Platform.Set_State(EPlatform_State::Meltdown);
 		Level.Stop();
 	}
 	else
@@ -140,7 +139,9 @@ void AsEngine::Act()
 	int index = 0;
 	AFalling_Letter *falling_letter;
 
-	Ball_Set.Act();
+	if (! Platform.Has_State(EPlatform_Substate_Regular::Ready) )
+		Ball_Set.Act();
+
 	Platform.Act();
 	Level.Act();
 
@@ -157,42 +158,42 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 	switch (falling_letter->Letter_Type)
 	{
 	case ELT_O: 
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;			
 	case ELT_M: 
 		break;
 	case ELT_I: 
 		Ball_Set.Inverse_Direction();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_C:
 		Ball_Set.Reset_Balls_Speed();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_K:
-		Platform.Set_State(EPS_Adhesive);
+		Platform.Set_State(EPlatform_State::Adhesive);
 		break;
 	case ELT_W: 
 		break;				  
 	case ELT_G:
 		if (Life_Count < AsConfig::Max_Life_Count)
 			++Life_Count;
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_T: 
 		Ball_Set.Triple_Ball();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_L:
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_P: 
 		AsConfig::Has_Floor = true;
 		Border.Redraw_Floor();
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_Plus:
-		Platform.Set_State(EPS_Normal);
+		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	default:
 		AsConfig::Throw();
@@ -243,7 +244,7 @@ void AsEngine::Shift_Movers()
  				int yy = 0; 
 	}*/
 
-	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
+ 	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
 		if (Movers[i] != 0)
 			Movers[i]->Finish_Movement();
 }

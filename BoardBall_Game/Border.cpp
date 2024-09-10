@@ -39,7 +39,7 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 			ball->Reflect(true);//from low horizontal
 		}
 
-	if (next_y_pos - ball->Radius * 3 > AsConfig::Max_Y_Pos)
+	if (next_y_pos - ball->Radius * 4 > AsConfig::Max_Y_Pos)
 		ball->Set_State(EBS_Lost);
 
  	return got_hit;

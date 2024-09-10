@@ -3,31 +3,66 @@
 #include "Ball_Set.h"
 
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_State
+enum class EPlatform_State: unsigned char
 {
-	EPS_Missing, 
-	EPS_Ready, 
-	EPS_Normal,
-	EPS_Pre_Meltdown,
-	EPS_Meltdown, 
-	EPS_Roll_In, 
-	EPS_Expand_Roll_In,
-	EPS_Adhesive
+	Regular,
+	Meltdown, 
+	Rolling,
+	Adhesive
 };
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_Substate_Adhesive
+enum class EPlatform_Substate_Regular : unsigned char
 {
-	EPSA_Unknown,
-	EPSA_Init,
-	EPSA_Active,
-	EPSA_Finalize
+	Unknown,
+	Missing,
+	Ready,
+	Normal
 };
 //------------------------------------------------------------------------------------------------------------
-enum EPlatform_Moving_State
+enum class EPlatform_Substate_Meltdown: unsigned char
 {
-	EPMS_Stop,
-	EPMS_Moving_Left,
-	EPMS_Moving_Right
+	Unknown,
+	Init,
+	Active
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EPlatform_Substate_Rolling: unsigned char
+{
+	Unknown,
+	Roll_In, 
+	Expand_Roll_In,
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EPlatform_Substate_Adhesive: unsigned char
+{
+	Unknown,
+	Init,
+	Active,
+	Finalize
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EPlatform_Moving_State: unsigned char
+{
+	Stop,
+	Moving_Left,
+	Moving_Right
+};
+//------------------------------------------------------------------------------------------------------------
+class AsPlatform_State
+{
+public:
+	AsPlatform_State();
+	operator EPlatform_State() const;
+	void operator = (const EPlatform_State &new_platform_state);
+
+	EPlatform_Substate_Regular Regular;
+	EPlatform_Substate_Meltdown Meltdown;
+	EPlatform_Substate_Rolling Rolling;
+	EPlatform_Substate_Adhesive Adhesive;
+	EPlatform_Moving_State Moving_State;
+
+private:
+	EPlatform_State Current_State;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
@@ -49,8 +84,10 @@ public:
 
 	void Redraw(bool update_rect = true);
 	void Set_State(EPlatform_State platform_state);
+	void Set_State(EPlatform_Substate_Regular new_regular_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
+	bool Has_State(EPlatform_Substate_Regular regular_state);
 	bool Hit_By(AFalling_Letter *falling_letter);
 	void On_Space_Key(bool key_down);
 
@@ -59,6 +96,10 @@ public:
 	double X_Pos;
 
 private:
+	void Act_For_Meltdown_State();
+	void Act_For_Rolling_State();
+	void Act_For_Adhesive_State();
+	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Get_Normal_Platform_Image(HDC hdc);
@@ -72,9 +113,7 @@ private:
 
 	AsBall_Set *Ball_Set;
 
-	EPlatform_State Platform_State;
-	EPlatform_Substate_Adhesive Platform_Substate_Adhesive;
-	EPlatform_Moving_State Platform_Moving_State;
+	AsPlatform_State Platform_State;
 
 	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color;
 

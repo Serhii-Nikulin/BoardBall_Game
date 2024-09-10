@@ -73,7 +73,7 @@ HWND AsConfig::Hwnd;
 
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
-bool AsConfig::Has_Floor = true;
+bool AsConfig::Has_Floor = false;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
 {
