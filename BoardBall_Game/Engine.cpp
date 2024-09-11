@@ -25,6 +25,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Level.Set_Current_Level(AsLevel::Level_01);
 	/*Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); */
+	
 	AActive_Brick_Red_Blue::Setup_Colors();
 	
 	Platform.Redraw();
@@ -174,6 +175,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		Platform.Set_State(EPlatform_State::Adhesive);
 		break;
 	case ELT_W: 
+		Platform.Set_State(EPlatform_State::Expanding);
 		break;				  
 	case ELT_G:
 		if (Life_Count < AsConfig::Max_Life_Count)

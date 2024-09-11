@@ -8,7 +8,8 @@ enum class EPlatform_State: unsigned char
 	Regular,
 	Meltdown, 
 	Rolling,
-	Adhesive
+	Adhesive,
+	Expanding
 };
 //------------------------------------------------------------------------------------------------------------
 enum class EPlatform_Substate_Regular : unsigned char
@@ -41,6 +42,14 @@ enum class EPlatform_Substate_Adhesive: unsigned char
 	Finalize
 };
 //------------------------------------------------------------------------------------------------------------
+enum class EPlatform_Substate_Expanding: unsigned char
+{
+	Unknown,
+	Init,
+	Active,
+	Finalize
+};
+//------------------------------------------------------------------------------------------------------------
 enum class EPlatform_Moving_State: unsigned char
 {
 	Stop,
@@ -59,6 +68,7 @@ public:
 	EPlatform_Substate_Meltdown Meltdown;
 	EPlatform_Substate_Rolling Rolling;
 	EPlatform_Substate_Adhesive Adhesive;
+	EPlatform_Substate_Expanding Expanding;
 	EPlatform_Moving_State Moving_State;
 
 private:
@@ -91,7 +101,7 @@ public:
 	bool Hit_By(AFalling_Letter *falling_letter);
 	void On_Space_Key(bool key_down);
 
-	int Width;
+	double Width;
 	int Inner_Width;
 	double X_Pos;
 
@@ -99,6 +109,7 @@ private:
 	void Act_For_Meltdown_State();
 	void Act_For_Rolling_State();
 	void Act_For_Adhesive_State();
+	void Act_For_Expanding_State();
 	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
@@ -109,13 +120,15 @@ private:
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
 	void Draw_Adhesive_State(HDC hdc, RECT &paint_area);
 	void Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int heigth);
+	void Draw_Expanding_State(HDC hdc, RECT &paint_area);
+	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	AsBall_Set *Ball_Set;
 
 	AsPlatform_State Platform_State;
 
-	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color;
+	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color, Truss_Expanding_Color;
 
 	RECT Prev_Platform_Rect, Platform_Rect;
 
@@ -131,6 +144,7 @@ private:
 	static const int Height = 7;
 	static const int Meltdown_Speed = 4;
 	static const int Normal_Inner_Width = 20;
+	static const int Expanding_Platform_Inner_Width = 12;
 
 	static const int Normal_Width = 28 * AsConfig::Global_Scale;
 	static int Meltdown_Platform_Y_Pos[Normal_Width];
@@ -144,5 +158,9 @@ private:
 	static const double Step_Adhesive_Spot_Height_Ratio;
 	static const double Min_Adhesive_Spot_Height_Ratio;
 	static const double Max_Adhesive_Spot_Height_Ratio;
+
+	static const double Step_Expanding_Width;
+	static const double Min_Expanding_Width;
+	static const double Max_Expanding_Width;
 };
 //------------------------------------------------------------------------------------------------------------
