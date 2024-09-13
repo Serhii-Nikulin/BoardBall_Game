@@ -11,7 +11,7 @@ const double AsPlatform::Max_Expanding_Width = 40.0;
 
 //------------------------------------------------------------------------------------------------------------
 AsPlatform_State::AsPlatform_State() :
-	Current_State(EPlatform_State::Regular), Regular(EPlatform_Substate_Regular::Missing), Meltdown(EPlatform_Substate_Meltdown::Unknown), Rolling(EPlatform_Substate_Rolling::Unknown), Adhesive(EPlatform_Substate_Adhesive::Unknown), Expanding(EPlatform_Substate_Expanding::Unknown), Moving_State(EPlatform_Moving_State::Stop)
+	Current_State(EPlatform_State::Regular), Next_State(EPlatform_State::Unknown), Regular(EPlatform_Substate_Regular::Missing), Meltdown(EPlatform_Substate_Meltdown::Unknown), Rolling(EPlatform_Substate_Rolling::Unknown), Adhesive(EPlatform_Substate_Adhesive::Unknown), Expanding(EPlatform_Substate_Expanding::Unknown), Moving_State(EPlatform_Moving_State::Stop)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -25,8 +25,49 @@ void AsPlatform_State::operator = (const EPlatform_State &new_platform_state)
 	Current_State = new_platform_state;
 }
 //------------------------------------------------------------------------------------------------------------
+void AsPlatform_State::Set_Next_State(EPlatform_State next_state)
+{
+	if (next_state == Current_State)
+		return;
+
+	switch (Current_State)
+	{
+	case EPlatform_State::Regular:
+		AsConfig::Throw();
+
+	case EPlatform_State::Meltdown:
+		break;
+
+	case EPlatform_State::Rolling:
+		AsConfig::Throw();
+
+	case EPlatform_State::Adhesive:
+		Adhesive = EPlatform_Substate_Adhesive::Finalize;
+		break;
+
+	case EPlatform_State::Expanding:
+		Expanding = EPlatform_Substate_Expanding::Finalize;
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
+
+	Next_State = next_state;
+}
+//------------------------------------------------------------------------------------------------------------
+EPlatform_State AsPlatform_State::Get_Next_State() const
+{
+	return Next_State;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Speed(0.0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
+	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Init(AsBall_Set *ball_set)
@@ -95,6 +136,7 @@ got_hit:
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Begin_Movement()
 {
+	if (Platform_State != EPlatform_State::Expanding)
 	Prev_Platform_Rect = Platform_Rect;
 }
 //------------------------------------------------------------------------------------------------------------
@@ -129,6 +171,7 @@ void AsPlatform::Act()
 
 	case EPlatform_State::Expanding:
 		Act_For_Expanding_State();
+		break;
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -195,13 +238,17 @@ void AsPlatform::Act_For_Adhesive_State()
 			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
 			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Active;
 		}	
-		Redraw(false);
+		Redraw();
 		break;
 
 	case EPlatform_Substate_Adhesive::Finalize:
 		if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
 		{
 			Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
+		
+			while (Ball_Set->Release_Next_Ball() )
+			{
+			}
 		}
 		else
 		{
@@ -210,34 +257,43 @@ void AsPlatform::Act_For_Adhesive_State()
 			Set_State(EPlatform_Substate_Regular::Normal);
 		}
 
-		Redraw(false);
+		Redraw();
 		break;
 	}	
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act_For_Expanding_State()
 {
+	double offset = Step_Expanding_Width / 2.0;
+
 	switch (Platform_State.Expanding)
 	{
 	case EPlatform_Substate_Expanding::Init:
 		if (Width < Max_Expanding_Width)
 		{
-			X_Pos -= Step_Expanding_Width / 2.0;
 			Width += Step_Expanding_Width;
+
+			if (X_Pos - offset > AsConfig::Border_X_Offset)
+			{
+				if (X_Pos < AsConfig::Max_X_Pos - Width + 1)
+					X_Pos -= offset;
+				else
+					X_Pos -= Step_Expanding_Width;
+			}
 		}
 		else
 		{
 			Width = Max_Expanding_Width;
 			Platform_State.Expanding = EPlatform_Substate_Expanding::Active;
 		}	
-		Redraw(false);
+		Redraw();
 		break;
 
 	case EPlatform_Substate_Expanding::Finalize:
 		if (Width > Min_Expanding_Width)
 		{
-			X_Pos += Step_Expanding_Width / 2.0;
 			Width -= Step_Expanding_Width;
+			X_Pos += offset;
 		}
 		else
 		{
@@ -245,10 +301,10 @@ void AsPlatform::Act_For_Expanding_State()
 			Platform_State.Expanding = EPlatform_Substate_Expanding::Unknown;
 			Set_State(EPlatform_Substate_Regular::Normal);
 		}
-
-		Redraw(false);
+		Redraw();
 		break;
 	}	
+
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw(HDC hdc, RECT& paint_area)
@@ -428,9 +484,9 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 {
 	int i, len;
 
-	if (new_state == Platform_State and Platform_State == EPlatform_State::Adhesive)
-		if (Platform_State.Adhesive == EPlatform_Substate_Adhesive::Finalize)
-			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Init;
+	//if (new_state == Platform_State and Platform_State == EPlatform_State::Adhesive)
+	//	if (Platform_State.Adhesive == EPlatform_Substate_Adhesive::Finalize)
+	//		Platform_State.Adhesive = EPlatform_Substate_Adhesive::Init;
 
 	if (Platform_State == new_state)
 		return;
@@ -447,11 +503,13 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		Platform_State.Rolling = EPlatform_Substate_Rolling::Roll_In;
 		break;
 
-	/*case EPS_Pre_Meltdown:
-		Speed = 0.0;
-		break;*/
-
 	case EPlatform_State::Meltdown:
+		if (Platform_State != EPlatform_State::Regular)
+		{
+			Platform_State.Set_Next_State(new_state);
+			return;
+		}
+
 		Speed = 0.0;
 		Platform_State.Meltdown = EPlatform_Substate_Meltdown::Init;
 
@@ -461,6 +519,13 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		break;
 
 	case EPlatform_State::Adhesive:
+
+		if (Platform_State != EPlatform_State::Regular)
+		{
+			Platform_State.Set_Next_State(new_state);
+			return;
+		}
+
 		switch (Platform_State.Adhesive)
 		{
 		case EPlatform_Substate_Adhesive::Unknown:
@@ -475,6 +540,12 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 
 	case EPlatform_State::Expanding:
 
+		if (Platform_State != EPlatform_State::Regular)
+		{
+			Platform_State.Set_Next_State(new_state);
+			return;
+		}
+
 		switch (Platform_State.Expanding)
 		{
 		case EPlatform_Substate_Expanding::Unknown:
@@ -485,7 +556,6 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		case EPlatform_Substate_Expanding::Finalize:
 			Platform_State.Expanding = EPlatform_Substate_Expanding::Init;
 		}	
-
 		break;
 	}
 
@@ -501,27 +571,45 @@ void AsPlatform::Set_State(EPlatform_Substate_Regular new_regular_state)
 	{
 		if (Platform_State == EPlatform_State::Adhesive)
 		{
-			if (Platform_State.Adhesive == EPlatform_Substate_Adhesive::Active)
-				while (Ball_Set->Release_Next_Ball() )
-				{
-				}
-
-			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Finalize;
+			if (Platform_State.Adhesive == EPlatform_Substate_Adhesive::Unknown)
+			{
+				Set_Next_Or_Regular_State(new_regular_state);
+			}
+			else
+			{
+				Platform_State.Adhesive = EPlatform_Substate_Adhesive::Finalize;
+			}
 			return;
 		}
 
 		if (Platform_State == EPlatform_State::Expanding)
 		{
-			if (Platform_State.Expanding == EPlatform_Substate_Expanding::Active or Platform_State.Expanding == EPlatform_Substate_Expanding::Init)
+			if (Platform_State.Expanding == EPlatform_Substate_Expanding::Unknown)
 			{
-				Platform_State.Expanding =  EPlatform_Substate_Expanding::Finalize;
-				return;	
+				Set_Next_Or_Regular_State(new_regular_state);
 			}
+			else
+			{
+				if (Platform_State.Expanding == EPlatform_Substate_Expanding::Active or Platform_State.Expanding == EPlatform_Substate_Expanding::Init)
+					Platform_State.Expanding =  EPlatform_Substate_Expanding::Finalize;
+			}
+			return;	
 		}
 	}
 
 	Platform_State = EPlatform_State::Regular;
 	Platform_State.Regular = new_regular_state;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform::Set_Next_Or_Regular_State(EPlatform_Substate_Regular new_regular_state)
+{
+	EPlatform_State next_state = Platform_State.Get_Next_State();
+	Platform_State = EPlatform_State::Regular;
+
+	if (next_state != EPlatform_State::Unknown)
+		Set_State(next_state);
+	else
+		Platform_State.Regular = new_regular_state;
 }
 //------------------------------------------------------------------------------------------------------------
 EPlatform_State AsPlatform::Get_State()
@@ -552,7 +640,6 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	//draw side parts
 	Platform_Circle_Color.Select(hdc);
 	Ellipse(hdc, int (x * d_scale), y * scale, int ( (x + Circle_Size) * d_scale - 1), (y + Circle_Size) * scale - 1);
-	//Ellipse(hdc, (x + Width - Circle_Size) * d_scale, y * d_scale, (x + Width) * d_scale, (y + Circle_Size) * d_scale);
 	Ellipse(hdc, int( (x + Inner_Width + 1) * d_scale), y * scale, int( (x + Inner_Width + Circle_Size + 1) * d_scale - 1), (y + Circle_Size) * scale - 1);
 
 	//draw inner part
@@ -677,26 +764,27 @@ void AsPlatform::Redraw(bool update_rect)
 {
 	int platform_width;
 
-	if (update_rect)
+	if (Last_Redraw_Timer_Tick != AsConfig::Current_Timer_Tick)
 	{
 		Prev_Platform_Rect = Platform_Rect;
-
-		if (Platform_State.Rolling == EPlatform_Substate_Rolling::Roll_In)
-			platform_width = Circle_Size;
-		else
-			platform_width = int (Width);
-
-		Platform_Rect.left = int(X_Pos * AsConfig::D_Global_Scale);
-		Platform_Rect.top = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
-		Platform_Rect.right = int(Platform_Rect.left + platform_width * AsConfig::D_Global_Scale);
-		Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
-
-		if (Platform_State == EPlatform_State::Meltdown)
-		{
-			Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
-		}
+		Last_Redraw_Timer_Tick = AsConfig::Current_Timer_Tick;
 	}
+	
+	if (Platform_State.Rolling == EPlatform_Substate_Rolling::Roll_In)
+		platform_width = Circle_Size;
+	else
+		platform_width = int(Width);
 
+	Platform_Rect.left = int(X_Pos * AsConfig::D_Global_Scale);
+	Platform_Rect.top = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
+	Platform_Rect.right = int(Platform_Rect.left + platform_width * AsConfig::D_Global_Scale);
+	Platform_Rect.bottom = Platform_Rect.top + Height * AsConfig::Global_Scale;
+
+	if (Platform_State == EPlatform_State::Meltdown)
+	{
+		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
+	}
+	
 	AsConfig::Invalidate_Rect(Prev_Platform_Rect);
 	AsConfig::Invalidate_Rect(Platform_Rect);
 }
@@ -778,42 +866,47 @@ void AsPlatform::Draw_Expanding_State(HDC hdc, RECT &paint_area)
 	double ratio;
 	int x_offset;
 	RECT intersection_rect;
-	RECT inner_rect;
+	RECT inner_rect, ellipse_rect;
 
 	if (! IntersectRect(&intersection_rect, &Platform_Rect, &paint_area) )
 		return;
 
-	middle_pos = x + Width / 2;
+	middle_pos = x + Width / 2.0;
 
 	inner_rect.left = int( (middle_pos - Expanding_Platform_Inner_Width / 2.0) * d_scale);
-	inner_rect.right = int( (middle_pos + Expanding_Platform_Inner_Width / 2.0) * d_scale);
+	inner_rect.right = inner_rect.left + Expanding_Platform_Inner_Width * scale;
 	inner_rect.top = (y + 1) * scale;
-	inner_rect.bottom = (y + 1 + Inner_Height) * scale - 1;
-
-	Platform_Rect.left = int(x * d_scale);
-	Platform_Rect.right = int( (x + Width) * d_scale);
-	Platform_Rect.top = y * scale;
-	Platform_Rect.bottom = (y + Circle_Size) * scale;
+	inner_rect.bottom = inner_rect.top + Inner_Height * scale - 1;
 
 	//0.Side parts
 	Platform_Circle_Color.Select(hdc);
+
 	Ellipse(hdc, Platform_Rect.left, Platform_Rect.top, Platform_Rect.left + Circle_Size * scale - 1, Platform_Rect.bottom - 1);
 	Ellipse(hdc, Platform_Rect.right - Circle_Size * scale, Platform_Rect.top, Platform_Rect.right - 1, Platform_Rect.bottom - 1);
+
 	Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
 
-	//1.Perforations
+	//1.Left part
+	ellipse_rect.top = (y + 1) * scale;
+	ellipse_rect.bottom = ellipse_rect.top + ellipse_size * scale - 1;
+	ellipse_rect.left = Platform_Rect.left + ellipse_offset * scale;
+	ellipse_rect.right = ellipse_rect.left + ellipse_size * scale - 1;
+
 	AsConfig::BG_Color.Select(hdc);
-	Ellipse(hdc, Platform_Rect.left + ellipse_offset * scale, (y + 1) * scale, Platform_Rect.left + (ellipse_offset + ellipse_size) * scale - 1, (y + 1 + ellipse_size) * scale - 1);
-	Ellipse(hdc, Platform_Rect.right - (ellipse_offset + ellipse_size) * scale, (y + 1) * scale, Platform_Rect.right - ellipse_offset * scale - 1, (y + 1 + ellipse_size) * scale - 1);
-
-	//2.Arcs;
+	Ellipse(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom);
 	Truss_Expanding_Color.Select_Pen(hdc);
-	Arc(hdc, Platform_Rect.left + ellipse_offset * scale, (y + 1) * scale, Platform_Rect.left + (ellipse_offset + ellipse_size) * scale - 1, (y + 1 + ellipse_size) * scale - 1,
-		Platform_Rect.left + ellipse_offset * scale, (y + 1) * scale, Platform_Rect.left + ellipse_offset * scale, (y + 1 + ellipse_size) * scale - 1);
+	Arc(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom,
+		ellipse_rect.left, ellipse_rect.top, ellipse_rect.left, ellipse_rect.bottom);
 
-	Arc(hdc, Platform_Rect.right - (ellipse_offset + ellipse_size) * scale, (y + 1) * scale, Platform_Rect.right - ellipse_offset * scale - 1, (y + 1 + ellipse_size) * scale - 1,
-		Platform_Rect.right - ellipse_offset * scale - 1, (y + 1 + ellipse_size) * scale - 1,
-		Platform_Rect.right - ellipse_offset * scale - 1, (y + 1) * scale);
+	//2.Right part
+	ellipse_rect.left = Platform_Rect.right - (ellipse_offset + ellipse_size) * scale;
+	ellipse_rect.right = ellipse_rect.left + ellipse_size * scale - 1;
+
+	AsConfig::BG_Color.Select(hdc);
+	Ellipse(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom);
+	Truss_Expanding_Color.Select_Pen(hdc);
+	Arc(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom,
+		ellipse_rect.right, ellipse_rect.bottom, ellipse_rect.right, ellipse_rect.top);
 
 	//3.Inner part
 	Platform_Inner_Color.Select(hdc);
@@ -840,7 +933,7 @@ void AsPlatform::Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio)
 
 	MoveToEx(hdc, int( (x + 5) * d_scale + 1), (y + 5) * scale, FALSE);
 	LineTo(hdc, int( (x + 10 * ratio) * d_scale - 1), (y + 1) * scale + 1);
-	LineTo(hdc, int ( (x + 14 * ratio) * d_scale - 1), (y + 5) * scale);
+	LineTo(hdc, int( (x + 14 * ratio) * d_scale - 1), (y + 5) * scale);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Move(bool to_left, bool key_down)

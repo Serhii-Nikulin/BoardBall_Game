@@ -5,6 +5,8 @@
 //------------------------------------------------------------------------------------------------------------
 enum class EPlatform_State: unsigned char
 {
+	Unknown,
+
 	Regular,
 	Meltdown, 
 	Rolling,
@@ -15,6 +17,7 @@ enum class EPlatform_State: unsigned char
 enum class EPlatform_Substate_Regular : unsigned char
 {
 	Unknown,
+
 	Missing,
 	Ready,
 	Normal
@@ -23,6 +26,7 @@ enum class EPlatform_Substate_Regular : unsigned char
 enum class EPlatform_Substate_Meltdown: unsigned char
 {
 	Unknown,
+
 	Init,
 	Active
 };
@@ -30,6 +34,7 @@ enum class EPlatform_Substate_Meltdown: unsigned char
 enum class EPlatform_Substate_Rolling: unsigned char
 {
 	Unknown,
+
 	Roll_In, 
 	Expand_Roll_In,
 };
@@ -37,6 +42,7 @@ enum class EPlatform_Substate_Rolling: unsigned char
 enum class EPlatform_Substate_Adhesive: unsigned char
 {
 	Unknown,
+
 	Init,
 	Active,
 	Finalize
@@ -53,6 +59,7 @@ enum class EPlatform_Substate_Expanding: unsigned char
 enum class EPlatform_Moving_State: unsigned char
 {
 	Stop,
+
 	Moving_Left,
 	Moving_Right
 };
@@ -63,6 +70,8 @@ public:
 	AsPlatform_State();
 	operator EPlatform_State() const;
 	void operator = (const EPlatform_State &new_platform_state);
+	void Set_Next_State(EPlatform_State next_state);
+	EPlatform_State Get_Next_State() const;
 
 	EPlatform_Substate_Regular Regular;
 	EPlatform_Substate_Meltdown Meltdown;
@@ -73,6 +82,7 @@ public:
 
 private:
 	EPlatform_State Current_State;
+	EPlatform_State Next_State;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
@@ -95,6 +105,7 @@ public:
 	void Redraw(bool update_rect = true);
 	void Set_State(EPlatform_State platform_state);
 	void Set_State(EPlatform_Substate_Regular new_regular_state);
+	void Set_Next_Or_Regular_State(EPlatform_Substate_Regular new_regular_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
 	bool Has_State(EPlatform_Substate_Regular regular_state);
@@ -155,6 +166,7 @@ private:
 	int* Normal_Platform_Image;
 
 	double Adhesive_Spot_Height_Ratio;
+	int Last_Redraw_Timer_Tick;
 	static const double Step_Adhesive_Spot_Height_Ratio;
 	static const double Min_Adhesive_Spot_Height_Ratio;
 	static const double Max_Adhesive_Spot_Height_Ratio;
