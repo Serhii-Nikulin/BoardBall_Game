@@ -26,6 +26,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	/*Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); */
 	
+	Platform.Set_State(EPlatform_State::Laser);
 	AActive_Brick_Red_Blue::Setup_Colors();
 	
 	Platform.Redraw();
@@ -188,6 +189,7 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		break;
 	case ELT_L:
 		Platform.Set_State(EPlatform_Substate_Regular::Normal);
+		Platform.Set_State(EPlatform_State::Laser);
 		break;
 	case ELT_P: 
 		AsConfig::Has_Floor = true;

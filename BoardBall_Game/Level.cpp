@@ -296,7 +296,7 @@ void AsLevel::Act()
 void AsLevel::Draw(HDC hdc, RECT& paint_area)
 {
 	int i, j;
-	RECT intersection_rect, brick_rect;
+	RECT intersection_rect{}, brick_rect{};
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect))
 	{
@@ -473,7 +473,7 @@ void AsLevel::On_Hit(int level_x, int level_y, ABall *ball, bool vertical_hit)
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Redraw_Brick(int level_x, int level_y)
 {
-	RECT brick_rect;
+	RECT brick_rect{};
 
 	brick_rect.left = (AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width) * AsConfig::Global_Scale;
 	brick_rect.top = (AsConfig::Level_Y_Offset + level_y * AsConfig::Cell_Height) * AsConfig::Global_Scale;
@@ -505,10 +505,10 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 		{
 			letter_x = (AsConfig::Level_X_Offset + AsConfig::Cell_Width * level_x) * AsConfig::Global_Scale;
 			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
-			letter_type = ELT_W;//AFalling_Letter::Get_Random_Letter_Type();
+			letter_type = ELT_L;//AFalling_Letter::Get_Random_Letter_Type();
 
 			if (AsConfig::Rand(2) == 1)
-				letter_type = ELT_K;
+				letter_type = ELT_W;
 
 			falling_letter = new AFalling_Letter(brick_type, letter_type, letter_x, letter_y);
 			Falling_Letters[i] = falling_letter;
@@ -700,7 +700,7 @@ AActive_Brick_Teleport *AsLevel::Select_Destination_Teleport(int source_x, int s
 void AsLevel::Draw_Parachute_In_Level(HDC hdc, RECT brick_rect)
 {
 	int i, width, height;
-	RECT top_rect, bottom_rect;
+	RECT top_rect{}, bottom_rect{};
 
 	Parachute_Color.Select(hdc);
 	top_rect.left = brick_rect.left + 1;

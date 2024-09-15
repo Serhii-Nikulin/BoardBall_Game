@@ -11,7 +11,8 @@ enum class EPlatform_State: unsigned char
 	Meltdown, 
 	Rolling,
 	Adhesive,
-	Expanding
+	Expanding,
+	Laser
 };
 //------------------------------------------------------------------------------------------------------------
 enum class EPlatform_Substate_Regular : unsigned char
@@ -51,6 +52,16 @@ enum class EPlatform_Substate_Adhesive: unsigned char
 enum class EPlatform_Substate_Expanding: unsigned char
 {
 	Unknown,
+
+	Init,
+	Active,
+	Finalize
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EPlatform_Substate_Laser: unsigned char
+{
+	Unknown,
+
 	Init,
 	Active,
 	Finalize
@@ -59,7 +70,6 @@ enum class EPlatform_Substate_Expanding: unsigned char
 enum class EPlatform_Moving_State: unsigned char
 {
 	Stop,
-
 	Moving_Left,
 	Moving_Right
 };
@@ -78,6 +88,7 @@ public:
 	EPlatform_Substate_Rolling Rolling;
 	EPlatform_Substate_Adhesive Adhesive;
 	EPlatform_Substate_Expanding Expanding;
+	EPlatform_Substate_Laser Laser;
 	EPlatform_Moving_State Moving_State;
 
 private:
@@ -109,7 +120,7 @@ public:
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
 	bool Has_State(EPlatform_Substate_Regular regular_state);
-	bool Hit_By(AFalling_Letter *falling_letter);
+	bool Hit_By(AFalling_Letter *falling_letter) const;
 	void On_Space_Key(bool key_down);
 
 	double Width;
@@ -121,6 +132,7 @@ private:
 	void Act_For_Rolling_State();
 	void Act_For_Adhesive_State();
 	void Act_For_Expanding_State();
+	void Act_For_Laser_State();
 	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
 	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
@@ -133,13 +145,17 @@ private:
 	void Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int heigth);
 	void Draw_Expanding_State(HDC hdc, RECT &paint_area);
 	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
+	void Draw_Laser_State(HDC hdc, RECT &paint_area);
+	void Draw_Laser_Wing(HDC hdc, bool is_left);
+	void Draw_Laser_Leg(HDC hdc, bool is_left);
+	void Draw_Laser_Cabin(HDC hdc);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	AsBall_Set *Ball_Set;
 
 	AsPlatform_State Platform_State;
 
-	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color, Truss_Expanding_Color;
+	AColor Platform_Inner_Color, Platform_Circle_Color, Highlight_Color, Truss_Expanding_Color, Gun_Color;
 
 	RECT Prev_Platform_Rect, Platform_Rect;
 
@@ -167,6 +183,7 @@ private:
 
 	double Adhesive_Spot_Height_Ratio;
 	int Last_Redraw_Timer_Tick;
+	int Laser_Transformation_Step;
 	static const double Step_Adhesive_Spot_Height_Ratio;
 	static const double Min_Adhesive_Spot_Height_Ratio;
 	static const double Max_Adhesive_Spot_Height_Ratio;
@@ -174,5 +191,6 @@ private:
 	static const double Step_Expanding_Width;
 	static const double Min_Expanding_Width;
 	static const double Max_Expanding_Width;
+	static const int Max_Laser_Transformation_Step = 20;
 };
 //------------------------------------------------------------------------------------------------------------
