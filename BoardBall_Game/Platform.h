@@ -74,6 +74,13 @@ enum class EPlatform_Moving_State: unsigned char
 	Moving_Right
 };
 //------------------------------------------------------------------------------------------------------------
+enum class EFigure_Type: unsigned char
+{
+	Rectangle,
+	Ellipse,
+	Round_Rectangle
+};
+//------------------------------------------------------------------------------------------------------------
 class AsPlatform_State
 {
 public:
@@ -146,11 +153,12 @@ private:
 	void Draw_Expanding_State(HDC hdc, RECT &paint_area);
 	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
 	void Draw_Laser_State(HDC hdc, RECT &paint_area);
+	void Draw_Laser_Inner_Part(HDC hdc);
 	void Draw_Laser_Wing(HDC hdc, bool is_left);
-	void Draw_Expanding_Figure(HDC hdc, bool is_rectangle, int start_x, int start_y, int start_width, int start_height, double ratio, int end_x, int end_y, int end_width, int end_height);
-	int Get_Expanding_Value(int start, int end, double ratio);
 	void Draw_Laser_Leg(HDC hdc, bool is_left);
 	void Draw_Laser_Cabin(HDC hdc);
+	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
+	double Get_Expanding_Value(double start, double end, double ratio);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	AsBall_Set *Ball_Set;
@@ -193,6 +201,6 @@ private:
 	static const double Step_Expanding_Width;
 	static const double Min_Expanding_Width;
 	static const double Max_Expanding_Width;
-	static const int Max_Laser_Transformation_Step = 50;
+	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------

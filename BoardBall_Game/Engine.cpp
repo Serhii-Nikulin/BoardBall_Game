@@ -26,7 +26,6 @@ void AsEngine::Init_Engine(HWND hwnd)
 	/*Ball.Set_State(EBS_Normal);
 	Platform.Set_State(EPS_Normal); */
 	
-	Platform.Set_State(EPlatform_State::Laser);
 	AActive_Brick_Red_Blue::Setup_Colors();
 	
 	Platform.Redraw();
