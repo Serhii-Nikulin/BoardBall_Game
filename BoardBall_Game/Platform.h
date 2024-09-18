@@ -40,25 +40,7 @@ enum class EPlatform_Substate_Rolling: unsigned char
 	Expand_Roll_In,
 };
 //------------------------------------------------------------------------------------------------------------
-enum class EPlatform_Substate_Adhesive: unsigned char
-{
-	Unknown,
-
-	Init,
-	Active,
-	Finalize
-};
-//------------------------------------------------------------------------------------------------------------
-enum class EPlatform_Substate_Expanding: unsigned char
-{
-	Unknown,
-
-	Init,
-	Active,
-	Finalize
-};
-//------------------------------------------------------------------------------------------------------------
-enum class EPlatform_Substate_Laser: unsigned char
+enum class EPlatform_Transformation: unsigned char
 {
 	Unknown,
 
@@ -93,9 +75,9 @@ public:
 	EPlatform_Substate_Regular Regular;
 	EPlatform_Substate_Meltdown Meltdown;
 	EPlatform_Substate_Rolling Rolling;
-	EPlatform_Substate_Adhesive Adhesive;
-	EPlatform_Substate_Expanding Expanding;
-	EPlatform_Substate_Laser Laser;
+	EPlatform_Transformation Adhesive;
+	EPlatform_Transformation Expanding;
+	EPlatform_Transformation Laser;
 	EPlatform_Moving_State Moving_State;
 
 private:
@@ -135,6 +117,7 @@ public:
 	double X_Pos;
 
 private:
+	bool Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state);
 	void Act_For_Meltdown_State();
 	void Act_For_Rolling_State();
 	void Act_For_Adhesive_State();

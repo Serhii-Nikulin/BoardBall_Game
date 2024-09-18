@@ -11,7 +11,7 @@ const double AsPlatform::Max_Expanding_Width = 40.0;
 
 //------------------------------------------------------------------------------------------------------------
 AsPlatform_State::AsPlatform_State() :
-	Current_State(EPlatform_State::Regular), Next_State(EPlatform_State::Unknown), Regular(EPlatform_Substate_Regular::Missing), Meltdown(EPlatform_Substate_Meltdown::Unknown), Rolling(EPlatform_Substate_Rolling::Unknown), Adhesive(EPlatform_Substate_Adhesive::Unknown), Expanding(EPlatform_Substate_Expanding::Unknown), Laser(EPlatform_Substate_Laser::Unknown), Moving_State(EPlatform_Moving_State::Stop)
+	Current_State(EPlatform_State::Regular), Next_State(EPlatform_State::Unknown), Regular(EPlatform_Substate_Regular::Missing), Meltdown(EPlatform_Substate_Meltdown::Unknown), Rolling(EPlatform_Substate_Rolling::Unknown), Adhesive(EPlatform_Transformation::Unknown), Expanding(EPlatform_Transformation::Unknown), Laser(EPlatform_Transformation::Unknown), Moving_State(EPlatform_Moving_State::Stop)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -42,15 +42,15 @@ void AsPlatform_State::Set_Next_State(EPlatform_State next_state)
 		AsConfig::Throw();
 
 	case EPlatform_State::Adhesive:
-		Adhesive = EPlatform_Substate_Adhesive::Finalize;
+		Adhesive = EPlatform_Transformation::Finalize;
 		break;
 
 	case EPlatform_State::Expanding:
-		Expanding = EPlatform_Substate_Expanding::Finalize;
+		Expanding = EPlatform_Transformation::Finalize;
 		break;
 
 	case EPlatform_State::Laser:
-		Laser = EPlatform_Substate_Laser::Finalize;
+		Laser = EPlatform_Transformation::Finalize;
 		break;
 
 	default:
@@ -127,7 +127,7 @@ got_hit:
 	if (ball->Get_State() == EBS_On_Parachute)
 		ball->Set_State(EBS_Off_Parachute);
 
-	if (Platform_State == EPlatform_State::Adhesive and Platform_State.Adhesive == EPlatform_Substate_Adhesive::Active)
+	if (Platform_State == EPlatform_State::Adhesive and Platform_State.Adhesive == EPlatform_Transformation::Active)
 	{
 		speed = ball->Get_Speed();
 		ball->Get_Center(x_pos, y_pos);
@@ -236,7 +236,7 @@ void AsPlatform::Act_For_Adhesive_State()
 {
 	switch (Platform_State.Adhesive)
 	{
-	case EPlatform_Substate_Adhesive::Init:
+	case EPlatform_Transformation::Init:
 		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
 		{
 			Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
@@ -244,12 +244,12 @@ void AsPlatform::Act_For_Adhesive_State()
 		else
 		{
 			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
-			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Active;
+			Platform_State.Adhesive = EPlatform_Transformation::Active;
 		}	
 		Redraw();
 		break;
 
-	case EPlatform_Substate_Adhesive::Finalize:
+	case EPlatform_Transformation::Finalize:
 		if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
 		{
 			Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
@@ -261,7 +261,7 @@ void AsPlatform::Act_For_Adhesive_State()
 		else
 		{
 			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Unknown;
+			Platform_State.Adhesive = EPlatform_Transformation::Unknown;
 			Set_State(EPlatform_Substate_Regular::Normal);
 		}
 
@@ -276,7 +276,7 @@ void AsPlatform::Act_For_Expanding_State()
 
 	switch (Platform_State.Expanding)
 	{
-	case EPlatform_Substate_Expanding::Init:
+	case EPlatform_Transformation::Init:
 		if (Width < Max_Expanding_Width)
 		{
 			Width += Step_Expanding_Width;
@@ -292,12 +292,12 @@ void AsPlatform::Act_For_Expanding_State()
 		else
 		{
 			Width = Max_Expanding_Width;
-			Platform_State.Expanding = EPlatform_Substate_Expanding::Active;
+			Platform_State.Expanding = EPlatform_Transformation::Active;
 		}	
 		Redraw();
 		break;
 
-	case EPlatform_Substate_Expanding::Finalize:
+	case EPlatform_Transformation::Finalize:
 		if (Width > Min_Expanding_Width)
 		{
 			Width -= Step_Expanding_Width;
@@ -306,7 +306,7 @@ void AsPlatform::Act_For_Expanding_State()
 		else
 		{
 			Width = Min_Expanding_Width;
-			Platform_State.Expanding = EPlatform_Substate_Expanding::Unknown;
+			Platform_State.Expanding = EPlatform_Transformation::Unknown;
 			Set_State(EPlatform_Substate_Regular::Normal);
 		}
 		Redraw();
@@ -319,21 +319,21 @@ void AsPlatform::Act_For_Laser_State()
 {
 	switch (Platform_State.Laser)
 	{
-	case EPlatform_Substate_Laser::Init:
+	case EPlatform_Transformation::Init:
 		if (Laser_Transformation_Step < Max_Laser_Transformation_Step)
 			++Laser_Transformation_Step;
 		else
-			Platform_State.Laser = EPlatform_Substate_Laser::Active;
+			Platform_State.Laser = EPlatform_Transformation::Active;
 
 		Redraw();
 		break;
 
-	case EPlatform_Substate_Laser::Finalize:
+	case EPlatform_Transformation::Finalize:
 		if (Laser_Transformation_Step > 0)
 			--Laser_Transformation_Step;
 		else
 		{
-			Platform_State.Laser = EPlatform_Substate_Laser::Unknown;
+			Platform_State.Laser = EPlatform_Transformation::Unknown;
 			Set_State(EPlatform_Substate_Regular::Normal);
 		}
 
@@ -446,7 +446,7 @@ void AsPlatform::Shift_Per_Step(double max_speed)
 		}
 	}
 
-	if (Platform_State == EPlatform_State::Adhesive and Platform_State.Adhesive == EPlatform_Substate_Adhesive::Active and Speed != 0)
+	if (Platform_State == EPlatform_State::Adhesive and Platform_State.Adhesive == EPlatform_Transformation::Active and Speed != 0)
 	{
 		if (Platform_State.Moving_State == EPlatform_Moving_State::Moving_Left)
 		{
@@ -557,117 +557,85 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 
 	case EPlatform_State::Adhesive:
 
-		if (Platform_State != EPlatform_State::Regular)
-		{
-			Platform_State.Set_Next_State(new_state);
+		if (Set_Transformation_State(new_state, Platform_State.Adhesive) )
 			return;
-		}
-
-		switch (Platform_State.Adhesive)
-		{
-		case EPlatform_Substate_Adhesive::Unknown:
-			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Init;
+		else
 			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-			break;
-
-		case EPlatform_Substate_Adhesive::Finalize:
-			Platform_State.Adhesive = EPlatform_Substate_Adhesive::Init;
-		}	
 
 		break;
 
 	case EPlatform_State::Expanding:
 
-		if (Platform_State != EPlatform_State::Regular)
-		{
-			Platform_State.Set_Next_State(new_state);
+		if (Set_Transformation_State(new_state, Platform_State.Expanding) )
 			return;
-		}
-
-		switch (Platform_State.Expanding)
-		{
-		case EPlatform_Substate_Expanding::Unknown:
-			Platform_State.Expanding = EPlatform_Substate_Expanding::Init;
+		else
 			Width = Min_Expanding_Width;
-			break;
-
-		case EPlatform_Substate_Expanding::Finalize:
-			Platform_State.Expanding = EPlatform_Substate_Expanding::Init;
-		}	
 
 		break;
 
 	case EPlatform_State::Laser:
 
-		if (Platform_State != EPlatform_State::Regular)
-		{
-			Platform_State.Set_Next_State(new_state);
+		if (Set_Transformation_State(new_state, Platform_State.Laser) )
 			return;
-		}
-
-		switch (Platform_State.Laser)
-		{
-		case EPlatform_Substate_Laser::Unknown:
-			Platform_State.Laser = EPlatform_Substate_Laser::Init;
+		else
 			Laser_Transformation_Step = 0;
-			break;
-
-		case EPlatform_Substate_Laser::Finalize:
-			Platform_State.Laser = EPlatform_Substate_Laser::Init;
-		}	
-
+			
 		break;
 	}
 
 	Platform_State = new_state;
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsPlatform::Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state)
+{
+	if (Platform_State != EPlatform_State::Regular)
+	{
+		Platform_State.Set_Next_State(new_state);
+		return true;
+	}
+
+	if (transformation_state == EPlatform_Transformation::Finalize)
+		return true;
+	else
+	{
+		transformation_state = EPlatform_Transformation::Init;
+		return false;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Set_State(EPlatform_Substate_Regular new_regular_state)
 {
+	EPlatform_Transformation *transformation_state = 0;
+
 	if (Platform_State == EPlatform_State::Regular and Platform_State.Regular == new_regular_state)
 		return;
 
 	if (new_regular_state == EPlatform_Substate_Regular::Normal)
 	{
-		if (Platform_State == EPlatform_State::Adhesive)
+		switch (Platform_State)
 		{
-			if (Platform_State.Adhesive == EPlatform_Substate_Adhesive::Unknown)
-			{
+		case EPlatform_State::Adhesive:
+			transformation_state = &Platform_State.Adhesive;
+			break;
+
+		case EPlatform_State::Expanding:
+			transformation_state = &Platform_State.Expanding;
+			break;
+
+		case EPlatform_State::Laser:
+			transformation_state = &Platform_State.Laser;
+			break;
+		}
+
+		if (transformation_state != 0)
+		{
+			if (*transformation_state == EPlatform_Transformation::Unknown)
 				Set_Next_Or_Regular_State(new_regular_state);
-			}
-			else
-			{
-				Platform_State.Adhesive = EPlatform_Substate_Adhesive::Finalize;
-			}
+			else 
+				if(*transformation_state == EPlatform_Transformation::Active or *transformation_state == EPlatform_Transformation::Init)
+				*transformation_state =  EPlatform_Transformation::Finalize;
+	
 			return;
-		}
-
-		if (Platform_State == EPlatform_State::Expanding)
-		{
-			if (Platform_State.Expanding == EPlatform_Substate_Expanding::Unknown)
-			{
-				Set_Next_Or_Regular_State(new_regular_state);
-			}
-			else
-			{
-				if (Platform_State.Expanding == EPlatform_Substate_Expanding::Active or Platform_State.Expanding == EPlatform_Substate_Expanding::Init)
-					Platform_State.Expanding =  EPlatform_Substate_Expanding::Finalize;
-			}
-			return;	
-		}
-
-		if (Platform_State == EPlatform_State::Laser)
-		{
-			if (Platform_State.Laser == EPlatform_Substate_Laser::Unknown)
-			{
-				Set_Next_Or_Regular_State(new_regular_state);
-			}
-			else
-			{
-				if (Platform_State.Laser == EPlatform_Substate_Laser::Active or Platform_State.Laser == EPlatform_Substate_Laser::Init)
-					Platform_State.Laser =  EPlatform_Substate_Laser::Finalize;
-			}
-			return;	
 		}
 	}
 
