@@ -1,9 +1,9 @@
 #include "Platform.h"
 
 int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
-const double AsPlatform::Step_Adhesive_Spot_Height_Ratio = 0.04;
-const double AsPlatform::Min_Adhesive_Spot_Height_Ratio = 0.0;
-const double AsPlatform::Max_Adhesive_Spot_Height_Ratio = 1.0;
+const double AsPlatform_Adhesive::Step_Adhesive_Spot_Height_Ratio = 0.04;
+const double AsPlatform_Adhesive::Min_Adhesive_Spot_Height_Ratio = 0.0;
+const double AsPlatform_Adhesive::Max_Adhesive_Spot_Height_Ratio = 1.0;
 
 const double AsPlatform::Step_Expanding_Width = 0.5;
 const double AsPlatform::Min_Expanding_Width = 28.0;
@@ -65,13 +65,161 @@ EPlatform_State AsPlatform_State::Get_Next_State() const
 	return Next_State;
 }
 //------------------------------------------------------------------------------------------------------------
+EPlatform_State AsPlatform_State::Set_Next_Or_Regular_State(EPlatform_Substate_Regular new_regular_state)
+{
+	EPlatform_State next_state = Get_Next_State();
+	Current_State = EPlatform_State::Regular;
+
+	if (next_state == EPlatform_State::Unknown)
+		Regular = new_regular_state;
+
+	return next_state;
+}
+//------------------------------------------------------------------------------------------------------------
+EPlatform_State AsPlatform_State::Set_State(EPlatform_Substate_Regular new_regular_state)
+{
+	EPlatform_Transformation *transformation_state = 0;
+	EPlatform_State next_state;
+
+	if (Current_State == EPlatform_State::Regular and Regular == new_regular_state)
+		return EPlatform_State::Unknown;
+
+	if (new_regular_state == EPlatform_Substate_Regular::Normal)
+	{
+		switch (Current_State)
+		{
+		case EPlatform_State::Adhesive:
+			transformation_state = &Adhesive;
+			break;
+
+		case EPlatform_State::Expanding:
+			transformation_state = &Expanding;
+			break;
+
+		case EPlatform_State::Laser:
+			transformation_state = &Laser;
+			break;
+		}
+
+		if (transformation_state != 0)
+		{
+			if (*transformation_state == EPlatform_Transformation::Unknown)
+			{
+				next_state = Set_Next_Or_Regular_State(new_regular_state);
+
+				return next_state;
+			}
+			else 
+				if(*transformation_state == EPlatform_Transformation::Active or *transformation_state == EPlatform_Transformation::Init)
+					*transformation_state =  EPlatform_Transformation::Finalize;
+
+			return EPlatform_State::Unknown;
+		}
+	}
+
+	Current_State = EPlatform_State::Regular;
+	Regular = new_regular_state;
+
+	return EPlatform_State::Unknown;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AsPlatform_Adhesive
+//------------------------------------------------------------------------------------------------------------
+AsPlatform_Adhesive::AsPlatform_Adhesive(AsPlatform_State &platform_state)
+: Adhesive_Spot_Height_Ratio(0.0), Platform_State(&platform_state)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsPlatform_Adhesive::Act(EPlatform_Transformation &adhesive_state, AsBall_Set *ball_set, EPlatform_State &next_state)
+{
+	next_state = EPlatform_State::Unknown;
+
+	switch (adhesive_state)
+	{
+	case EPlatform_Transformation::Init:
+		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
+		{
+			Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
+		}
+		else
+		{
+			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
+			adhesive_state = EPlatform_Transformation::Active;
+		}
+
+		return true;
+
+	case EPlatform_Transformation::Finalize:
+		if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
+		{
+			Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
+
+			while (ball_set->Release_Next_Ball() )
+			{
+			}
+		}
+		else
+		{
+			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
+			adhesive_state = EPlatform_Transformation::Unknown;
+			next_state = Platform_State->Set_State(EPlatform_Substate_Regular::Normal);
+		}
+
+		return true;
+	}	
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Adhesive::Draw_State(HDC hdc, double x_pos)
+{
+	AsConfig::White_Color.Select(hdc);
+	AsConfig::BG_Color.Select_Pen(hdc);
+	
+	Draw_Adhesive_Spot(hdc, x_pos, 0, 7, 4);
+	Draw_Adhesive_Spot(hdc, x_pos, 5, 5, 5);
+	Draw_Adhesive_Spot(hdc, x_pos, 7, 9, 5);
+
+	AsConfig::White_Color.Select(hdc);
+
+	Draw_Adhesive_Spot(hdc, x_pos, 0, 7, 3);
+	Draw_Adhesive_Spot(hdc, x_pos, 5, 5, 4);
+	Draw_Adhesive_Spot(hdc, x_pos, 7, 9, 4);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Adhesive::Draw_Adhesive_Spot(HDC hdc, double x_pos, int x_offset, int width, int height)
+{
+	RECT spot_rect{};
+
+	int x = (int)((x_pos + 6.0) * AsConfig::D_Global_Scale);
+	int y = (AsConfig::Platform_Y_Pos + 1) * AsConfig::Global_Scale;
+
+	int spot_height = int( (double)height * AsConfig::D_Global_Scale * Adhesive_Spot_Height_Ratio);
+
+	spot_rect.left = x + x_offset * AsConfig::Global_Scale - 1;
+	spot_rect.right = spot_rect.left + width * AsConfig::Global_Scale + 1;
+	spot_rect.top = y - spot_height;
+	spot_rect.bottom = y + spot_height - 1;
+
+	Chord(hdc, spot_rect.left, spot_rect.top, spot_rect.right, spot_rect.bottom, x, y, spot_rect.right, y);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Adhesive::Reset()
+{
+	Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
+}
+//------------------------------------------------------------------------------------------------------------
 
 
 
 
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Gun_Color(Highlight_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), Adhesive_Spot_Height_Ratio(0.0), Laser_Transformation_Step(0)
+	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Gun_Color(Highlight_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), Laser_Transformation_Step(0), Platform_Adhesive(Platform_State)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Init(AsBall_Set *ball_set)
@@ -159,6 +307,8 @@ double AsPlatform::Get_Speed()
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act()
 {
+	EPlatform_State next_state;
+
 	switch (Platform_State)
 	{
 	case EPlatform_State::Meltdown:
@@ -170,7 +320,12 @@ void AsPlatform::Act()
 		break;
 
 	case EPlatform_State::Adhesive:
-		Act_For_Adhesive_State();
+		if (Platform_Adhesive.Act(Platform_State.Adhesive, Ball_Set, next_state) )
+			Redraw();
+
+		if (next_state != EPlatform_State::Unknown)
+			Set_State(next_state);
+
 		break;
 
 	case EPlatform_State::Expanding:
@@ -230,44 +385,6 @@ void AsPlatform::Act_For_Rolling_State()
 	}
 
 	Redraw();
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Act_For_Adhesive_State()
-{
-	switch (Platform_State.Adhesive)
-	{
-	case EPlatform_Transformation::Init:
-		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
-		{
-			Adhesive_Spot_Height_Ratio += Step_Adhesive_Spot_Height_Ratio;
-		}
-		else
-		{
-			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
-			Platform_State.Adhesive = EPlatform_Transformation::Active;
-		}	
-		Redraw();
-		break;
-
-	case EPlatform_Transformation::Finalize:
-		if (Adhesive_Spot_Height_Ratio > Min_Adhesive_Spot_Height_Ratio)
-		{
-			Adhesive_Spot_Height_Ratio -= Step_Adhesive_Spot_Height_Ratio;
-		
-			while (Ball_Set->Release_Next_Ball() )
-			{
-			}
-		}
-		else
-		{
-			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-			Platform_State.Adhesive = EPlatform_Transformation::Unknown;
-			Set_State(EPlatform_Substate_Regular::Normal);
-		}
-
-		Redraw();
-		break;
-	}	
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act_For_Expanding_State()
@@ -366,7 +483,8 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 		break;
 
 	case EPlatform_State::Adhesive:
-		Draw_Adhesive_State(hdc, paint_area);
+		Draw_Normal_State(hdc, paint_area);
+		Platform_Adhesive.Draw_State(hdc, X_Pos);
 		break;
 
 	case EPlatform_State::Expanding:
@@ -560,7 +678,7 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		if (Set_Transformation_State(new_state, Platform_State.Adhesive) )
 			return;
 		else
-			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
+			Platform_Adhesive.Reset();
 
 		break;
 
@@ -586,6 +704,14 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 	Platform_State = new_state;
 }
 //------------------------------------------------------------------------------------------------------------
+void AsPlatform::Set_State(EPlatform_Substate_Regular new_regular_state)
+{
+	EPlatform_State next_state = Platform_State.Set_State(new_regular_state);
+
+	if (next_state != EPlatform_State::Unknown)
+		Set_State(next_state);
+}
+//------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state)
 {
 	if (Platform_State != EPlatform_State::Regular)
@@ -601,57 +727,6 @@ bool AsPlatform::Set_Transformation_State(EPlatform_State new_state, EPlatform_T
 		transformation_state = EPlatform_Transformation::Init;
 		return false;
 	}
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Set_State(EPlatform_Substate_Regular new_regular_state)
-{
-	EPlatform_Transformation *transformation_state = 0;
-
-	if (Platform_State == EPlatform_State::Regular and Platform_State.Regular == new_regular_state)
-		return;
-
-	if (new_regular_state == EPlatform_Substate_Regular::Normal)
-	{
-		switch (Platform_State)
-		{
-		case EPlatform_State::Adhesive:
-			transformation_state = &Platform_State.Adhesive;
-			break;
-
-		case EPlatform_State::Expanding:
-			transformation_state = &Platform_State.Expanding;
-			break;
-
-		case EPlatform_State::Laser:
-			transformation_state = &Platform_State.Laser;
-			break;
-		}
-
-		if (transformation_state != 0)
-		{
-			if (*transformation_state == EPlatform_Transformation::Unknown)
-				Set_Next_Or_Regular_State(new_regular_state);
-			else 
-				if(*transformation_state == EPlatform_Transformation::Active or *transformation_state == EPlatform_Transformation::Init)
-				*transformation_state =  EPlatform_Transformation::Finalize;
-	
-			return;
-		}
-	}
-
-	Platform_State = EPlatform_State::Regular;
-	Platform_State.Regular = new_regular_state;
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Set_Next_Or_Regular_State(EPlatform_Substate_Regular new_regular_state)
-{
-	EPlatform_State next_state = Platform_State.Get_Next_State();
-	Platform_State = EPlatform_State::Regular;
-
-	if (next_state != EPlatform_State::Unknown)
-		Set_State(next_state);
-	else
-		Platform_State.Regular = new_regular_state;
 }
 //------------------------------------------------------------------------------------------------------------
 EPlatform_State AsPlatform::Get_State()
@@ -859,41 +934,6 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	SetWorldTransform(hdc, &prev_xform);
 
 	Draw_Circle_Highlight(hdc, (int)x, y);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw_Adhesive_State(HDC hdc, RECT &paint_area)
-{
-	Draw_Normal_State(hdc, paint_area);
-
-	AsConfig::White_Color.Select(hdc);
-	AsConfig::BG_Color.Select_Pen(hdc);
-
-	Draw_Adhesive_Spot(hdc, 0, 7, 4);
-	Draw_Adhesive_Spot(hdc, 5, 5, 5);
-	Draw_Adhesive_Spot(hdc, 7, 9, 5);
-
-	AsConfig::White_Color.Select(hdc);
-
-	Draw_Adhesive_Spot(hdc, 0, 7, 3);
-	Draw_Adhesive_Spot(hdc, 5, 5, 4);
-	Draw_Adhesive_Spot(hdc, 7, 9, 4);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int height)
-{
-	RECT spot_rect{};
-
-	int x = (int)((X_Pos + 6.0) * AsConfig::D_Global_Scale);
-	int y = (AsConfig::Platform_Y_Pos + 1) * AsConfig::Global_Scale;
-
-	int spot_height = int( (double)height * AsConfig::D_Global_Scale * Adhesive_Spot_Height_Ratio);
-
-	spot_rect.left = x + x_offset * AsConfig::Global_Scale - 1;
-	spot_rect.right = spot_rect.left + width * AsConfig::Global_Scale + 1;
-	spot_rect.top = y - spot_height;
-	spot_rect.bottom = y + spot_height - 1;
-
-	Chord(hdc, spot_rect.left, spot_rect.top, spot_rect.right, spot_rect.bottom, x, y, spot_rect.right, y);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Expanding_State(HDC hdc, RECT &paint_area)

@@ -71,6 +71,9 @@ public:
 	void operator = (const EPlatform_State &new_platform_state);
 	void Set_Next_State(EPlatform_State next_state);
 	EPlatform_State Get_Next_State() const;
+	EPlatform_State Set_Next_Or_Regular_State(EPlatform_Substate_Regular new_regular_state);
+	EPlatform_State Set_State(EPlatform_Substate_Regular new_regular_state);
+
 
 	EPlatform_Substate_Regular Regular;
 	EPlatform_Substate_Meltdown Meltdown;
@@ -83,6 +86,25 @@ public:
 private:
 	EPlatform_State Current_State;
 	EPlatform_State Next_State;
+};
+//------------------------------------------------------------------------------------------------------------
+class AsPlatform_Adhesive
+{
+private:
+	double Adhesive_Spot_Height_Ratio;
+
+	static const double Step_Adhesive_Spot_Height_Ratio;
+	static const double Min_Adhesive_Spot_Height_Ratio;
+	static const double Max_Adhesive_Spot_Height_Ratio;
+
+	AsPlatform_State *Platform_State;
+public:
+	AsPlatform_Adhesive(AsPlatform_State &platform_state);
+	bool Act(EPlatform_Transformation &adhesive_state, AsBall_Set *ball_set, EPlatform_State &next_state);
+
+	void Draw_State(HDC hdc, double x_pos);
+	void Draw_Adhesive_Spot(HDC hdc, double x_pos, int x_offset, int width, int heigth);
+	void Reset();
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
@@ -105,7 +127,6 @@ public:
 	void Redraw(bool update_rect = true);
 	void Set_State(EPlatform_State platform_state);
 	void Set_State(EPlatform_Substate_Regular new_regular_state);
-	void Set_Next_Or_Regular_State(EPlatform_Substate_Regular new_regular_state);
 	EPlatform_State Get_State();
 	void Move(bool to_left, bool key_down);
 	bool Has_State(EPlatform_Substate_Regular regular_state);
@@ -120,7 +141,6 @@ private:
 	bool Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state);
 	void Act_For_Meltdown_State();
 	void Act_For_Rolling_State();
-	void Act_For_Adhesive_State();
 	void Act_For_Expanding_State();
 	void Act_For_Laser_State();
 	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
@@ -131,8 +151,7 @@ private:
 	bool Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, const AColor **color);
 	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
-	void Draw_Adhesive_State(HDC hdc, RECT &paint_area);
-	void Draw_Adhesive_Spot(HDC hdc, int x_offset, int width, int heigth);
+	
 	void Draw_Expanding_State(HDC hdc, RECT &paint_area);
 	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
 	void Draw_Laser_State(HDC hdc, RECT &paint_area);
@@ -143,6 +162,8 @@ private:
 	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
 	double Get_Expanding_Value(double start, double end, double ratio);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
+
+	AsPlatform_Adhesive Platform_Adhesive;
 
 	AsBall_Set *Ball_Set;
 
@@ -174,12 +195,8 @@ private:
 	int Normal_Platform_Image_Height;
 	int* Normal_Platform_Image;
 
-	double Adhesive_Spot_Height_Ratio;
 	int Last_Redraw_Timer_Tick;
 	int Laser_Transformation_Step;
-	static const double Step_Adhesive_Spot_Height_Ratio;
-	static const double Min_Adhesive_Spot_Height_Ratio;
-	static const double Max_Adhesive_Spot_Height_Ratio;
 
 	static const double Step_Expanding_Width;
 	static const double Min_Expanding_Width;
