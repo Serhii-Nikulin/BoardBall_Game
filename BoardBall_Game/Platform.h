@@ -121,10 +121,7 @@ public:
 	void Reset(double &width);
 	void Init(AColor &inner_color, AColor &circle_color, AColor &Higlight_Color);
 
-
 private:
-
-
 	static const double Step_Expanding_Width;
 	static const double Min_Expanding_Width;
 	static const double Max_Expanding_Width;
@@ -134,6 +131,33 @@ private:
 	AColor *Inner_Color, *Circle_Color, *Highlight_Color;
 	AColor *Truss_Expanding_Color;//UNO
 
+};
+//------------------------------------------------------------------------------------------------------------
+class AsPlatform_Laser
+{
+public:
+	~AsPlatform_Laser();
+	AsPlatform_Laser(AsPlatform_State &platform_state);
+	void Init(AColor &inner_color, AColor &circle_color, AColor &white_color);
+	bool Act(EPlatform_State &next_state);
+	void Draw_State(HDC hdc, double x_pos);
+	void Reset();
+
+private:
+	void Draw_Laser_Inner_Part(HDC hdc, double x_pos);
+	void Draw_Laser_Wing(HDC hdc, bool is_left, double x_pos);
+	void Draw_Laser_Leg(HDC hdc, bool is_left, double x_pos);
+	void Draw_Laser_Cabin(HDC hdc, double x_pos);
+	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
+	double Get_Expanding_Value(double start, double end, double ratio);
+
+	AsPlatform_State *Platform_State;
+
+	AColor *Inner_Color, *Circle_Color, *White_Color;// UNO
+	AColor *Gun_Color;
+
+	int Laser_Transformation_Step;
+	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
@@ -166,6 +190,7 @@ public:
 	int Inner_Width;
 	double X_Pos;
 
+	static const int Normal_Width = 28;
 	static const int Expanding_Platform_Inner_Width = 12;
 	static const int Circle_Size = 7;
 	static const int Inner_Height = 5;
@@ -174,7 +199,6 @@ private:
 	bool Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state);
 	void Act_For_Meltdown_State();
 	void Act_For_Rolling_State();
-	void Act_For_Laser_State();
 	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Get_Normal_Platform_Image(HDC hdc);
@@ -182,18 +206,11 @@ private:
 	bool Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, const AColor **color);
 	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
-	
-	void Draw_Laser_State(HDC hdc, RECT &paint_area);
-	void Draw_Laser_Inner_Part(HDC hdc);
-	void Draw_Laser_Wing(HDC hdc, bool is_left);
-	void Draw_Laser_Leg(HDC hdc, bool is_left);
-	void Draw_Laser_Cabin(HDC hdc);
-	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
-	double Get_Expanding_Value(double start, double end, double ratio);
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	AsPlatform_Adhesive Platform_Adhesive;
 	AsPlatform_Expanding Platform_Expanding;
+	AsPlatform_Laser Platform_Laser;
 
 	AsBall_Set *Ball_Set;
 
@@ -214,8 +231,7 @@ private:
 	static const int Meltdown_Speed = 4;
 	static const int Normal_Inner_Width = 20;
 
-	static const int Normal_Width = 28 * AsConfig::Global_Scale;
-	static int Meltdown_Platform_Y_Pos[Normal_Width];
+	static int Meltdown_Platform_Y_Pos[Normal_Width * AsConfig::Global_Scale];
 	static const int X_Step = 2 * AsConfig::Global_Scale;
 	double Speed;
 	int Normal_Platform_Image_Width;
@@ -223,8 +239,5 @@ private:
 	int* Normal_Platform_Image;
 
 	int Last_Redraw_Timer_Tick;
-	int Laser_Transformation_Step;
-
-	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------
