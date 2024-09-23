@@ -90,6 +90,14 @@ private:
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform_Adhesive
 {
+public:
+	AsPlatform_Adhesive(AsPlatform_State &platform_state);
+	bool Act(AsBall_Set *ball_set, EPlatform_State &next_state);
+
+	void Draw_State(HDC hdc, double x_pos);
+	void Draw_Adhesive_Spot(HDC hdc, double x_pos, int x_offset, int width, int heigth);
+	void Reset();
+
 private:
 	double Adhesive_Spot_Height_Ratio;
 
@@ -98,13 +106,34 @@ private:
 	static const double Max_Adhesive_Spot_Height_Ratio;
 
 	AsPlatform_State *Platform_State;
+};
+//------------------------------------------------------------------------------------------------------------
+class AsPlatform_Expanding
+{
 public:
-	AsPlatform_Adhesive(AsPlatform_State &platform_state);
-	bool Act(EPlatform_Transformation &adhesive_state, AsBall_Set *ball_set, EPlatform_State &next_state);
+	~AsPlatform_Expanding();
+	AsPlatform_Expanding(AsPlatform_State &platform_state);
 
-	void Draw_State(HDC hdc, double x_pos);
-	void Draw_Adhesive_Spot(HDC hdc, double x_pos, int x_offset, int width, int heigth);
-	void Reset();
+	bool Act(double &x_pos, double &current_width, EPlatform_State &next_state);
+	void Draw_State(HDC hdc, double x, double &current_width, RECT &Platform_Rect);
+	void Draw_Circle_Highlight(HDC hdc, int x, int y);
+	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
+	void Reset(double &width);
+	void Init(AColor &inner_color, AColor &circle_color, AColor &Higlight_Color);
+
+
+private:
+
+
+	static const double Step_Expanding_Width;
+	static const double Min_Expanding_Width;
+	static const double Max_Expanding_Width;
+
+	AsPlatform_State *Platform_State;
+
+	AColor *Inner_Color, *Circle_Color, *Highlight_Color;
+	AColor *Truss_Expanding_Color;//UNO
+
 };
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
@@ -137,14 +166,16 @@ public:
 	int Inner_Width;
 	double X_Pos;
 
+	static const int Expanding_Platform_Inner_Width = 12;
+	static const int Circle_Size = 7;
+	static const int Inner_Height = 5;
+
 private:
 	bool Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state);
 	void Act_For_Meltdown_State();
 	void Act_For_Rolling_State();
-	void Act_For_Expanding_State();
 	void Act_For_Laser_State();
 	void Draw_Rolling_State(HDC hdc, RECT &paint_area);
-	void Draw_Circle_Highlight(HDC hdc, int x, int y);
 	void Draw_Normal_State(HDC hdc, RECT &paint_area);
 	void Get_Normal_Platform_Image(HDC hdc);
 	void Draw_Meltdown_State(HDC hdc, RECT &paint_area);
@@ -152,8 +183,6 @@ private:
 	void Draw_Roll_In_State(HDC hdc, RECT &paint_area);
 	void Draw_Expandig_Roll_In_State(HDC hdc, RECT paint_area);
 	
-	void Draw_Expanding_State(HDC hdc, RECT &paint_area);
-	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
 	void Draw_Laser_State(HDC hdc, RECT &paint_area);
 	void Draw_Laser_Inner_Part(HDC hdc);
 	void Draw_Laser_Wing(HDC hdc, bool is_left);
@@ -164,6 +193,7 @@ private:
 	bool Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset = 0);
 
 	AsPlatform_Adhesive Platform_Adhesive;
+	AsPlatform_Expanding Platform_Expanding;
 
 	AsBall_Set *Ball_Set;
 
@@ -176,16 +206,13 @@ private:
 	int Rolling_Step;
 	bool Left_Key_Down, Right_Key_Down;
 
-	static const int Circle_Size = 7;
 	static const int Roll_In_Platform_End_X_Pos = AsConfig::Border_X_Offset + (AsConfig::Max_X_Pos - AsConfig::Border_X_Offset) / 2 - Circle_Size / 2;
 	static const int Rolling_Platform_Speed = 3;
 
 	static const int Max_Rolling_Step = 16;
-	static const int Inner_Height = 5;
 	static const int Height = 7;
 	static const int Meltdown_Speed = 4;
 	static const int Normal_Inner_Width = 20;
-	static const int Expanding_Platform_Inner_Width = 12;
 
 	static const int Normal_Width = 28 * AsConfig::Global_Scale;
 	static int Meltdown_Platform_Y_Pos[Normal_Width];
@@ -198,9 +225,6 @@ private:
 	int Last_Redraw_Timer_Tick;
 	int Laser_Transformation_Step;
 
-	static const double Step_Expanding_Width;
-	static const double Min_Expanding_Width;
-	static const double Max_Expanding_Width;
 	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------

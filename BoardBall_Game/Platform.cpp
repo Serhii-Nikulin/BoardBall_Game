@@ -1,13 +1,14 @@
 #include "Platform.h"
 
 int AsPlatform::Meltdown_Platform_Y_Pos[Normal_Width];
+
 const double AsPlatform_Adhesive::Step_Adhesive_Spot_Height_Ratio = 0.04;
 const double AsPlatform_Adhesive::Min_Adhesive_Spot_Height_Ratio = 0.0;
 const double AsPlatform_Adhesive::Max_Adhesive_Spot_Height_Ratio = 1.0;
 
-const double AsPlatform::Step_Expanding_Width = 0.5;
-const double AsPlatform::Min_Expanding_Width = 28.0;
-const double AsPlatform::Max_Expanding_Width = 40.0;
+const double AsPlatform_Expanding::Step_Expanding_Width = 0.5;
+const double AsPlatform_Expanding::Min_Expanding_Width = 28.0;
+const double AsPlatform_Expanding::Max_Expanding_Width = 40.0;
 
 //------------------------------------------------------------------------------------------------------------
 AsPlatform_State::AsPlatform_State() :
@@ -131,14 +132,15 @@ EPlatform_State AsPlatform_State::Set_State(EPlatform_Substate_Regular new_regul
 //------------------------------------------------------------------------------------------------------------
 AsPlatform_Adhesive::AsPlatform_Adhesive(AsPlatform_State &platform_state)
 : Adhesive_Spot_Height_Ratio(0.0), Platform_State(&platform_state)
+
 {
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsPlatform_Adhesive::Act(EPlatform_Transformation &adhesive_state, AsBall_Set *ball_set, EPlatform_State &next_state)
+bool AsPlatform_Adhesive::Act(AsBall_Set *ball_set, EPlatform_State &next_state)
 {
 	next_state = EPlatform_State::Unknown;
 
-	switch (adhesive_state)
+	switch (Platform_State->Adhesive)
 	{
 	case EPlatform_Transformation::Init:
 		if (Adhesive_Spot_Height_Ratio < Max_Adhesive_Spot_Height_Ratio)
@@ -148,7 +150,7 @@ bool AsPlatform_Adhesive::Act(EPlatform_Transformation &adhesive_state, AsBall_S
 		else
 		{
 			Adhesive_Spot_Height_Ratio = Max_Adhesive_Spot_Height_Ratio;
-			adhesive_state = EPlatform_Transformation::Active;
+			Platform_State->Adhesive = EPlatform_Transformation::Active;
 		}
 
 		return true;
@@ -165,7 +167,7 @@ bool AsPlatform_Adhesive::Act(EPlatform_Transformation &adhesive_state, AsBall_S
 		else
 		{
 			Adhesive_Spot_Height_Ratio = Min_Adhesive_Spot_Height_Ratio;
-			adhesive_state = EPlatform_Transformation::Unknown;
+			Platform_State->Adhesive = EPlatform_Transformation::Unknown;
 			next_state = Platform_State->Set_State(EPlatform_Substate_Regular::Normal);
 		}
 
@@ -217,14 +219,186 @@ void AsPlatform_Adhesive::Reset()
 
 
 
+//AsPlatform_Expanding
+//------------------------------------------------------------------------------------------------------------
+AsPlatform_Expanding::~AsPlatform_Expanding()
+{
+	Inner_Color = 0;
+	Circle_Color = 0;
+	Truss_Expanding_Color = 0;
+
+	delete Truss_Expanding_Color;
+}
+//------------------------------------------------------------------------------------------------------------
+AsPlatform_Expanding::AsPlatform_Expanding(AsPlatform_State &platform_state)
+: Platform_State(&platform_state), Inner_Color(0), Circle_Color(0), Highlight_Color(0), Truss_Expanding_Color(0)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsPlatform_Expanding::Act(double &x_pos, double &current_width, EPlatform_State &next_state)
+{
+	next_state = EPlatform_State::Unknown;
+	double offset = Step_Expanding_Width / 2.0;
+
+	switch (Platform_State->Expanding)
+	{
+	case EPlatform_Transformation::Init:
+		if (current_width < Max_Expanding_Width)
+		{
+			current_width += Step_Expanding_Width;
+
+			if (x_pos - offset > AsConfig::Border_X_Offset)
+			{
+				if (x_pos < AsConfig::Max_X_Pos - current_width + 1.0)
+					x_pos -= offset;
+				else
+					x_pos -= Step_Expanding_Width;
+			}
+		}
+		else
+		{
+			current_width = Max_Expanding_Width;
+			Platform_State->Expanding = EPlatform_Transformation::Active;
+		}	
+
+		return true;
+
+	case EPlatform_Transformation::Finalize:
+		if (current_width > Min_Expanding_Width)
+		{
+			current_width -= Step_Expanding_Width;
+			x_pos += offset;
+		}
+		else
+		{
+			current_width = Min_Expanding_Width;
+			Platform_State->Expanding = EPlatform_Transformation::Unknown;
+			next_state = Platform_State->Set_State(EPlatform_Substate_Regular::Normal);
+		}
+		
+		return true;
+	}	
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Expanding::Draw_State(HDC hdc, double x, double &current_width, RECT &Platform_Rect)
+{
+	double d_scale = AsConfig::D_Global_Scale;
+	int scale = AsConfig::Global_Scale;
+	int y = AsConfig::Platform_Y_Pos;
+//	double x = X_Pos;
+	int ellipse_offset = 4;
+	int ellipse_size = 5;
+	double middle_pos;
+	double ratio;
+	int x_offset;
+	RECT inner_rect{}, ellipse_rect{};
+
+	middle_pos = x + current_width / 2.0;
+
+	inner_rect.left = int( (middle_pos - AsPlatform::Expanding_Platform_Inner_Width / 2.0) * d_scale);
+	inner_rect.right = inner_rect.left + AsPlatform::Expanding_Platform_Inner_Width * scale;
+	inner_rect.top = (y + 1) * scale;
+	inner_rect.bottom = inner_rect.top + AsPlatform::Inner_Height * scale - 1;
+
+	//0.Side parts
+	Circle_Color->Select(hdc);
+
+	Ellipse(hdc, Platform_Rect.left, Platform_Rect.top, Platform_Rect.left + AsPlatform::Circle_Size * scale - 1, Platform_Rect.bottom - 1);
+	Ellipse(hdc, Platform_Rect.right - AsPlatform::Circle_Size * scale, Platform_Rect.top, Platform_Rect.right - 1, Platform_Rect.bottom - 1);
+
+	Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
+
+	//1.Left part
+	ellipse_rect.top = (y + 1) * scale;
+	ellipse_rect.bottom = ellipse_rect.top + ellipse_size * scale - 1;
+	ellipse_rect.left = Platform_Rect.left + ellipse_offset * scale;
+	ellipse_rect.right = ellipse_rect.left + ellipse_size * scale - 1;
+
+	AsConfig::BG_Color.Select(hdc);
+	Ellipse(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom);
+	Truss_Expanding_Color->Select_Pen(hdc);
+	Arc(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom,
+		ellipse_rect.left, ellipse_rect.top, ellipse_rect.left, ellipse_rect.bottom);
+
+	//2.Right part
+	ellipse_rect.left = Platform_Rect.right - (ellipse_offset + ellipse_size) * scale;
+	ellipse_rect.right = ellipse_rect.left + ellipse_size * scale - 1;
+
+	AsConfig::BG_Color.Select(hdc);
+	Ellipse(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom);
+	Truss_Expanding_Color->Select_Pen(hdc);
+	Arc(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom,
+		ellipse_rect.right, ellipse_rect.bottom, ellipse_rect.right, ellipse_rect.top);
+
+	//3.Inner part
+	Inner_Color->Select(hdc);
+	Rectangle(hdc, inner_rect.left, inner_rect.top, inner_rect.right, inner_rect.bottom);
+
+	//4.Truss
+	ratio = current_width / Max_Expanding_Width;
+	Draw_Expanding_Truss(hdc, x, y, ratio);
+	x_offset = int( ( (Max_Expanding_Width - AsPlatform::Expanding_Platform_Inner_Width - ellipse_offset * 2.0) / 2.0 + AsPlatform::Expanding_Platform_Inner_Width) * ratio - 1);
+	x += x_offset;
+	Draw_Expanding_Truss(hdc, x, y, ratio);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Expanding::Draw_Circle_Highlight(HDC hdc, int x, int y)
+{
+	Highlight_Color->Select_Pen(hdc);
+
+	Arc(hdc,
+		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
+		x + (AsPlatform::Circle_Size - 1) * AsConfig::Global_Scale, y + (AsPlatform::Circle_Size - 1) * AsConfig::Global_Scale,
+		x + (AsPlatform::Circle_Size / 2) * AsConfig::Global_Scale, y,
+		x, y + (AsPlatform::Circle_Size / 2) * AsConfig::Global_Scale);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Expanding::Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio)
+{
+	int scale = AsConfig::Global_Scale;
+	double d_scale = AsConfig::D_Global_Scale;
+
+	Truss_Expanding_Color->Select_Pen(hdc);
+
+	MoveToEx(hdc, int( (x + 5) * scale + 1), (y + 2) * scale - 1, FALSE);
+	LineTo(hdc, int( (x + 10 * ratio) * d_scale - 1), (y + 5) * scale + 1);
+	LineTo(hdc, int( (x + 14 * ratio) * d_scale - 1), (y + 2) * scale - 1);
+
+	MoveToEx(hdc, int( (x + 5) * d_scale + 1), (y + 5) * scale, FALSE);
+	LineTo(hdc, int( (x + 10 * ratio) * d_scale - 1), (y + 1) * scale + 1);
+	LineTo(hdc, int( (x + 14 * ratio) * d_scale - 1), (y + 5) * scale);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Expanding::Reset(double &width)
+{
+	width = Min_Expanding_Width;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsPlatform_Expanding::Init(AColor &inner_color, AColor &circle_color, AColor &highlight_color)
+{
+	Inner_Color = &inner_color;
+	Circle_Color = &circle_color;
+	Highlight_Color = &highlight_color;
+
+	Truss_Expanding_Color = new AColor(*Inner_Color, AsConfig::Global_Scale);
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AsPlatform
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Gun_Color(Highlight_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), Laser_Transformation_Step(0), Platform_Adhesive(Platform_State)
+	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Gun_Color(Highlight_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), Laser_Transformation_Step(0), Platform_Adhesive(Platform_State), Platform_Expanding(Platform_State)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Init(AsBall_Set *ball_set)
 {
 	Ball_Set = ball_set;
+	Platform_Expanding.Init(Platform_Inner_Color, Platform_Circle_Color, Highlight_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
@@ -320,7 +494,7 @@ void AsPlatform::Act()
 		break;
 
 	case EPlatform_State::Adhesive:
-		if (Platform_Adhesive.Act(Platform_State.Adhesive, Ball_Set, next_state) )
+		if (Platform_Adhesive.Act(Ball_Set, next_state) )
 			Redraw();
 
 		if (next_state != EPlatform_State::Unknown)
@@ -329,7 +503,12 @@ void AsPlatform::Act()
 		break;
 
 	case EPlatform_State::Expanding:
-		Act_For_Expanding_State();
+		if (Platform_Expanding.Act(X_Pos, Width, next_state) )
+			Redraw();
+
+		if (next_state != EPlatform_State::Unknown)
+			Set_State(next_state);
+
 		break;
 
 	case EPlatform_State::Laser:
@@ -385,51 +564,6 @@ void AsPlatform::Act_For_Rolling_State()
 	}
 
 	Redraw();
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Act_For_Expanding_State()
-{
-	double offset = Step_Expanding_Width / 2.0;
-
-	switch (Platform_State.Expanding)
-	{
-	case EPlatform_Transformation::Init:
-		if (Width < Max_Expanding_Width)
-		{
-			Width += Step_Expanding_Width;
-
-			if (X_Pos - offset > AsConfig::Border_X_Offset)
-			{
-				if (X_Pos < AsConfig::Max_X_Pos - Width + 1)
-					X_Pos -= offset;
-				else
-					X_Pos -= Step_Expanding_Width;
-			}
-		}
-		else
-		{
-			Width = Max_Expanding_Width;
-			Platform_State.Expanding = EPlatform_Transformation::Active;
-		}	
-		Redraw();
-		break;
-
-	case EPlatform_Transformation::Finalize:
-		if (Width > Min_Expanding_Width)
-		{
-			Width -= Step_Expanding_Width;
-			X_Pos += offset;
-		}
-		else
-		{
-			Width = Min_Expanding_Width;
-			Platform_State.Expanding = EPlatform_Transformation::Unknown;
-			Set_State(EPlatform_Substate_Regular::Normal);
-		}
-		Redraw();
-		break;
-	}	
-
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Act_For_Laser_State()
@@ -488,7 +622,9 @@ void AsPlatform::Draw(HDC hdc, RECT& paint_area)
 		break;
 
 	case EPlatform_State::Expanding:
-		Draw_Expanding_State(hdc, paint_area);
+		if (IntersectRect(&intersection_rect, &Platform_Rect, &paint_area) )
+			Platform_Expanding.Draw_State(hdc, X_Pos, Width, Platform_Rect);
+
 		break;
 
 	case EPlatform_State::Laser:
@@ -687,7 +823,7 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		if (Set_Transformation_State(new_state, Platform_State.Expanding) )
 			return;
 		else
-			Width = Min_Expanding_Width;
+			Platform_Expanding.Reset(Width);
 
 		break;
 
@@ -734,17 +870,6 @@ EPlatform_State AsPlatform::Get_State()
 	return Platform_State;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw_Circle_Highlight(HDC hdc, int x, int y)
-{
-	Highlight_Color.Select_Pen(hdc);
-
-	Arc(hdc,
-		x + 1 * AsConfig::Global_Scale, y + 1 * AsConfig::Global_Scale,
-		x + (Circle_Size - 1) * AsConfig::Global_Scale, y + (Circle_Size - 1) * AsConfig::Global_Scale,
-		x + (Circle_Size / 2) * AsConfig::Global_Scale, y,
-		x, y + (Circle_Size / 2) * AsConfig::Global_Scale);
-}
-//------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 {
 	double x = X_Pos;
@@ -770,7 +895,7 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	AsConfig::Round_Rect(hdc, inner_rect, Inner_Height);
 
 	//draw highlight
-	Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
+	Platform_Expanding.Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
 
 	if (Normal_Platform_Image == 0 and Has_State(EPlatform_Substate_Regular::Ready) )
 		Get_Normal_Platform_Image(hdc);	
@@ -912,7 +1037,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 	double x = (int)X_Pos * AsConfig::Global_Scale;
 	int y = AsConfig::Platform_Y_Pos * AsConfig::Global_Scale;
 	int roller_size = Circle_Size * AsConfig::Global_Scale;
-	XFORM xform, prev_xform;
+	XFORM xform{}, prev_xform{};
 	double rotation_angle;
 
 	Platform_Circle_Color.Select(hdc);
@@ -933,89 +1058,7 @@ void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)
 
 	SetWorldTransform(hdc, &prev_xform);
 
-	Draw_Circle_Highlight(hdc, (int)x, y);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw_Expanding_State(HDC hdc, RECT &paint_area)
-{
-	double d_scale = AsConfig::D_Global_Scale;
-	int scale = AsConfig::Global_Scale;
-	int y = AsConfig::Platform_Y_Pos;
-	double x = X_Pos;
-	int ellipse_offset = 4;
-	int ellipse_size = 5;
-	double middle_pos;
-	double ratio;
-	int x_offset;
-	RECT intersection_rect{};
-	RECT inner_rect{}, ellipse_rect{};
-
-	if (! IntersectRect(&intersection_rect, &Platform_Rect, &paint_area) )
-		return;
-
-	middle_pos = x + Width / 2.0;
-
-	inner_rect.left = int( (middle_pos - Expanding_Platform_Inner_Width / 2.0) * d_scale);
-	inner_rect.right = inner_rect.left + Expanding_Platform_Inner_Width * scale;
-	inner_rect.top = (y + 1) * scale;
-	inner_rect.bottom = inner_rect.top + Inner_Height * scale - 1;
-
-	//0.Side parts
-	Platform_Circle_Color.Select(hdc);
-
-	Ellipse(hdc, Platform_Rect.left, Platform_Rect.top, Platform_Rect.left + Circle_Size * scale - 1, Platform_Rect.bottom - 1);
-	Ellipse(hdc, Platform_Rect.right - Circle_Size * scale, Platform_Rect.top, Platform_Rect.right - 1, Platform_Rect.bottom - 1);
-
-	Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
-
-	//1.Left part
-	ellipse_rect.top = (y + 1) * scale;
-	ellipse_rect.bottom = ellipse_rect.top + ellipse_size * scale - 1;
-	ellipse_rect.left = Platform_Rect.left + ellipse_offset * scale;
-	ellipse_rect.right = ellipse_rect.left + ellipse_size * scale - 1;
-
-	AsConfig::BG_Color.Select(hdc);
-	Ellipse(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom);
-	Truss_Expanding_Color.Select_Pen(hdc);
-	Arc(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom,
-		ellipse_rect.left, ellipse_rect.top, ellipse_rect.left, ellipse_rect.bottom);
-
-	//2.Right part
-	ellipse_rect.left = Platform_Rect.right - (ellipse_offset + ellipse_size) * scale;
-	ellipse_rect.right = ellipse_rect.left + ellipse_size * scale - 1;
-
-	AsConfig::BG_Color.Select(hdc);
-	Ellipse(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom);
-	Truss_Expanding_Color.Select_Pen(hdc);
-	Arc(hdc, ellipse_rect.left, ellipse_rect.top, ellipse_rect.right, ellipse_rect.bottom,
-		ellipse_rect.right, ellipse_rect.bottom, ellipse_rect.right, ellipse_rect.top);
-
-	//3.Inner part
-	Platform_Inner_Color.Select(hdc);
-	Rectangle(hdc, inner_rect.left, inner_rect.top, inner_rect.right, inner_rect.bottom);
-
-	//4.Truss
-	ratio = Width / Max_Expanding_Width;
-	Draw_Expanding_Truss(hdc, x, y, ratio);
-	x_offset = int( ( (Max_Expanding_Width - Expanding_Platform_Inner_Width - ellipse_offset * 2.0) / 2.0 + Expanding_Platform_Inner_Width) * ratio - 1);
-	x += x_offset;
-	Draw_Expanding_Truss(hdc, x, y, ratio);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsPlatform::Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio)
-{
-	int scale = AsConfig::Global_Scale;
-	double d_scale = AsConfig::D_Global_Scale;
-
-	Truss_Expanding_Color.Select_Pen(hdc);
-
-	MoveToEx(hdc, int( (x + 5) * scale + 1), (y + 2) * scale - 1, FALSE);
-	LineTo(hdc, int( (x + 10 * ratio) * d_scale - 1), (y + 5) * scale + 1);
-	LineTo(hdc, int( (x + 14 * ratio) * d_scale - 1), (y + 2) * scale - 1);
-
-	MoveToEx(hdc, int( (x + 5) * d_scale + 1), (y + 5) * scale, FALSE);
-	LineTo(hdc, int( (x + 10 * ratio) * d_scale - 1), (y + 1) * scale + 1);
-	LineTo(hdc, int( (x + 14 * ratio) * d_scale - 1), (y + 5) * scale);
+	Platform_Expanding.Draw_Circle_Highlight(hdc, (int)x, y);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Laser_State(HDC hdc, RECT &paint_area)
@@ -1032,7 +1075,7 @@ void AsPlatform::Draw_Laser_State(HDC hdc, RECT &paint_area)
 	Draw_Laser_Leg(hdc, false);
 
 	Draw_Laser_Cabin(hdc);
-	
+
 	SelectClipRgn(hdc, 0);
 	DeleteObject(region);
 }
@@ -1162,7 +1205,7 @@ void AsPlatform::Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double
 {
 	double x, y;
 	double width, height;
-	RECT rect;
+	RECT rect{};
 
 	x = Get_Expanding_Value(start_x, end_x, ratio);
 	y = Get_Expanding_Value(start_y, end_y, ratio);

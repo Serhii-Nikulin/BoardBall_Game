@@ -187,7 +187,6 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		break;
 	case ELT_L:
-		Platform.Set_State(EPlatform_Substate_Regular::Normal);
 		Platform.Set_State(EPlatform_State::Laser);
 		break;
 	case ELT_P: 
