@@ -2,8 +2,9 @@
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Game_State(EGS_Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Movers{}, Modules{}
-{}
+	:Game_State(EGS_Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Movers{}, Modules{}, Ball_Set(), Laser_Beam_Set()
+{
+}
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Init_Engine(HWND hwnd)
 {
@@ -20,7 +21,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Add_Hit_Checker(&Platform);
 
 	AFalling_Letter::Init();
-	Platform.Init(&Ball_Set);
+	Platform.Init(&Laser_Beam_Set, &Ball_Set);
 	Level.Init();
 	Level.Set_Current_Level(AsLevel::Level_01);
 	/*Ball.Set_State(EBS_Normal);
@@ -35,12 +36,14 @@ void AsEngine::Init_Engine(HWND hwnd)
 	memset(Movers, 0, sizeof(Movers) );
 	Movers[0] = &Platform;
 	Movers[1] = &Ball_Set;
+	Movers[2] = &Laser_Beam_Set;
 
 	memset(Modules, 0, sizeof(Modules) );
 	Modules[0] = &Level;//1
 	Modules[1] = &Border;//2 - floor effect
 	Modules[2] = &Platform;
 	Modules[3] = &Ball_Set;
+	Modules[4] = &Laser_Beam_Set;
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)

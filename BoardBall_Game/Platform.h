@@ -133,16 +133,64 @@ private:
 
 };
 //------------------------------------------------------------------------------------------------------------
+class ALaser_Beam: public AMover, public AGraphics_Object
+{
+public:
+	ALaser_Beam();
+
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
+	void Set_At(double x_pos, double y_pos);
+	bool Is_Active;
+
+private:
+	double X_Pos, Y_Pos;
+	static const int Width = 1;
+	static const int Height = 3;
+	RECT Laser_Rect;
+
+};
+//------------------------------------------------------------------------------------------------------------
+class AsLaser_Beam_Set: public AMover, public AGraphics_Object
+{
+public:
+
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
+	void Fire(double x_pos, double y_pos);
+
+private:
+	static const int Max_Laser_Beam_Count = 10;
+	ALaser_Beam Laser_Beams[Max_Laser_Beam_Count];
+
+};
+//------------------------------------------------------------------------------------------------------------
 class AsPlatform_Laser
 {
 public:
 	~AsPlatform_Laser();
 	AsPlatform_Laser(AsPlatform_State &platform_state);
-	void Init(AColor &inner_color, AColor &circle_color, AColor &white_color);
+	void Init(AsLaser_Beam_Set *laser_beam_set, AColor &inner_color, AColor &circle_color, AColor &white_color);
 	bool Act(EPlatform_State &next_state);
 	void Draw_State(HDC hdc, double x_pos);
 	void Reset();
-
+	void Fire(bool fire_on, double x_pos, double y_pos);
 private:
 	void Draw_Laser_Inner_Part(HDC hdc, double x_pos);
 	void Draw_Laser_Wing(HDC hdc, bool is_left, double x_pos);
@@ -156,7 +204,10 @@ private:
 	AColor *Inner_Color, *Circle_Color, *White_Color;// UNO
 	AColor *Gun_Color;
 
+	AsLaser_Beam_Set *Laser_Beam_Set;// UNO
+
 	int Laser_Transformation_Step;
+
 	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------
@@ -164,7 +215,7 @@ class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
 {
 public:
 	AsPlatform();
-	void Init(AsBall_Set *ball_set);
+	void Init(AsLaser_Beam_Set *laser_beam_set, AsBall_Set *ball_set);
 
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	virtual void Begin_Movement();
