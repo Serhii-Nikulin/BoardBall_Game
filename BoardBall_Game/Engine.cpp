@@ -74,8 +74,7 @@ int AsEngine::On_Key(EKey_Type key_type, bool key_down)
 		break;
 
 	case EKT_Space:
-		if (key_down)
-			Platform.On_Space_Key(key_down);
+		Platform.On_Space_Key(key_down);
 		break;
 	}
 

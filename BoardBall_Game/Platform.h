@@ -133,6 +133,14 @@ private:
 
 };
 //------------------------------------------------------------------------------------------------------------
+enum class ELaser_Beam_State: unsigned char
+{
+	Disabled,
+	Active,
+	Stopping,
+	Cleanup
+};
+//------------------------------------------------------------------------------------------------------------
 class ALaser_Beam: public AMover, public AGraphics_Object
 {
 public:
@@ -150,18 +158,20 @@ public:
 
 	void Set_At(double x_pos, double y_pos);
 	void Redraw_Beam();
-	bool Is_Active;
+	bool Is_Active();
 
 private:
+
 	double X_Pos, Y_Pos;
 	double Speed;
 
 	static const int Width = 1;
 	static const int Height = 3;
 
+	ELaser_Beam_State Laser_Beam_State;
+
 	RECT Laser_Rect;
 	RECT Prev_Laser_Rect;
-
 };
 //------------------------------------------------------------------------------------------------------------
 class AsLaser_Beam_Set: public AMover, public AGraphics_Object
@@ -192,10 +202,10 @@ public:
 	~AsPlatform_Laser();
 	AsPlatform_Laser(AsPlatform_State &platform_state);
 	void Init(AsLaser_Beam_Set *laser_beam_set, AColor &inner_color, AColor &circle_color, AColor &white_color);
-	bool Act(EPlatform_State &next_state);
+	bool Act(EPlatform_State &next_state, double x_pos);
 	void Draw_State(HDC hdc, double x_pos);
 	void Reset();
-	void Fire(bool fire_on, double x_pos);
+	void Fire(bool fire_on);
 private:
 	void Draw_Laser_Inner_Part(HDC hdc, double x_pos);
 	void Draw_Laser_Wing(HDC hdc, bool is_left, double x_pos);
@@ -212,8 +222,12 @@ private:
 
 	AsLaser_Beam_Set *Laser_Beam_Set;// UNO
 
+	bool Enable_Laser_Firing;
 	int Laser_Transformation_Step;
 
+	int Last_Laser_Shot_Tick;
+
+	static const int Laser_Shot_Timeout = AsConfig::FPS / 2;
 	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------
