@@ -149,13 +149,18 @@ public:
 	virtual bool Is_Finished();
 
 	void Set_At(double x_pos, double y_pos);
+	void Redraw_Beam();
 	bool Is_Active;
 
 private:
 	double X_Pos, Y_Pos;
+	double Speed;
+
 	static const int Width = 1;
 	static const int Height = 3;
+
 	RECT Laser_Rect;
+	RECT Prev_Laser_Rect;
 
 };
 //------------------------------------------------------------------------------------------------------------
@@ -167,13 +172,13 @@ public:
 	virtual void Finish_Movement();
 	virtual void Shift_Per_Step(double max_speed);
 	virtual double Get_Speed();
-
+	
 	virtual void Act();
 	virtual void Draw(HDC HDC, RECT &paint_area);
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
-	void Fire(double x_pos, double y_pos);
+	void Fire(double left_gun_x_pos, double right_gun_x_pos);
 
 private:
 	static const int Max_Laser_Beam_Count = 10;
@@ -190,7 +195,7 @@ public:
 	bool Act(EPlatform_State &next_state);
 	void Draw_State(HDC hdc, double x_pos);
 	void Reset();
-	void Fire(bool fire_on, double x_pos, double y_pos);
+	void Fire(bool fire_on, double x_pos);
 private:
 	void Draw_Laser_Inner_Part(HDC hdc, double x_pos);
 	void Draw_Laser_Wing(HDC hdc, bool is_left, double x_pos);
@@ -198,6 +203,7 @@ private:
 	void Draw_Laser_Cabin(HDC hdc, double x_pos);
 	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
 	double Get_Expanding_Value(double start, double end, double ratio);
+	double Get_Gun_X_Pos(bool is_left, double platform_x_pos);
 
 	AsPlatform_State *Platform_State;
 

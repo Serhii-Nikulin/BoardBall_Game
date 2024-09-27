@@ -507,10 +507,10 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
 			letter_type = ELT_L;//AFalling_Letter::Get_Random_Letter_Type();
 
-			switch (AsConfig::Rand(3) )
+			switch (AsConfig::Rand(1) )
 			{
 			case 0:
-				letter_type = ELT_W;
+				letter_type = ELT_L;
 				break;
 
 			case 1:
@@ -518,7 +518,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 				break;
 
 			case 2:
-				letter_type = ELT_L;
+				letter_type = ELT_W;
 				break;
 
 			case 3:

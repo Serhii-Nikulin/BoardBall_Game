@@ -69,6 +69,7 @@ public:
 	static const AColor BG_Color;
 	static const AColor White_Color;
 	static const AColor Letter_Color;
+	static const AColor Laser_Color;
 	static const AColor Red_Higlight, Blue_Highlight;
 	static const AColor Teleport_Color;
 
