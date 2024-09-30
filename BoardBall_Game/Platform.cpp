@@ -390,6 +390,10 @@ void AsPlatform_Expanding::Init(AColor &inner_color, AColor &circle_color, AColo
 
 
 //ALaser_Beam
+//------------------------------------------------------------------------------------------------------------
+int ALaser_Beam::ALaser_Beam::Counter_Hit_Checker = 0;
+AHit_Checker *ALaser_Beam::Hit_Checkers[ALaser_Beam::Hit_Checkers_Count] = {};
+//------------------------------------------------------------------------------------------------------------
 ALaser_Beam::ALaser_Beam()
 	: X_Pos(0), Y_Pos(0), Speed(0.0), Laser_Rect{}, Prev_Laser_Rect{}, Laser_Beam_State(ELaser_Beam_State::Disabled)
 {
@@ -409,6 +413,7 @@ void ALaser_Beam::Finish_Movement()
 void ALaser_Beam::Shift_Per_Step(double max_speed)
 {
 	double next_step;
+	int i;
 
 	if (Laser_Beam_State != ELaser_Beam_State::Active)
 		return;
@@ -417,11 +422,21 @@ void ALaser_Beam::Shift_Per_Step(double max_speed)
 
 	Y_Pos -= next_step;
 
+	for (i = 0; i < Counter_Hit_Checker; ++i)
+		if (Hit_Checkers[i]->Check_Hit(X_Pos, Y_Pos) )
+		{
+			Disable();
+			break;
+		}
+
 	if (Y_Pos < AsConfig::Level_Y_Offset)
-	{
-		Laser_Beam_State = ELaser_Beam_State::Stopping;
-		Speed = 0.0;
-	}
+		Disable();
+}
+//------------------------------------------------------------------------------------------------------------
+void ALaser_Beam::Disable()
+{
+	Laser_Beam_State = ELaser_Beam_State::Stopping;
+	Speed = 0.0;
 }
 //------------------------------------------------------------------------------------------------------------
 double ALaser_Beam::Get_Speed()
@@ -478,6 +493,12 @@ void ALaser_Beam::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 bool ALaser_Beam::Is_Finished()
 {
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void ALaser_Beam::Add_Hit_Checker(AHit_Checker *hit_checker)
+{
+	if (Counter_Hit_Checker < Hit_Checkers_Count)
+		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
 }
 //------------------------------------------------------------------------------------------------------------
 void ALaser_Beam::Set_At(double x_pos, double y_pos)
@@ -674,7 +695,6 @@ bool AsPlatform_Laser::Act(EPlatform_State &next_state, double x_pos)
 
 				Laser_Beam_Set->Fire(left_gun_x_pos, right_gun_x_pos);
 				Last_Laser_Shot_Tick = AsConfig::Current_Timer_Tick;
-				//Enable_Laser_Firing = false;
 			}
 		}
 
@@ -687,6 +707,7 @@ bool AsPlatform_Laser::Act(EPlatform_State &next_state, double x_pos)
 		{
 			Platform_State->Laser = EPlatform_Transformation::Unknown;
 			next_state = Platform_State->Set_State(EPlatform_Substate_Regular::Normal);
+			Enable_Laser_Firing = false;
 		}
 
 		return true;
@@ -903,7 +924,10 @@ double AsPlatform_Laser::Get_Gun_X_Pos(bool is_left, double platform_x_pos)
 //AsPlatform
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
-	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Gun_Color(Highlight_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), Platform_Adhesive(Platform_State), Platform_Expanding(Platform_State), Platform_Laser(Platform_State)
+	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), 
+	Ball_Set(0), Normal_Platform_Image_Height(Height * AsConfig::Global_Scale),Normal_Platform_Image(0), Platform_Inner_Color(237, 38, 36), Platform_Circle_Color(63, 72, 204), Highlight_Color(255, 255, 255), 
+	Truss_Expanding_Color(Platform_Inner_Color, AsConfig::Global_Scale), Gun_Color(Highlight_Color, AsConfig::Global_Scale), Speed(0.0), Last_Redraw_Timer_Tick(0), Left_Key_Down(false), Right_Key_Down(false), 
+	Platform_Adhesive(Platform_State), Platform_Expanding(Platform_State), Platform_Laser(Platform_State)
 {}
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Init(AsLaser_Beam_Set *laser_beam_set, AsBall_Set *ball_set)

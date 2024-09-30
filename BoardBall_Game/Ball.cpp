@@ -42,6 +42,12 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Check_Hit(double x_pos, double y_pos)
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -202,10 +208,10 @@ void ABall::Shift_Per_Step(double max_speed)
 //------------------------------------------------------------------------------------------------------------
 void ABall::Redraw_Ball()
 {
-	Ball_Rect.left = (int)((Center_X_Pos - Radius) * AsConfig::Global_Scale);
-	Ball_Rect.top = (int)((Center_Y_Pos - Radius) * AsConfig::Global_Scale);
-	Ball_Rect.right = (int)((Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
-	Ball_Rect.bottom = (int)((Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
+	Ball_Rect.left = (int)( (Center_X_Pos - Radius) * AsConfig::Global_Scale);
+	Ball_Rect.top = (int)( (Center_Y_Pos - Radius) * AsConfig::Global_Scale);
+	Ball_Rect.right = (int)( (Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
+	Ball_Rect.bottom = (int)( (Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
 
 	AsConfig::Invalidate_Rect(Prev_Ball_Rect);
 	AsConfig::Invalidate_Rect(Ball_Rect);

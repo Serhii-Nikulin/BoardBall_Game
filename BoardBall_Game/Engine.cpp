@@ -20,6 +20,9 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Add_Hit_Checker(&Level);
 	ABall::Add_Hit_Checker(&Platform);
 
+	ALaser_Beam::Add_Hit_Checker(&Level);
+	
+
 	AFalling_Letter::Init();
 	Platform.Init(&Laser_Beam_Set, &Ball_Set);
 	Level.Init();

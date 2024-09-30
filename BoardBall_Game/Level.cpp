@@ -283,6 +283,27 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos)
+{
+	int brick_x, brick_y;
+
+	brick_x = int(next_x_pos - AsConfig::Level_X_Offset) / AsConfig::Cell_Width;
+	brick_y = int(next_y_pos - AsConfig::Level_Y_Offset) / AsConfig::Cell_Height;
+
+	if (brick_x >= Level_Width or brick_x < 0)
+		return false;
+
+	if (brick_y >= Level_Height or brick_y < 0)
+		return false;
+
+	if (Current_Level[brick_y][brick_x] == EBT_None)
+		return false;
+
+
+	On_Hit(brick_x, brick_y, 0, true);
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------
 void AsLevel::Act()
 {
 	Act_Objects((AGraphics_Object **)&Active_Bricks, Max_Active_Bricks_Count, Active_Bricks_Count);
@@ -456,6 +477,12 @@ void AsLevel::On_Hit(int level_x, int level_y, ABall *ball, bool vertical_hit)
 {
 	EBrick_Type brick_type = (EBrick_Type)Current_Level[level_y][level_x];
 
+	if (brick_type == EBT_Parachute and ball == 0)
+	{
+		brick_type = EBT_Red;
+		Current_Level[level_y][level_x] = brick_type;
+	}
+
 	if (brick_type == EBT_Parachute)
 	{
 		ball->Set_On_Parachute(level_x, level_y);
@@ -467,8 +494,6 @@ void AsLevel::On_Hit(int level_x, int level_y, ABall *ball, bool vertical_hit)
 		Create_Active_Brick(level_x, level_y, brick_type, ball, vertical_hit);
 
 	Redraw_Brick(level_x, level_y);
-	
-
 }
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Redraw_Brick(int level_x, int level_y)
@@ -514,11 +539,11 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 				break;
 
 			case 1:
-				letter_type = ELT_K;
+				letter_type = ELT_W;
 				break;
 
 			case 2:
-				letter_type = ELT_W;
+				letter_type = ELT_K;
 				break;
 
 			case 3:
@@ -542,6 +567,9 @@ void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_ty
 
 	switch (brick_type)
 	{
+	case EBT_None:
+		return;
+
 	case EBT_Blue:
 	case EBT_Red:
 		active_brick = new AActive_Brick_Red_Blue(brick_type, level_x, level_y);
@@ -564,7 +592,8 @@ void AsLevel::Create_Active_Brick(int level_x, int level_y, EBrick_Type brick_ty
 		break;
 
 	case EBT_Teleport:
-		Add_Active_Brick_Teleport(level_x, level_y, ball, vertical_hit);
+		if (ball != 0)
+			Add_Active_Brick_Teleport(level_x, level_y, ball, vertical_hit);
 		return;
 
 	case EBT_Ad:
