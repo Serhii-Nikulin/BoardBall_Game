@@ -73,7 +73,7 @@ void AActive_Brick_Red_Blue::Act()
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
 {
-	RECT intersection_rect;
+	RECT intersection_rect{};
 	AColor* color = 0;
 
 	switch (Brick_Type)
@@ -262,7 +262,7 @@ void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)
 	double x_delta;
 	double angle;
 	XFORM xform, prev_xform;
-	RECT zero_rect;
+	RECT zero_rect{};
 
 	AsConfig::BG_Color.Select(hdc);
 	AsConfig::Round_Rect(hdc, Brick_Rect);
@@ -650,7 +650,7 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 	LineTo(hdc, Ad_Rect.left + 30 * scale - 1, Ad_Rect.top + 16 * scale - 1);
 
 	//ball
-	deformation = (1.0 - Deformation_Ratio) * scale * 5;
+	deformation = int( (1.0 - Deformation_Ratio) * scale * 5.0);
 	ball_width = Ball_Width + deformation;
 	ball_height = Ball_Height - deformation;
 	x = Ball_Center_X - ball_width / 2;

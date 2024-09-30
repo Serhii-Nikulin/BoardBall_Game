@@ -133,16 +133,85 @@ private:
 
 };
 //------------------------------------------------------------------------------------------------------------
+enum class ELaser_Beam_State: unsigned char
+{
+	Disabled,
+	Active,
+	Stopping,
+	Cleanup
+};
+//------------------------------------------------------------------------------------------------------------
+class ALaser_Beam: public AMover, public AGraphics_Object
+{
+public:
+	ALaser_Beam();
+
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
+	static void Add_Hit_Checker(AHit_Checker *hit_checker);
+	void Set_At(double x_pos, double y_pos);
+	void Redraw_Beam();
+	bool Is_Active();
+
+private:
+	void Disable();
+
+	double X_Pos, Y_Pos;
+	double Speed;
+
+	static const int Width = 1;
+	static const int Height = 3;
+
+	static int Counter_Hit_Checker;
+	static const int Hit_Checkers_Count = 3;
+	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
+
+	ELaser_Beam_State Laser_Beam_State;
+
+	RECT Laser_Rect;
+	RECT Prev_Laser_Rect;
+};
+//------------------------------------------------------------------------------------------------------------
+class AsLaser_Beam_Set: public AMover, public AGraphics_Object
+{
+public:
+
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
+	
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
+	void Fire(double left_gun_x_pos, double right_gun_x_pos);
+
+private:
+	static const int Max_Laser_Beam_Count = 10;
+	ALaser_Beam Laser_Beams[Max_Laser_Beam_Count];
+
+};
+//------------------------------------------------------------------------------------------------------------
 class AsPlatform_Laser
 {
 public:
 	~AsPlatform_Laser();
 	AsPlatform_Laser(AsPlatform_State &platform_state);
-	void Init(AColor &inner_color, AColor &circle_color, AColor &white_color);
-	bool Act(EPlatform_State &next_state);
+	void Init(AsLaser_Beam_Set *laser_beam_set, AColor &inner_color, AColor &circle_color, AColor &white_color);
+	bool Act(EPlatform_State &next_state, double x_pos);
 	void Draw_State(HDC hdc, double x_pos);
 	void Reset();
-
+	void Fire(bool fire_on);
 private:
 	void Draw_Laser_Inner_Part(HDC hdc, double x_pos);
 	void Draw_Laser_Wing(HDC hdc, bool is_left, double x_pos);
@@ -150,13 +219,21 @@ private:
 	void Draw_Laser_Cabin(HDC hdc, double x_pos);
 	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
 	double Get_Expanding_Value(double start, double end, double ratio);
+	double Get_Gun_X_Pos(bool is_left, double platform_x_pos);
 
 	AsPlatform_State *Platform_State;
 
-	AColor *Inner_Color, *Circle_Color, *White_Color;// UNO
+	AColor *Inner_Color, *Circle_Color, *White_Color;
 	AColor *Gun_Color;
 
+	AsLaser_Beam_Set *Laser_Beam_Set;// UNO
+
+	bool Enable_Laser_Firing;
 	int Laser_Transformation_Step;
+
+	int Last_Laser_Shot_Tick;
+
+	static const int Laser_Shot_Timeout = AsConfig::FPS / 2;
 	static const int Max_Laser_Transformation_Step = 30;
 };
 //------------------------------------------------------------------------------------------------------------
@@ -164,7 +241,7 @@ class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
 {
 public:
 	AsPlatform();
-	void Init(AsBall_Set *ball_set);
+	void Init(AsLaser_Beam_Set *laser_beam_set, AsBall_Set *ball_set);
 
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
 	virtual void Begin_Movement();

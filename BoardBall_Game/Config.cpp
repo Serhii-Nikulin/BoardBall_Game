@@ -6,6 +6,7 @@ const AColor AsConfig::Red_Color(237, 38, 36);
 const AColor AsConfig::Blue_Color(63, 72, 204);
 const AColor AsConfig::White_Color(255, 255, 255);
 const AColor AsConfig::Letter_Color(AsConfig::White_Color, AsConfig::Global_Scale);
+const AColor AsConfig::Laser_Color(AsConfig::White_Color, AsConfig::Global_Scale);
 
 const AColor AsConfig::Red_Higlight(AsConfig::Red_Color, 3 * AsConfig::Global_Scale);
 const AColor AsConfig::Blue_Highlight(AsConfig::Blue_Color, AsConfig::Global_Scale);

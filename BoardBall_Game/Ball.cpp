@@ -42,6 +42,12 @@ bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double 
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Check_Hit(double x_pos, double y_pos)
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -202,10 +208,10 @@ void ABall::Shift_Per_Step(double max_speed)
 //------------------------------------------------------------------------------------------------------------
 void ABall::Redraw_Ball()
 {
-	Ball_Rect.left = (int)((Center_X_Pos - Radius) * AsConfig::Global_Scale);
-	Ball_Rect.top = (int)((Center_Y_Pos - Radius) * AsConfig::Global_Scale);
-	Ball_Rect.right = (int)((Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
-	Ball_Rect.bottom = (int)((Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
+	Ball_Rect.left = (int)( (Center_X_Pos - Radius) * AsConfig::Global_Scale);
+	Ball_Rect.top = (int)( (Center_Y_Pos - Radius) * AsConfig::Global_Scale);
+	Ball_Rect.right = (int)( (Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
+	Ball_Rect.bottom = (int)( (Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
 
 	AsConfig::Invalidate_Rect(Prev_Ball_Rect);
 	AsConfig::Invalidate_Rect(Ball_Rect);
@@ -394,7 +400,7 @@ void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
 	const int scale = AsConfig::Global_Scale;
-	const int dome_size = Parachute_Size * scale / 2.0;
+	const int dome_size = int(Parachute_Size * scale / 2.0);
 	int ball_center_x, ball_center_y;
 
 	if (! IntersectRect(&intersection_rect, &paint_area, &Parachute_Rect) )
@@ -414,7 +420,7 @@ void ABall::Draw_Parachute(HDC hdc, RECT &paint_area)
 
 	Ellipse(hdc, Parachute_Rect.left + 11 * scale, Parachute_Rect.top + 5 * scale + 1, Parachute_Rect.left + 14 * scale + 1, Parachute_Rect.top + 9 * scale - 1);
 
-	ball_center_x = Parachute_Rect.left + Parachute_Size * scale / 2.0;
+	ball_center_x = int(Parachute_Rect.left + Parachute_Size * scale / 2.0);
 	ball_center_y = Parachute_Rect.bottom;
 
 	AsConfig::White_Color.Select(hdc);
