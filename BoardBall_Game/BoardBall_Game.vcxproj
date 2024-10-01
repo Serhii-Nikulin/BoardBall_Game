@@ -140,6 +140,9 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Platform.h" />
+    <ClInclude Include="Platform_Adhesive.h" />
+    <ClInclude Include="Platform_Expanding.h" />
+    <ClInclude Include="Platform_Laser.h" />
     <ClInclude Include="Platform_State.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -158,6 +161,9 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Platform.cpp" />
+    <ClCompile Include="Platform_Adhesive.cpp" />
+    <ClCompile Include="Platform_Expanding.cpp" />
+    <ClCompile Include="Platform_Laser.cpp" />
     <ClCompile Include="Platform_State.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>

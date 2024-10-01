@@ -61,5 +61,10 @@ public:
 	static const int Initial_Life_Count = 5;
 
 	static const int Max_Modules_Count = 10;
+
+	static const int Platform_Normal_Width = 28;
+	static const int Platform_Expanding_Inner_Width = 12;
+	static const int Platform_Circle_Size = 7;
+	static const int Platform_Inner_Height = 5;
 };
 //------------------------------------------------------------------------------------------------------------

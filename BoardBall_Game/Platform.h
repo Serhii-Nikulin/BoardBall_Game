@@ -1,89 +1,11 @@
 #pragma once
 #include "Falling_Letter.h"
 #include "Ball_Set.h"// + Ball.h
-#include "Laser_Beam_Set.h"// + Laser_Beam.h
 #include "Platform_State.h"
+#include "Platform_Adhesive.h"
+#include "Platform_Expanding.h"
+#include "Platform_Laser.h"// + Laser_Beam_Set.h + Laser_Beam.h
 
-//------------------------------------------------------------------------------------------------------------
-class AsPlatform_Adhesive
-{
-public:
-	AsPlatform_Adhesive(AsPlatform_State &platform_state);
-	bool Act(AsBall_Set *ball_set, EPlatform_State &next_state);
-
-	void Draw_State(HDC hdc, double x_pos);
-	void Draw_Adhesive_Spot(HDC hdc, double x_pos, int x_offset, int width, int heigth);
-	void Reset();
-
-private:
-	double Adhesive_Spot_Height_Ratio;
-
-	static const double Step_Adhesive_Spot_Height_Ratio;
-	static const double Min_Adhesive_Spot_Height_Ratio;
-	static const double Max_Adhesive_Spot_Height_Ratio;
-
-	AsPlatform_State *Platform_State;
-};
-//------------------------------------------------------------------------------------------------------------
-class AsPlatform_Expanding
-{
-public:
-	~AsPlatform_Expanding();
-	AsPlatform_Expanding(AsPlatform_State &platform_state);
-
-	bool Act(double &x_pos, double &current_width, EPlatform_State &next_state);
-	void Draw_State(HDC hdc, double x, double &current_width, RECT &Platform_Rect);
-	void Draw_Circle_Highlight(HDC hdc, int x, int y);
-	void Draw_Expanding_Truss(HDC hdc, double x, int y, double ratio);
-	void Reset(double &width);
-	void Init(AColor &inner_color, AColor &circle_color, AColor &Higlight_Color);
-
-private:
-	static const double Step_Expanding_Width;
-	static const double Min_Expanding_Width;
-	static const double Max_Expanding_Width;
-
-	AsPlatform_State *Platform_State;
-
-	AColor *Inner_Color, *Circle_Color, *Highlight_Color;
-	AColor *Truss_Expanding_Color;//UNO
-
-};
-//------------------------------------------------------------------------------------------------------------
-class AsPlatform_Laser
-{
-public:
-	~AsPlatform_Laser();
-	AsPlatform_Laser(AsPlatform_State &platform_state);
-	void Init(AsLaser_Beam_Set *laser_beam_set, AColor &inner_color, AColor &circle_color, AColor &white_color);
-	bool Act(EPlatform_State &next_state, double x_pos);
-	void Draw_State(HDC hdc, double x_pos);
-	void Reset();
-	void Fire(bool fire_on);
-private:
-	void Draw_Laser_Inner_Part(HDC hdc, double x_pos);
-	void Draw_Laser_Wing(HDC hdc, bool is_left, double x_pos);
-	void Draw_Laser_Leg(HDC hdc, bool is_left, double x_pos);
-	void Draw_Laser_Cabin(HDC hdc, double x_pos);
-	void Draw_Expanding_Figure(HDC hdc, EFigure_Type figure_type, double start_x, double start_y, double start_width, double start_height, double ratio, double end_x, double end_y, double end_width, double end_height);
-	double Get_Expanding_Value(double start, double end, double ratio);
-	double Get_Gun_X_Pos(bool is_left, double platform_x_pos);
-
-	AsPlatform_State *Platform_State;
-
-	AColor *Inner_Color, *Circle_Color, *White_Color;
-	AColor *Gun_Color;
-
-	AsLaser_Beam_Set *Laser_Beam_Set;// UNO
-
-	bool Enable_Laser_Firing;
-	int Laser_Transformation_Step;
-
-	int Last_Laser_Shot_Tick;
-
-	static const int Laser_Shot_Timeout = AsConfig::FPS / 2;
-	static const int Max_Laser_Transformation_Step = 30;
-};
 //------------------------------------------------------------------------------------------------------------
 class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
 {
@@ -115,11 +37,6 @@ public:
 	int Inner_Width;
 	double X_Pos;
 
-	static const int Normal_Width = 28;
-	static const int Expanding_Platform_Inner_Width = 12;
-	static const int Circle_Size = 7;
-	static const int Inner_Height = 5;
-
 private:
 	bool Set_Transformation_State(EPlatform_State new_state, EPlatform_Transformation &transformation_state);
 	void Act_For_Meltdown_State();
@@ -148,7 +65,7 @@ private:
 	int Rolling_Step;
 	bool Left_Key_Down, Right_Key_Down;
 
-	static const int Roll_In_Platform_End_X_Pos = AsConfig::Border_X_Offset + (AsConfig::Max_X_Pos - AsConfig::Border_X_Offset) / 2 - Circle_Size / 2;
+	static const int Roll_In_Platform_End_X_Pos = AsConfig::Border_X_Offset + (AsConfig::Max_X_Pos - AsConfig::Border_X_Offset) / 2 - AsConfig::Platform_Circle_Size / 2;
 	static const int Rolling_Platform_Speed = 3;
 
 	static const int Max_Rolling_Step = 16;
@@ -156,7 +73,7 @@ private:
 	static const int Meltdown_Speed = 4;
 	static const int Normal_Inner_Width = 20;
 
-	static int Meltdown_Platform_Y_Pos[Normal_Width * AsConfig::Global_Scale];
+	static int Meltdown_Platform_Y_Pos[AsConfig::Platform_Normal_Width * AsConfig::Global_Scale];
 	static const int X_Step = 2 * AsConfig::Global_Scale;
 	double Speed;
 	int Normal_Platform_Image_Width;
