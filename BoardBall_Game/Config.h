@@ -1,33 +1,5 @@
 #pragma once
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <Windows.h>
-
-//AColor
-//------------------------------------------------------------------------------------------------------------
-class AColor
-{
-public:
-	AColor();
-	AColor(unsigned char r, unsigned char g, unsigned char b);
-	AColor(const AColor& color, int pen_size);
-	AColor(const AColor &pen_color, int pen_size, const AColor &brush_color);
-
-	unsigned char R, G, B;
-
-	int Get_RGB() const;
-	void Select(HDC hdc) const;
-	void Select_Pen(HDC hdc) const;
-	HBRUSH Get_Brush() const;
-
-private:
-	HPEN Pen;
-	HBRUSH Brush;
-};
-//------------------------------------------------------------------------------------------------------------
-
-
-
+#include "Tools.h"
 
 //------------------------------------------------------------------------------------------------------------
 class AsConfig

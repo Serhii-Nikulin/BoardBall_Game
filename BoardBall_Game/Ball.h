@@ -1,29 +1,6 @@
 #pragma once
-#include <Windows.h>
 #include "Config.h"
 
-//------------------------------------------------------------------------------------------------------------
-class AGraphics_Object
-{
-public:
-	virtual ~AGraphics_Object();
-
-	virtual void Act() = 0;
-	virtual void Draw(HDC HDC, RECT &paint_area) = 0;
-	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area) = 0;
-	virtual bool Is_Finished() = 0;
-};
-//------------------------------------------------------------------------------------------------------------
-class AMover
-{
-public:
-	virtual ~AMover();
-	virtual void Begin_Movement() = 0;
-	virtual void Finish_Movement() = 0;
-	virtual void Shift_Per_Step(double max_speed) = 0;
-	virtual double Get_Speed() = 0;
-	
-};
 //------------------------------------------------------------------------------------------------------------
 enum EBall_State
 {
@@ -35,17 +12,6 @@ enum EBall_State
 	EBS_On_Parachute, 
 	EBS_Off_Parachute, 
 	EBS_Teleporting
-};
-//------------------------------------------------------------------------------------------------------------
-class ABall;
-//------------------------------------------------------------------------------------------------------------
-class AHit_Checker
-{
-public:
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball) = 0;
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos);
-
-	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
 };
 //------------------------------------------------------------------------------------------------------------
 class ABall: public AMover, public AGraphics_Object
