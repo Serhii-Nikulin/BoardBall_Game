@@ -16,13 +16,13 @@ void AsEngine::Init_Engine(HWND hwnd)
 	srand(file_time.dwLowDateTime);
 
 	AsConfig::Hwnd = hwnd;
-	ABall::Add_Hit_Checker(&Border);
-	ABall::Add_Hit_Checker(&Level);
-	ABall::Add_Hit_Checker(&Platform);
 
-	ALaser_Beam::Add_Hit_Checker(&Level);
+	ABall::Hit_Checker_List.Add_Hit_Checker(&Border);
+	ABall::Hit_Checker_List.Add_Hit_Checker(&Level);
+	ABall::Hit_Checker_List.Add_Hit_Checker(&Platform);
+
+	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Level);
 	
-
 	AFalling_Letter::Init();
 	Platform.Init(&Laser_Beam_Set, &Ball_Set);
 	Level.Init();

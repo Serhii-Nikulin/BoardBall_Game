@@ -1,33 +1,5 @@
 #pragma once
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <Windows.h>
-
-//AColor
-//------------------------------------------------------------------------------------------------------------
-class AColor
-{
-public:
-	AColor();
-	AColor(unsigned char r, unsigned char g, unsigned char b);
-	AColor(const AColor& color, int pen_size);
-	AColor(const AColor &pen_color, int pen_size, const AColor &brush_color);
-
-	unsigned char R, G, B;
-
-	int Get_RGB() const;
-	void Select(HDC hdc) const;
-	void Select_Pen(HDC hdc) const;
-	HBRUSH Get_Brush() const;
-
-private:
-	HPEN Pen;
-	HBRUSH Brush;
-};
-//------------------------------------------------------------------------------------------------------------
-
-
-
+#include "Tools.h"
 
 //------------------------------------------------------------------------------------------------------------
 class AsConfig
@@ -89,5 +61,10 @@ public:
 	static const int Initial_Life_Count = 5;
 
 	static const int Max_Modules_Count = 10;
+
+	static const int Platform_Normal_Width = 28;
+	static const int Platform_Expanding_Inner_Width = 12;
+	static const int Platform_Circle_Size = 7;
+	static const int Platform_Inner_Height = 5;
 };
 //------------------------------------------------------------------------------------------------------------
