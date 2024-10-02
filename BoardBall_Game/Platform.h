@@ -1,9 +1,7 @@
 #pragma once
 #include "Falling_Letter.h"
-#include "Ball_Set.h"// + Ball.h
-#include "Platform_State.h"
-#include "Platform_Adhesive.h"
-#include "Platform_Expanding.h"
+#include "Platform_Expanding.h"// + Platform_State.h
+#include "Platform_Adhesive.h"// + Ball_Set.h + Ball.h
 #include "Platform_Laser.h"// + Laser_Beam_Set.h + Laser_Beam.h
 
 //------------------------------------------------------------------------------------------------------------

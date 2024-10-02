@@ -2,8 +2,7 @@
 
 //ALaser_Beam
 //------------------------------------------------------------------------------------------------------------
-int ALaser_Beam::ALaser_Beam::Counter_Hit_Checker = 0;
-AHit_Checker *ALaser_Beam::Hit_Checkers[ALaser_Beam::Hit_Checkers_Count] = {};
+AHit_Checker_List ALaser_Beam::Hit_Checker_List;
 //------------------------------------------------------------------------------------------------------------
 ALaser_Beam::ALaser_Beam()
 	: X_Pos(0), Y_Pos(0), Speed(0.0), Laser_Rect{}, Prev_Laser_Rect{}, Laser_Beam_State(ELaser_Beam_State::Disabled)
@@ -33,12 +32,8 @@ void ALaser_Beam::Shift_Per_Step(double max_speed)
 
 	Y_Pos -= next_step;
 
-	for (i = 0; i < Counter_Hit_Checker; ++i)
-		if (Hit_Checkers[i]->Check_Hit(X_Pos, Y_Pos) )
-		{
-			Disable();
-			break;
-		}
+	if (Hit_Checker_List.Check_Hit(X_Pos, Y_Pos) )
+		Disable();
 
 	if (Y_Pos < AsConfig::Level_Y_Offset)
 		Disable();
@@ -104,12 +99,6 @@ void ALaser_Beam::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 bool ALaser_Beam::Is_Finished()
 {
 	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-void ALaser_Beam::Add_Hit_Checker(AHit_Checker *hit_checker)
-{
-	if (Counter_Hit_Checker < Hit_Checkers_Count)
-		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
 }
 //------------------------------------------------------------------------------------------------------------
 void ALaser_Beam::Set_At(double x_pos, double y_pos)

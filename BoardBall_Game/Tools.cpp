@@ -46,6 +46,43 @@ bool AHit_Checker::Check_Hit(double x_pos, double y_pos)
 
 
 
+//------------------------------------------------------------------------------------------------------------
+AHit_Checker_List::AHit_Checker_List()
+	: Counter_Hit_Checker(0), Hit_Checkers{}
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AHit_Checker_List::Add_Hit_Checker(AHit_Checker *hit_checker)
+{
+	if (Counter_Hit_Checker < Hit_Checkers_Count)
+		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos)
+{
+	int i;
+
+	for (i = 0; i < Counter_Hit_Checker; ++i)
+		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos) )
+			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos, ABall *ball)
+{
+	int i;
+	for (i = 0; i < Hit_Checkers_Count; ++i)
+		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos, ball) )
+			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
 //AColor
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():

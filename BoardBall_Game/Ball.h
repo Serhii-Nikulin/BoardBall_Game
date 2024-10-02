@@ -49,7 +49,6 @@ public:
 	void Shift_With_Direction(double direction, double platform_speed, double max_speed);
 	void Release();
 
-	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	static const double Radius;
 	static const double Min_Ball_Direction;
 	double prev_angle_to_normal = 0;
@@ -57,6 +56,7 @@ public:
 
 	int Time_Of_Release;
 
+	static AHit_Checker_List Hit_Checker_List;
 
 private:
 
@@ -67,17 +67,15 @@ private:
 	RECT Ball_Rect, Prev_Ball_Rect;
 	RECT Parachute_Rect, Prev_Parachute_Rect;
 
+
 	double Ball_Speed;
 	double Center_X_Pos;
 	double Center_Y_Pos;
 	double Ball_Direction;
 	bool Testing_Is_Active;
 	static int Counter_Hit_Checker;
-	static const int Hit_Checkers_Count = 3;
 	static const int Parachute_Size = 15;
-	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
 	static const int Time_On_Platform = 7 * AsConfig::FPS;
 	int Test_Iteration;
-
 };
 //------------------------------------------------------------------------------------------------------------

@@ -37,6 +37,20 @@ public:
 	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
 };
 //------------------------------------------------------------------------------------------------------------
+class AHit_Checker_List
+{
+public:
+	AHit_Checker_List();
+	void Add_Hit_Checker(AHit_Checker *hit_checker);
+	bool Check_Hit(double x_pos, double y_pos);
+	bool Check_Hit(double x_pos, double y_pos, ABall *ball);
+
+private:
+	static const int Hit_Checkers_Count = 3;
+	int Counter_Hit_Checker;
+	AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
+};
+//------------------------------------------------------------------------------------------------------------
 class AColor
 {
 public:

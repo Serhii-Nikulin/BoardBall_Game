@@ -25,11 +25,11 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
-	static void Add_Hit_Checker(AHit_Checker *hit_checker);
 	void Set_At(double x_pos, double y_pos);
 	void Redraw_Beam();
 	bool Is_Active();
 
+	static AHit_Checker_List Hit_Checker_List;
 private:
 	void Disable();
 
@@ -38,10 +38,6 @@ private:
 
 	static const int Width = 1;
 	static const int Height = 3;
-
-	static int Counter_Hit_Checker;
-	static const int Hit_Checkers_Count = 3;
-	static AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
 
 	ELaser_Beam_State Laser_Beam_State;
 

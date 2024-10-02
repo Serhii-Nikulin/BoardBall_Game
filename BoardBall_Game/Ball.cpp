@@ -4,17 +4,12 @@
 //------------------------------------------------------------------------------------------------------------
 const double ABall::Radius = 2;
 const double ABall::Min_Ball_Direction = M_PI / 8.0;
-int ABall::Counter_Hit_Checker = 0;
-AHit_Checker *ABall::Hit_Checkers[Hit_Checkers_Count] = {};
+AHit_Checker_List ABall::Hit_Checker_List;
 //------------------------------------------------------------------------------------------------------------
-ABall::ABall(): Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
+ABall::ABall()
+	: Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Time_Of_Release(0), Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
-{}
-//------------------------------------------------------------------------------------------------------------
-void ABall::Add_Hit_Checker(AHit_Checker *hit_checker)
 {
-	if (Counter_Hit_Checker < Hit_Checkers_Count)
-		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Begin_Movement()
@@ -133,8 +128,7 @@ void ABall::Shift_Per_Step(double max_speed)
 		next_x_pos = Center_X_Pos + next_step * cos(Ball_Direction);
 		next_y_pos = Center_Y_Pos - next_step * sin(Ball_Direction);
 
-		for (i = 0; i < Hit_Checkers_Count; ++i)
-			got_hit |= Hit_Checkers[i]->Check_Hit(next_x_pos, next_y_pos, this);
+		got_hit = Hit_Checker_List.Check_Hit(next_x_pos, next_y_pos, this);
 
 		if (got_hit)
 		{
