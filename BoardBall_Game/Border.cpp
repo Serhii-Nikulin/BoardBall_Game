@@ -1,9 +1,182 @@
 #include "Border.h"
 #include "Config.h"
 
+
+//AGate
+//------------------------------------------------------------------------------------------------------------
+AGate::AGate(int x_pos, int y_pos)
+: X_Pos(x_pos), Y_Pos(y_pos)
+{
+	int scale = AsConfig::Global_Scale;
+
+	Rect.left = X_Pos * scale;
+	Rect.top = Y_Pos * scale;
+	Rect.right = Rect.left + Width * scale;
+	Rect.bottom = Rect.top + Height * scale;
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Act()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Draw(HDC hdc, RECT &paint_area)
+{
+	RECT intersection_rect;
+	if (! IntersectRect(&intersection_rect, &paint_area, &Rect) )
+		return;
+
+	Clear_Prev_Animation(hdc, paint_area);
+	Draw_Cup(hdc, true);
+	Draw_Cup(hdc, false);
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Draw_Cup(HDC hdc, bool is_top)
+{
+	const int scale = AsConfig::Global_Scale;
+	double half_scale = scale / 2.0;
+	HRGN region;
+	RECT rect, region_rect;
+	XFORM xform, prev_xform;
+
+	xform.eM11 = (FLOAT)1.0; xform.eM12 = (FLOAT)0.0;
+	xform.eM21 = (FLOAT)0.0; 
+	xform.eDx = X_Pos * scale;
+
+	if(is_top)
+	{
+		xform.eM22 = (FLOAT)1.0;
+		xform.eDy = Y_Pos * scale;
+	}
+	else
+	{
+		xform.eM22 = (FLOAT)-1.0;
+		xform.eDy = (Y_Pos + Height) * scale - 1;
+	}
+
+	GetWorldTransform(hdc, &prev_xform);
+	SetWorldTransform(hdc, &xform);
+	
+	AsConfig::Rect(hdc, 2, 0, 2, 1, AsConfig::Blue_Color);//holder
+
+	region_rect.left = X_Pos * scale;
+	region_rect.right = region_rect.left + 6 * scale;
+
+	if (is_top)
+	{
+		region_rect.top = (Y_Pos + 1) * scale;
+		region_rect.bottom = region_rect.top + 4 * scale;
+	}
+	else
+	{
+		region_rect.top = (Y_Pos + Height - 1) * scale;
+		region_rect.bottom = region_rect.top - 4 * scale;
+	}
+
+	region = CreateRectRgnIndirect(&region_rect);
+	SelectClipRgn(hdc, region);
+
+	rect.left = 0 * scale;
+	rect.top = (0 + 1) * scale;
+	rect.right = rect.left + 6 * scale;
+	rect.bottom = rect.top + 6 * scale;
+
+	AsConfig::Blue_Color.Select(hdc);
+	AsConfig::Round_Rect(hdc, rect, 3);
+
+	SelectClipRgn(hdc, 0);
+	DeleteObject(region);
+
+	region_rect.right = region_rect.left + 3 * scale;
+
+	region = CreateRectRgnIndirect(&region_rect);
+	SelectClipRgn(hdc, region);
+
+	rect.left = 0 * scale + half_scale;
+	rect.top = 1 * scale + half_scale;
+	rect.right = rect.left + 5 * scale;
+	rect.bottom = rect.top + 6 * scale;
+
+	AsConfig::Blue_Color.Select(hdc);
+	AsConfig::Letter_Color.Select_Pen(hdc);
+	AsConfig::Round_Rect(hdc, rect, 3);
+
+	SelectClipRgn(hdc, 0);
+	DeleteObject(region);
+
+	AsConfig::Rect(hdc, 4, 3, 1, 1, AsConfig::BG_Color);//bg_perforation
+	
+	int i;
+
+	int x = 0;
+	int y = 4;
+
+	for (i = 0; i < 3; i++)
+	{
+		Draw_Edge(hdc, x, y, true);
+		Draw_Edge(hdc, x, y, false);
+
+		y += 2;
+	}
+
+	SetWorldTransform(hdc, &prev_xform);
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Draw_Edge(HDC hdc, int x, int y, bool is_longer)
+{
+	const int scale = AsConfig::Global_Scale;
+
+	if (is_longer)
+	{
+		AsConfig::Rect(hdc, x, y, 4, 1, AsConfig::White_Color);
+		AsConfig::Rect(hdc, x + 4, y, 2, 1, AsConfig::Blue_Color);
+	}
+	else
+	{
+		AsConfig::Rect(hdc, x + 1, y + 1, 2, 1, AsConfig::Blue_Color);
+		AsConfig::Rect(hdc, x + 4, y + 1, 1, 1, AsConfig::Blue_Color);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+	AsConfig::BG_Color;
+	AsConfig::Rect(hdc, Rect, AsConfig::BG_Color);
+}
+//------------------------------------------------------------------------------------------------------------
+bool AGate::Is_Finished()
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AsBorder
+//------------------------------------------------------------------------------------------------------------
+AsBorder::~AsBorder()
+{
+	int i;
+	
+	for (i = 0; i < AsConfig::Gates_Counter; i++)
+	{
+		delete Gates[i];
+		Gates[i] = 0;
+	}
+}
 //------------------------------------------------------------------------------------------------------------
 AsBorder::AsBorder()
+	:Gates{}
 {
+	Gates[0] = new AGate(1, 29);
+	Gates[1] = new AGate(AsConfig::Max_X_Pos, 29);
+	Gates[2] = new AGate(1, 77);
+	Gates[3] = new AGate(AsConfig::Max_X_Pos, 77);
+	Gates[4] = new AGate(1, 129);
+	Gates[5] = new AGate(AsConfig::Max_X_Pos, 129);
+	Gates[6] = new AGate(1, 178);
+	Gates[7] = new AGate(AsConfig::Max_X_Pos, 178);
+
 	Floor_Rect.left = AsConfig::Level_X_Offset * AsConfig::Global_Scale;
 	Floor_Rect.top = (AsConfig::Max_Y_Pos - 1) * AsConfig::Global_Scale;
 	Floor_Rect.right = AsConfig::Max_X_Pos * AsConfig::Global_Scale;
@@ -59,11 +232,16 @@ void AsBorder::Draw(HDC hdc, RECT &paint_area)
 	for (i = 0; i < 50; ++i)
 		Draw_Element(hdc, 2, 1 + i * 4, false, paint_area);//left part
 
+	
 	for (i = 0; i < 50; ++i)
 		Draw_Element(hdc, 201, 1 + i * 4, false, paint_area);//right part
+	
 
 	if (AsConfig::Has_Floor)
 		Draw_Floor(hdc, paint_area);
+
+	for (i = 0; i < AsConfig::Gates_Counter; i++)
+		Gates[i]->Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Clear_Prev_Animation(HDC hdc, RECT &paint_area)

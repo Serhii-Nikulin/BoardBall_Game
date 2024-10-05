@@ -281,22 +281,23 @@ bool AsPlatform::Is_Finished()
 void AsPlatform::Shift_Per_Step(double max_speed)
 {
 	double step = AsConfig::Moving_Step_Size * Get_Speed() / max_speed;
+	double min_platform_x = AsConfig::Border_X_Offset + 1;
 
 	X_Pos += step;
 
 	if (Platform_State.Moving_State == EPlatform_Moving_State::Moving_Left)
 	{
-		if (X_Pos < AsConfig::Border_X_Offset)
+		if (X_Pos < min_platform_x)
 		{
-			X_Pos = AsConfig::Border_X_Offset;
+			X_Pos = min_platform_x;
 			Speed = 0.0;
 		}
 	}
 	else if (Platform_State.Moving_State == EPlatform_Moving_State::Moving_Right)
 	{
-		if (X_Pos > AsConfig::Max_X_Pos - Width + 1)
+		if (X_Pos > AsConfig::Max_X_Pos - Width)
 		{
-			X_Pos = AsConfig::Max_X_Pos - Width + 1;
+			X_Pos = AsConfig::Max_X_Pos - Width;
 			Speed = 0.0;
 		}
 	}
