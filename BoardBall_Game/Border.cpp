@@ -4,8 +4,11 @@
 
 //AGate
 //------------------------------------------------------------------------------------------------------------
+const double AGate::Max_Gap_Height = 9.0;
+const double AGate::Gap_Height_Short_Step = Max_Gap_Height / (double)AsConfig::FPS;
+//------------------------------------------------------------------------------------------------------------
 AGate::AGate(int x_pos, int y_pos)
-: X_Pos(x_pos), Y_Pos(y_pos)
+: X_Pos(x_pos), Y_Pos(y_pos), Gate_State(EGate_State::Closed), Gate_Transformation(EGate_Transformation::Unknown), Gap_Height(0.0), Gate_Close_Tick(0)
 {
 	int scale = AsConfig::Global_Scale;
 
@@ -17,11 +20,30 @@ AGate::AGate(int x_pos, int y_pos)
 //------------------------------------------------------------------------------------------------------------
 void AGate::Act()
 {
+	switch(Gate_State)
+	{
+	case EGate_State::Closed:
+		break;
+
+	case EGate_State::Short_Open:
+		if (Act_For_Short_Open() )
+			Redraw_Gate();
+		break;
+
+	case EGate_State::Long_Open:
+		if (Act_For_Long_Open() )
+			Redraw_Gate();
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AGate::Draw(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
+
 	if (! IntersectRect(&intersection_rect, &paint_area, &Rect) )
 		return;
 
@@ -32,7 +54,11 @@ void AGate::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AGate::Draw_Cup(HDC hdc, bool is_top)
 {
+	int i;
+	int x, y, count;
+	bool is_longer_edge;
 	const int scale = AsConfig::Global_Scale;
+	double ratio;
 	double half_scale = scale / 2.0;
 	HRGN region;
 	RECT rect, region_rect;
@@ -40,17 +66,17 @@ void AGate::Draw_Cup(HDC hdc, bool is_top)
 
 	xform.eM11 = (FLOAT)1.0; xform.eM12 = (FLOAT)0.0;
 	xform.eM21 = (FLOAT)0.0; 
-	xform.eDx = X_Pos * scale;
+	xform.eDx = (FLOAT)(X_Pos * scale);
 
-	if(is_top)
+	if (is_top)
 	{
 		xform.eM22 = (FLOAT)1.0;
-		xform.eDy = Y_Pos * scale;
+		xform.eDy = (FLOAT)(Y_Pos * scale);
 	}
 	else
 	{
 		xform.eM22 = (FLOAT)-1.0;
-		xform.eDy = (Y_Pos + Height) * scale - 1;
+		xform.eDy = FLOAT( (Y_Pos + Height) * scale - 1.0);
 	}
 
 	GetWorldTransform(hdc, &prev_xform);
@@ -91,8 +117,8 @@ void AGate::Draw_Cup(HDC hdc, bool is_top)
 	region = CreateRectRgnIndirect(&region_rect);
 	SelectClipRgn(hdc, region);
 
-	rect.left = 0 * scale + half_scale;
-	rect.top = 1 * scale + half_scale;
+	rect.left = 0 * scale + (LONG)half_scale;
+	rect.top = 1 * scale + (LONG)half_scale;
 	rect.right = rect.left + 5 * scale;
 	rect.bottom = rect.top + 6 * scale;
 
@@ -105,47 +131,118 @@ void AGate::Draw_Cup(HDC hdc, bool is_top)
 
 	AsConfig::Rect(hdc, 4, 3, 1, 1, AsConfig::BG_Color);//bg_perforation
 	
-	int i;
+	x = 0;
+	y = 4;
 
-	int x = 0;
-	int y = 4;
+	is_longer_edge = true;
 
-	for (i = 0; i < 3; i++)
+	ratio = 1.0 - Gap_Height / Max_Gap_Height + 1.0 / Edges_Count_Per_Cup;
+	count = Edges_Count_Per_Cup * ratio;
+
+	for (i = 0; i < count; i++)
 	{
-		Draw_Edge(hdc, x, y, true);
-		Draw_Edge(hdc, x, y, false);
-
-		y += 2;
+		Draw_Edge(hdc, x, y, is_longer_edge);
+		is_longer_edge = !is_longer_edge;
+		y += 1;
 	}
 
 	SetWorldTransform(hdc, &prev_xform);
 }
 //------------------------------------------------------------------------------------------------------------
-void AGate::Draw_Edge(HDC hdc, int x, int y, bool is_longer)
+void AGate::Draw_Edge(HDC hdc, int x, int y, bool is_longer_edge)
 {
 	const int scale = AsConfig::Global_Scale;
 
-	if (is_longer)
+	if (is_longer_edge)
 	{
 		AsConfig::Rect(hdc, x, y, 4, 1, AsConfig::White_Color);
 		AsConfig::Rect(hdc, x + 4, y, 2, 1, AsConfig::Blue_Color);
 	}
 	else
 	{
-		AsConfig::Rect(hdc, x + 1, y + 1, 2, 1, AsConfig::Blue_Color);
-		AsConfig::Rect(hdc, x + 4, y + 1, 1, 1, AsConfig::Blue_Color);
+		AsConfig::Rect(hdc, x + 1, y, 2, 1, AsConfig::Blue_Color);
+		AsConfig::Rect(hdc, x + 4, y, 1, 1, AsConfig::Blue_Color);
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+bool AGate::Act_For_Short_Open()
+{
+	switch (Gate_Transformation)
+	{
+	case EGate_Transformation::Init:
+		if (Gap_Height < Max_Gap_Height)
+		{
+			Gap_Height += Gap_Height_Short_Step;
+		}
+		else
+		{
+			Gap_Height = Max_Gap_Height;
+			Gate_Transformation = EGate_Transformation::Active;
+			Gate_Close_Tick = AsConfig::Current_Timer_Tick + Short_Opening_Timeout;
+		}	
+
+		return true;
+
+	case EGate_Transformation::Active:
+		if (AsConfig::Current_Timer_Tick >= Gate_Close_Tick)
+			Gate_Transformation = EGate_Transformation::Finalize;
+
+		break;
+
+	case EGate_Transformation::Finalize:
+		if (Gap_Height > 0.0)
+		{
+			Gap_Height -= Gap_Height_Short_Step;
+		}
+		else
+		{
+			Gap_Height = 0.0;
+			Gate_Transformation = EGate_Transformation::Unknown;
+			Gate_State = EGate_State::Closed;
+		}
+
+		return true;
+	}	
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AGate::Act_For_Long_Open()
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Redraw_Gate()
+{
+	AsConfig::Invalidate_Rect(Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AGate::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
-	AsConfig::BG_Color;
+	RECT intersection_rect;
+
+	if (! IntersectRect(&intersection_rect, &paint_area, &Rect) )
+		return;
+
 	AsConfig::Rect(hdc, Rect, AsConfig::BG_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AGate::Is_Finished()
 {
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Open_Gate(bool short_open)
+{
+	if (Gate_State != EGate_State::Closed)
+		return;
+
+	if (short_open)
+		Gate_State = EGate_State::Short_Open;
+	else
+		Gate_State = EGate_State::Long_Open;
+
+	Gate_Transformation = EGate_Transformation::Init;
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -219,7 +316,11 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Act()
-{//code stub
+{
+	int i;
+
+	for (i = 0; i < AsConfig::Gates_Counter; i++)
+		Gates[i]->Act();
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw(HDC hdc, RECT &paint_area)
@@ -232,11 +333,9 @@ void AsBorder::Draw(HDC hdc, RECT &paint_area)
 	for (i = 0; i < 50; ++i)
 		Draw_Element(hdc, 2, 1 + i * 4, false, paint_area);//left part
 
-	
 	for (i = 0; i < 50; ++i)
 		Draw_Element(hdc, 201, 1 + i * 4, false, paint_area);//right part
 	
-
 	if (AsConfig::Has_Floor)
 		Draw_Floor(hdc, paint_area);
 
@@ -246,7 +345,11 @@ void AsBorder::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
+	int i;
 	RECT intersection_rect;
+
+	for (i = 0; i < AsConfig::Gates_Counter; i++)
+		Gates[i]->Clear_Prev_Animation(hdc, paint_area);
 
 	if (AsConfig::Has_Floor)
 		return;
@@ -267,6 +370,17 @@ bool AsBorder::Is_Finished()
 void AsBorder::Redraw_Floor()
 {
 	AsConfig::Invalidate_Rect(Floor_Rect);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsBorder::Open_Gate(int gate_index, bool short_open)
+{
+	if (gate_index < 0 or gate_index >= AsConfig::Gates_Counter)
+		AsConfig::Throw();
+
+	if ( (gate_index != AsConfig::Gates_Counter - 1) and short_open)
+		AsConfig::Throw();
+
+	Gates[gate_index]->Open_Gate(short_open);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area)

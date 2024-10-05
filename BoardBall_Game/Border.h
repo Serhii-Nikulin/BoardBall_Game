@@ -3,6 +3,21 @@
 #include "Ball.h"
 
 //------------------------------------------------------------------------------------------------------------
+enum class EGate_State: unsigned char
+{
+	Closed,
+	Short_Open,
+	Long_Open
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EGate_Transformation: unsigned char
+{ 
+	Unknown, 
+	Init, 
+	Active, 
+	Finalize
+};
+//------------------------------------------------------------------------------------------------------------
 class AGate: public AGraphics_Object
 {
 public:
@@ -12,13 +27,30 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
+	void Open_Gate(bool short_open);
+
 private:
 	void Draw_Cup(HDC hdc, bool is_top);
-	void Draw_Edge(HDC hdc, int x, int y, bool is_longer);
+	void Draw_Edge(HDC hdc, int x, int y, bool is_longer_edge);
+	bool Act_For_Short_Open();
+	bool Act_For_Long_Open();
+	void Redraw_Gate();
+
 	int X_Pos, Y_Pos;
 	const int Width = 6;
 	const int Height = 19;
 
+	double Gap_Height;
+
+	static const int Edges_Count_Per_Cup = 6;
+	static const double Max_Gap_Height;
+	static const double Gap_Height_Short_Step;
+
+	int Gate_Close_Tick;
+	static const int Short_Opening_Timeout = AsConfig::FPS;
+
+	EGate_State Gate_State;
+	EGate_Transformation Gate_Transformation;
 	RECT Rect;
 };
 //------------------------------------------------------------------------------------------------------------
@@ -36,6 +68,7 @@ public:
 	virtual bool Is_Finished();
 
 	void Redraw_Floor();
+	void Open_Gate(int gate_index, bool short_open);
 
 private:
 	void Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area);
