@@ -28,26 +28,34 @@ public:
 	virtual bool Is_Finished();
 
 	void Open_Gate(bool short_open);
+	bool Is_Opened();
+	void Get_Y_Limits(int &gate_top_y, int &gate_low_y);
 
 private:
 	void Draw_Cup(HDC hdc, bool is_top);
-	void Draw_Edge(HDC hdc, int x, int y, bool is_longer_edge);
-	bool Act_For_Short_Open();
-	bool Act_For_Long_Open();
+	void Draw_Edges(HDC hdc);
+	void Draw_One_Edge(HDC hdc, int x, int y, bool is_longer_edge);
+	bool Act_For_Open(bool short_opening, bool &correct_pos);
 	void Redraw_Gate();
 
-	int X_Pos, Y_Pos;
+	int X_Pos;
+	double Y_Pos, Origin_Y_Pos;
 	const int Width = 6;
 	const int Height = 19;
 
 	double Gap_Height;
 
 	static const int Edges_Count_Per_Cup = 6;
-	static const double Max_Gap_Height;
+
+	static const double Max_Gap_Short_Height;
+	static const double Max_Gap_Long_Height;
+
 	static const double Gap_Height_Short_Step;
+	static const double Gap_Height_Long_Step;
 
 	int Gate_Close_Tick;
 	static const int Short_Opening_Timeout = AsConfig::FPS;
+	static const int Long_Opening_Timeout = AsConfig::FPS * 2;
 
 	EGate_State Gate_State;
 	EGate_Transformation Gate_Transformation;
@@ -69,6 +77,7 @@ public:
 
 	void Redraw_Floor();
 	void Open_Gate(int gate_index, bool short_open);
+	bool Is_Gate_Opened(int gate_index);
 
 private:
 	void Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area);

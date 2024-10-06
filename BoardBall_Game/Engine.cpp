@@ -47,8 +47,6 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Modules[2] = &Platform;
 	Modules[3] = &Ball_Set;
 	Modules[4] = &Laser_Beam_Set;
-
-	Border.Open_Gate(7, true);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
@@ -105,8 +103,7 @@ int AsEngine::On_Timer()
 	case EGS_Lost_Ball:
 		if (Platform.Has_State(EPlatform_Substate_Regular::Missing) )
 		{
-			Game_State = EGS_Restart_Level;
-			Platform.Set_State(EPlatform_State::Rolling);		
+			Restart_Level();
 		}
 		break;
 
@@ -116,13 +113,26 @@ int AsEngine::On_Timer()
 			Game_State = EGS_Play_Level;
 			Ball_Set.Set_On_Platform();
 		}
-
 		break;
 	}
 
 	Act();
 
 	return 0;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsEngine::Restart_Level()
+{
+	Game_State = EGS_Restart_Level;
+	Border.Open_Gate(AsConfig::Gates_Counter - 1, true);
+	Border.Open_Gate(5, false);
+
+	/*Border.Open_Gate(6, false);
+	Border.Open_Gate(4, false);
+	Border.Open_Gate(3, false);
+	Border.Open_Gate(2, false);
+	Border.Open_Gate(1, false);
+	Border.Open_Gate(0, false);*/
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Play_Level()
@@ -165,6 +175,9 @@ void AsEngine::Act()
 			On_Falling_Letter(falling_letter);
 	}
 
+	if (Game_State == EGS_Restart_Level)
+		if (Border.Is_Gate_Opened(AsConfig::Gates_Counter - 1) )
+			Platform.Set_State(EPlatform_State::Rolling);	
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
