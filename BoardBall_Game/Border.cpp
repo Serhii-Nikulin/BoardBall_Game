@@ -63,6 +63,9 @@ void AGate::Draw(HDC hdc, RECT &paint_area)
 	Clear_Prev_Animation(hdc, paint_area);
 	Draw_Cup(hdc, true);
 	Draw_Cup(hdc, false);
+
+	if (Gate_State == EGate_State::Long_Open and (Gate_Transformation == EGate_Transformation::Init or Gate_Transformation == EGate_Transformation::Finalize) )
+		Draw_Blazing(hdc);
 }
 //------------------------------------------------------------------------------------------------------------
 void AGate::Draw_Cup(HDC hdc, bool is_top)
@@ -71,8 +74,8 @@ void AGate::Draw_Cup(HDC hdc, bool is_top)
 	const int scale = AsConfig::Global_Scale;
 	double half_scale = scale / 2.0;
 	HRGN region;
-	RECT rect, region_rect;
-	XFORM xform, prev_xform;
+	RECT rect{}, region_rect{};
+	XFORM xform{}, prev_xform{};
 
 	double reverse_height = int( (Gap_Height + Height) * d_scale - 1.0);
 
@@ -160,19 +163,38 @@ void AGate::Draw_Cup(HDC hdc, bool is_top)
 void AGate::Draw_Edges(HDC hdc)
 {
 	int i;
+	bool is_longer_edge;
+	int x, y;
+
+	if (Gate_State == EGate_State::Short_Open)
+		Draw_Short_Open_Edges(hdc);
+	else if (Gate_State == EGate_State::Long_Open)
+		Draw_Long_Open_Edges(hdc);
+	else
+	{
+		x = 0;
+		y = 4;
+		is_longer_edge = true;
+
+		for (i = 0; i < AsConfig::Gates_Counter; i++)
+		{
+			Draw_One_Edge(hdc, x, y, is_longer_edge);
+			is_longer_edge = !is_longer_edge;
+			y += 1;
+		}
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Draw_Short_Open_Edges(HDC hdc)
+{
+	int i;
 	int x = 0;
 	int y = 4;
 	int count;
 	double ratio;
 	bool is_longer_edge;
 
-	if (Gate_State == EGate_State::Short_Open)
-		ratio = 1.0 - Gap_Height / Max_Gap_Short_Height + 1.0 / Edges_Count_Per_Cup;
-	else if (Gate_State == EGate_State::Long_Open)
-		ratio = 1.0 - Gap_Height / Max_Gap_Long_Height + 1.0 / Edges_Count_Per_Cup;
-	else
-		ratio = 1.0;
-
+	ratio = 1.0 - Gap_Height / Max_Gap_Short_Height + 1.0 / Edges_Count_Per_Cup;
 	count = int(Edges_Count_Per_Cup * ratio);
 	is_longer_edge = true;
 
@@ -181,6 +203,50 @@ void AGate::Draw_Edges(HDC hdc)
 		Draw_One_Edge(hdc, x, y, is_longer_edge);
 		is_longer_edge = !is_longer_edge;
 		y += 1;
+	}
+}
+//-----------------------------------------------------------------------------------------------------------
+void AGate::Draw_Long_Open_Edges(HDC hdc)
+{
+	int i;
+	int x = 0;
+	int y = 4;
+	int dots_count = 5;
+	double ratio;
+	bool is_longer_edge;
+
+	ratio = Gap_Height / Max_Gap_Long_Height;
+
+
+	if (ratio < 0.3)
+	{
+		is_longer_edge = true;
+		for (i = 0; i < 4; i++)
+		{
+			Draw_One_Edge(hdc, x, y++, is_longer_edge);
+			is_longer_edge = !is_longer_edge;
+		}
+
+		if (ratio > 0.1)
+			Draw_Red_Edge(hdc, x, y++, false, false);
+	}
+	else if (ratio < 0.5)
+	{
+		Draw_One_Edge(hdc, x, y++, false);
+		Draw_One_Edge(hdc, x, y++, true);
+		Draw_One_Edge(hdc, x, y++, true);
+
+		Draw_Red_Edge(hdc, x, y++, true, true);
+		Draw_Red_Edge(hdc, x, y++, false, false);
+	}
+	else
+	{
+		for (i = 0; i < 3; i++)
+			Draw_One_Edge(hdc, x, y++, true);
+
+		Draw_Red_Edge(hdc, x, y++, true, false);
+		Draw_Red_Edge(hdc, x, y++, true, true);
+		Draw_Red_Edge(hdc, x, y++, false, false);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -200,13 +266,49 @@ void AGate::Draw_One_Edge(HDC hdc, int x, int y, bool is_longer_edge)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void AGate::Draw_Red_Edge(HDC hdc, int x, int y, bool is_longer_edge, bool has_highlight)
+{
+	if (is_longer_edge)
+	{
+		AsConfig::Rect(hdc, x, y, 6, 1, AsConfig::Red_Color);
+
+		if (has_highlight)
+			AsConfig::Rect(hdc, x + 1, y, 1, 1, AsConfig::White_Color);
+	}
+	else
+		AsConfig::Rect(hdc, x + 1, y, 4, 1, AsConfig::Red_Color);
+}
+//------------------------------------------------------------------------------------------------------------
+void AGate::Draw_Blazing(HDC hdc)
+{
+	int i;
+	double ratio;
+	int dots_count = 5;
+	int x, y;
+	int y_offset;
+
+	ratio = Gap_Height / Max_Gap_Long_Height;
+
+	if (ratio < 0.2 or ratio > 0.9)
+		return;
+
+	y_offset = (int)(Origin_Y_Pos + Height / 2.0 - Gap_Height / 2.0) + 1;
+
+	for (i = 0; i < dots_count; i++)
+	{
+		x = 1 + AsConfig::Rand(4);
+		y = AsConfig::Rand( (int)Gap_Height - 1);
+		AsConfig::Rect(hdc, X_Pos + x, y_offset + y, 1, 1, AsConfig::White_Color);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 bool AGate::Act_For_Open(bool short_opening, bool &correct_pos)
 {
 	correct_pos = false;
 
 	double max_gap_height;
 	double gap_height_step;
-	double opening_timeout;
+	int opening_timeout;
 
 	if (short_opening)
 	{
@@ -303,7 +405,7 @@ void AGate::Open_Gate(bool short_open)
 	Gate_Transformation = EGate_Transformation::Init;
 }
 //------------------------------------------------------------------------------------------------------------
-bool AGate::Is_Opened()
+bool AGate::Is_Opened() const
 {
 	if (Gate_State == EGate_State::Short_Open or Gate_State == EGate_State::Long_Open)
 		if (Gate_Transformation == EGate_Transformation::Active)
@@ -312,7 +414,7 @@ bool AGate::Is_Opened()
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AGate::Get_Y_Limits(int &gate_top_y, int &gate_low_y)
+void AGate::Get_Y_Limits(int &gate_top_y, int &gate_low_y) const
 {
 	gate_top_y = Rect.top;
 	gate_low_y = Rect.bottom;
@@ -467,7 +569,7 @@ bool AsBorder::Is_Gate_Opened(int gate_index)
 void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area)
 {
 	int i;
-	RECT intersection_rect, rect;
+	RECT intersection_rect{}, rect{};
 	AsConfig::White_Color.Select(hdc);
 	int gate_top_y, gate_low_y;
 
@@ -507,7 +609,7 @@ void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_
 		Rectangle(hdc, (x + 2) * AsConfig::Global_Scale, (y + 1) * AsConfig::Global_Scale, (x + 3) * AsConfig::Global_Scale - 1, (y + 2) * AsConfig::Global_Scale - 1);
 }
 //------------------------------------------------------------------------------------------------------------
-void AsBorder::Draw_Floor(HDC hdc, RECT &paint_area)
+void AsBorder::Draw_Floor(HDC hdc, RECT &paint_area) const
 {
 	int i;
 	int x, y;

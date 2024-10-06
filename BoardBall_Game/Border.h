@@ -28,13 +28,18 @@ public:
 	virtual bool Is_Finished();
 
 	void Open_Gate(bool short_open);
-	bool Is_Opened();
-	void Get_Y_Limits(int &gate_top_y, int &gate_low_y);
+	bool Is_Opened() const;
+	void Get_Y_Limits(int &gate_top_y, int &gate_low_y) const;
 
 private:
 	void Draw_Cup(HDC hdc, bool is_top);
 	void Draw_Edges(HDC hdc);
+	void Draw_Short_Open_Edges(HDC hdc);
+	void Draw_Long_Open_Edges(HDC hdc);
 	void Draw_One_Edge(HDC hdc, int x, int y, bool is_longer_edge);
+	void Draw_Red_Edge(HDC hdc, int x, int y, bool is_longer_edge, bool has_highlight);
+	void Draw_Blazing(HDC hdc);
+
 	bool Act_For_Open(bool short_opening, bool &correct_pos);
 	void Redraw_Gate();
 
@@ -55,7 +60,7 @@ private:
 
 	int Gate_Close_Tick;
 	static const int Short_Opening_Timeout = AsConfig::FPS;
-	static const int Long_Opening_Timeout = AsConfig::FPS * 2;
+	static const int Long_Opening_Timeout = AsConfig::FPS * 3;
 
 	EGate_State Gate_State;
 	EGate_Transformation Gate_Transformation;
@@ -81,7 +86,7 @@ public:
 
 private:
 	void Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area);
-	void Draw_Floor(HDC hdc, RECT &paint_area);
+	void Draw_Floor(HDC hdc, RECT &paint_area) const;
 	RECT Floor_Rect;
 
 	AGate *Gates[AsConfig::Gates_Counter];
