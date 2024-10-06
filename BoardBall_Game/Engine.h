@@ -30,6 +30,7 @@ public:
 	void Play_Level();
 
 private:
+	void Restart_Level();
 	void Act();
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
 	void Shift_Movers();

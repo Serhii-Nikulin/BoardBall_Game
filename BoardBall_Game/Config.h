@@ -8,6 +8,9 @@ public:
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
 	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
 	static int Rand(int range);
+	static void Rect(HDC hdc, RECT &rect, const AColor &color);
+	static void Rect(HDC hdc, int x, int y, int width, int height, const AColor &color);
+
 	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
 	static void Throw();
 	static void Invalidate_Rect(RECT &rect);
@@ -22,7 +25,7 @@ public:
 	static const int Border_Y_Offset = 4;//Min_Y
 	static const int Max_X_Pos = 200;
 	static const int Max_Y_Pos = 199;
-	static const int Start_Ball_Position_On_Platform = (Max_X_Pos + Border_X_Offset) / 2;
+	static const int Start_Ball_Position_On_Platform = (Max_X_Pos + Border_X_Offset) / 2 + 1;
 
 	static bool Has_Floor;
 	static double Moving_Step_Size;
@@ -66,5 +69,7 @@ public:
 	static const int Platform_Expanding_Inner_Width = 12;
 	static const int Platform_Circle_Size = 7;
 	static const int Platform_Inner_Height = 5;
+
+	static const int Gates_Counter = 8;
 };
 //------------------------------------------------------------------------------------------------------------

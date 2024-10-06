@@ -23,7 +23,6 @@ void ALaser_Beam::Finish_Movement()
 void ALaser_Beam::Shift_Per_Step(double max_speed)
 {
 	double next_step;
-	int i;
 
 	if (Laser_Beam_State != ELaser_Beam_State::Active)
 		return;

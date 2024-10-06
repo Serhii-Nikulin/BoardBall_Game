@@ -103,8 +103,7 @@ int AsEngine::On_Timer()
 	case EGS_Lost_Ball:
 		if (Platform.Has_State(EPlatform_Substate_Regular::Missing) )
 		{
-			Game_State = EGS_Restart_Level;
-			Platform.Set_State(EPlatform_State::Rolling);		
+			Restart_Level();
 		}
 		break;
 
@@ -114,13 +113,26 @@ int AsEngine::On_Timer()
 			Game_State = EGS_Play_Level;
 			Ball_Set.Set_On_Platform();
 		}
-
 		break;
 	}
 
 	Act();
 
 	return 0;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsEngine::Restart_Level()
+{
+	Game_State = EGS_Restart_Level;
+	Border.Open_Gate(AsConfig::Gates_Counter - 1, true);
+	Border.Open_Gate(5, false);
+
+	/*Border.Open_Gate(6, false);
+	Border.Open_Gate(4, false);
+	Border.Open_Gate(3, false);
+	Border.Open_Gate(2, false);
+	Border.Open_Gate(1, false);
+	Border.Open_Gate(0, false);*/
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Play_Level()
@@ -142,14 +154,20 @@ void AsEngine::Play_Level()
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Act()
 {
+	int i;
 	int index = 0;
 	AFalling_Letter *falling_letter;
 
-	if (! Platform.Has_State(EPlatform_Substate_Regular::Ready) )
-		Ball_Set.Act();
+	for (i = 0; i < AsConfig::Max_Modules_Count; i++)
+		if (Modules[i] != 0)
+			Modules[i]->Act();
 
-	Platform.Act();
-	Level.Act();
+	//if (! Platform.Has_State(EPlatform_Substate_Regular::Ready) )
+	//	Ball_Set.Act();
+
+	//Platform.Act();
+	//Level.Act();
+	//Border.Act();
 
 	while (Level.Get_Next_Falling_Letter(index, &falling_letter) )
 	{
@@ -157,6 +175,9 @@ void AsEngine::Act()
 			On_Falling_Letter(falling_letter);
 	}
 
+	if (Game_State == EGS_Restart_Level)
+		if (Border.Is_Gate_Opened(AsConfig::Gates_Counter - 1) )
+			Platform.Set_State(EPlatform_State::Rolling);	
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
