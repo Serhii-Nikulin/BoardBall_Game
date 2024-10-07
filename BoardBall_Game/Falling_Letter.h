@@ -1,27 +1,29 @@
 #pragma once
 #include "Active_Brick.h"
 
-enum ELetter_Type
+enum class ELetter_Type: unsigned char
 {
-	//ELT_None,
-	ELT_O, // To cancel
-	ELT_M, // To generate the monster
-	ELT_I, // Inversion
-	ELT_C, // Speed
-	ELT_K, // To capture the ball by platform
-	ELT_W, // To wide
+//None,
+	O, // To cancel
+	M, // To generate the monster
+	I, // Inversion
+	C, // Speed
+	K, // To capture the ball by platform
+	W, // To wide
 
-	ELT_G, // Life
-	ELT_T, // three
-	ELT_L, // Lazer
-	ELT_P, // Floor
-	ELT_Plus, // pass to the next level
-	ELT_Max
+	G, // Life
+	T, // three
+	L, // Lazer
+	P, // Floor
+	Plus, // pass to the next level
+	Max
 };
 //------------------------------------------------------------------------------------------------------------
-enum EFalling_Letter_State
+enum class EFalling_Letter_State: unsigned char
 {
-	EFLS_Normal, EFLS_Finalizing, EFLS_Finished
+	Normal, 
+	Finalizing, 
+	Finished
 };
 //------------------------------------------------------------------------------------------------------------
 class AFalling_Letter: public AGraphics_Object
@@ -36,7 +38,7 @@ class AFalling_Letter: public AGraphics_Object
 	EFalling_Letter_State Falling_Letter_State;
 
 	static const int Max_Rotation_Step = 16;
-	static const int Letters_Popularity[ELT_Max];
+	static const int Letters_Popularity[(char)ELetter_Type::Max];
 	static int All_Letters_Popularity;
 
 public:
@@ -56,3 +58,4 @@ public:
 	RECT Letter_Cell, Prev_Letter_Cell;
 	const ELetter_Type Letter_Type;
 };
+//------------------------------------------------------------------------------------------------------------

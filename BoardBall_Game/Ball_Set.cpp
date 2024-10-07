@@ -51,7 +51,7 @@ void AsBall_Set::Act()
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() == EBS_On_Platform)
+		if (current_ball->Get_State() == EBall_State::On_Platform)
 			if (current_ball->Time_Of_Release != 0 and current_ball->Time_Of_Release <= AsConfig::Current_Timer_Tick)
 				current_ball->Release();
 	}
@@ -83,8 +83,8 @@ void AsBall_Set::Release_From_Platform()
 	int i;
 
 	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-		if (Balls[i].Get_State() == EBS_On_Platform)
-			Balls[i].Set_State(EBS_Normal);
+		if (Balls[i].Get_State() == EBall_State::On_Platform)
+			Balls[i].Set_State(EBall_State::Normal);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Set_On_Platform()
@@ -92,10 +92,10 @@ void AsBall_Set::Set_On_Platform()
 	int i;
 
 	for (i = 0; i < 1; i++)
-		Balls[i].Set_State(EBS_On_Platform);
+		Balls[i].Set_State(EBall_State::On_Platform);
 
 	for (NULL; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Set_State(EBS_Disabled);
+		Balls[i].Set_State(EBall_State::Disabled);
 
 	Balls[0].Redraw_Ball();
 }
@@ -108,12 +108,12 @@ bool AsBall_Set::All_Balls_Are_Lost()
 
 	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 	{
-		if (Balls[i].Get_State() == EBS_Disabled)
+		if (Balls[i].Get_State() == EBall_State::Disabled)
 			continue;
 
 		++active_balls_count;
 
-		if (Balls[i].Get_State() == EBS_Lost)
+		if (Balls[i].Get_State() == EBall_State::Lost)
 			++lost_balls_count;
 	}
 
@@ -147,7 +147,7 @@ void AsBall_Set::Triple_Ball()
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() == EBS_Disabled or current_ball->Get_State() == EBS_Lost)
+		if (current_ball->Get_State() == EBall_State::Disabled or current_ball->Get_State() == EBall_State::Lost)
 			continue;
 
 		current_ball->Get_Center(current_x, current_y);
@@ -167,7 +167,7 @@ void AsBall_Set::Triple_Ball()
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() == EBS_Disabled or current_ball->Get_State() == EBS_Lost)
+		if (current_ball->Get_State() == EBall_State::Disabled or current_ball->Get_State() == EBall_State::Lost)
 		{
 			if (left_candidate == 0)
 				left_candidate = current_ball;
@@ -203,7 +203,7 @@ void AsBall_Set::Inverse_Direction()
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() != EBS_Normal)
+		if (current_ball->Get_State() != EBall_State::Normal)
 			continue;
 
 		current_ball->Set_Direction(current_ball->Get_Direction() + M_PI);
@@ -219,7 +219,7 @@ void AsBall_Set::Reset_Balls_Speed()
 	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
 	{
 		current_ball = &Balls[i];
-		if (current_ball->Get_State() == EBS_Normal)
+		if (current_ball->Get_State() == EBall_State::Normal)
 			current_ball->Set_Speed(AsConfig::Ball_Normal_Speed);
 	}
 }
@@ -233,7 +233,7 @@ void AsBall_Set::Accelerate()
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() != EBS_Normal)
+		if (current_ball->Get_State() != EBall_State::Normal)
 			continue;
 
 		current_ball->Set_Speed(current_ball->Get_Speed() * AsConfig::Acceleration);
@@ -250,7 +250,7 @@ bool AsBall_Set::Release_Next_Ball()
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() == EBS_On_Platform)
+		if (current_ball->Get_State() == EBall_State::On_Platform)
 		{
 			current_ball->Release();
 			return true;
@@ -269,7 +269,7 @@ void AsBall_Set::Shift_By_Platform(double direction, double platform_speed, doub
 	{
 		current_ball = &Balls[i];
 
-		if (current_ball->Get_State() == EBS_On_Platform)
+		if (current_ball->Get_State() == EBall_State::On_Platform)
 		{
 			current_ball->Shift_With_Direction(direction, platform_speed, max_speed);
 		}

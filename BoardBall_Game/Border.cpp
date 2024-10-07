@@ -211,12 +211,10 @@ void AGate::Draw_Long_Open_Edges(HDC hdc)
 	int i;
 	int x = 0;
 	int y = 4;
-	int dots_count = 5;
 	double ratio;
 	bool is_longer_edge;
 
 	ratio = Gap_Height / Max_Gap_Long_Height;
-
 
 	if (ratio < 0.3)
 	{
@@ -485,7 +483,7 @@ bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
 		}
 
 	if (next_y_pos - ball->Radius * 4 > AsConfig::Max_Y_Pos)
-		ball->Set_State(EBS_Lost);
+		ball->Set_State(EBall_State::Lost);
 
  	return got_hit;
 }
@@ -549,21 +547,24 @@ void AsBorder::Redraw_Floor()
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Open_Gate(int gate_index, bool short_open)
 {
-	if (gate_index < 0 or gate_index >= AsConfig::Gates_Counter)
-		AsConfig::Throw();
-
 	if ( (gate_index != AsConfig::Gates_Counter - 1) and short_open)
 		AsConfig::Throw();
 
-	Gates[gate_index]->Open_Gate(short_open);
+	if (gate_index >= 0 and gate_index < AsConfig::Gates_Counter)
+		Gates[gate_index]->Open_Gate(short_open);
+	else
+		AsConfig::Throw();
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsBorder::Is_Gate_Opened(int gate_index)
 {
-	if (gate_index < 0 or gate_index >= AsConfig::Gates_Counter)
+	if (gate_index >= 0 and gate_index < AsConfig::Gates_Counter)
+		return Gates[gate_index]->Is_Opened();
+	else
+	{
 		AsConfig::Throw();
-
-	return Gates[gate_index]->Is_Opened();
+		return false;
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area)

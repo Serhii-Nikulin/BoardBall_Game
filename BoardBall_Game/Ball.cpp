@@ -7,7 +7,7 @@ const double ABall::Min_Ball_Direction = M_PI / 8.0;
 AHit_Checker_List ABall::Hit_Checker_List;
 //------------------------------------------------------------------------------------------------------------
 ABall::ABall()
-	: Ball_State(EBS_Disabled), Prev_Ball_State(EBS_Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
+	: Ball_State(EBall_State::Disabled), Prev_Ball_State(EBall_State::Disabled), Ball_Rect{}, Prev_Ball_Rect{}, Parachute_Rect{}, Prev_Parachute_Rect{},
 	Center_X_Pos(0.0), Center_Y_Pos(0.0), Ball_Speed(0.0), Ball_Direction(0.0), Time_Of_Release(0), Test_Iteration(0), Rest_Test_Distance(0.0), Testing_Is_Active(false)
 {
 }
@@ -19,12 +19,12 @@ void ABall::Begin_Movement()
 //------------------------------------------------------------------------------------------------------------
 void ABall::Finish_Movement()
 {
-	if (Ball_State == EBS_Disabled or Ball_State == EBS_Lost)
+	if (Ball_State == EBall_State::Disabled or Ball_State == EBall_State::Lost)
 		return;
 
 	Redraw_Ball();
 
-	if (Ball_State == EBS_On_Parachute)
+	if (Ball_State == EBall_State::On_Parachute)
 	{
 		Prev_Parachute_Rect = Parachute_Rect;
 
@@ -48,29 +48,29 @@ void ABall::Draw(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
 
-	if (Ball_State == EBS_Disabled)
+	if (Ball_State == EBall_State::Disabled)
 		return;
 
-	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
+	if ((Ball_State == EBall_State::Teleporting or Ball_State == EBall_State::Lost) and Ball_State == Prev_Ball_State)
 		return;
 
 	switch (Ball_State)
 	{
-	case EBS_On_Parachute:
+	case EBall_State::On_Parachute:
 		Draw_Parachute(hdc, paint_area);
 		break;
 
-	case EBS_Off_Parachute:
+	case EBall_State::Off_Parachute:
 		Clear_Parachute(hdc);
-		Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
+		Set_State(EBall_State::Normal, Center_X_Pos, Center_Y_Pos, Ball_Direction);
 		break;
 
-	case EBS_Lost:
-		if (Prev_Ball_State == EBS_On_Parachute)
+	case EBall_State::Lost:
+		if (Prev_Ball_State == EBall_State::On_Parachute)
 			Clear_Parachute(hdc);	
 		return;
 
-	case EBS_Teleporting:
+	case EBall_State::Teleporting:
 		return;
 	}
 
@@ -85,7 +85,7 @@ void ABall::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
 
-	if ((Ball_State == EBS_Teleporting or Ball_State == EBS_Lost) and Ball_State == Prev_Ball_State)
+	if ((Ball_State == EBall_State::Teleporting or Ball_State == EBall_State::Lost) and Ball_State == Prev_Ball_State)
 		return;
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
@@ -114,7 +114,7 @@ void ABall::Shift_Per_Step(double max_speed)
 	int prev_hits_count = 0;
 	int max_hits_count = 10;
 
-	if (Ball_State == EBS_Disabled or Ball_State == EBS_Lost or Ball_State == EBS_Teleporting or Ball_State == EBS_On_Platform)
+	if (Ball_State == EBall_State::Disabled or Ball_State == EBall_State::Lost or Ball_State == EBall_State::Teleporting or Ball_State == EBall_State::On_Platform)
 		return;
 
 	Prev_Ball_Rect = Ball_Rect;
@@ -149,7 +149,7 @@ void ABall::Shift_Per_Step(double max_speed)
 				Rest_Test_Distance -= next_step;
 		}
 
-		/*if (Ball_State == EBS_On_Platform)
+		/*if (Ball_State == EBall_State::On_Platform)
 			break;*/
 	}
 }
@@ -176,15 +176,15 @@ void ABall::Set_For_Test()
 	Testing_Is_Active = true;
 	Rest_Test_Distance = 50;
 
-	//Set_State(EBS_Normal, 102 + Test_Iteration, 65, M_PI + M_PI_4);//top -> left
-	//Set_State(EBS_Normal, 62 + Test_Iteration, 100, M_PI_4);//low -> right
-	//Set_State(EBS_Normal, 99 + Test_Iteration, 100, M_PI - M_PI_4);//low -> left
-	//Set_State(EBS_Normal, 60 + Test_Iteration, 60, -M_PI_4);//top -> right
+	//Set_State(EBall_State::Normal, 102 + Test_Iteration, 65, M_PI + M_PI_4);//top -> left
+	//Set_State(EBall_State::Normal, 62 + Test_Iteration, 100, M_PI_4);//low -> right
+	//Set_State(EBall_State::Normal, 99 + Test_Iteration, 100, M_PI - M_PI_4);//low -> left
+	//Set_State(EBall_State::Normal, 60 + Test_Iteration, 60, -M_PI_4);//top -> right
 	 
-	Set_State(EBS_Normal, 60 + Test_Iteration, 160, -M_PI_4);//ball reflects from ball of platform
-	//Set_State(EBS_Normal, 85 + Test_Iteration, 160, -M_PI_2);//ball 
-	//Set_State(EBS_Normal, 80, 197 - Test_Iteration, 0);//ball reflects from ball of platform
-	//Set_State(EBS_Normal, 80 + Test_Iteration, 197, M_PI_4);//ball reflects from ball of platform
+	Set_State(EBall_State::Normal, 60 + Test_Iteration, 160, -M_PI_4);//ball reflects from ball of platform
+	//Set_State(EBall_State::Normal, 85 + Test_Iteration, 160, -M_PI_2);//ball 
+	//Set_State(EBall_State::Normal, 80, 197 - Test_Iteration, 0);//ball reflects from ball of platform
+	//Set_State(EBall_State::Normal, 80 + Test_Iteration, 197, M_PI_4);//ball reflects from ball of platform
 
 
 	++Test_Iteration;
@@ -199,10 +199,10 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 {
 	switch (new_state)
 	{
-	case EBS_Disabled:
+	case EBall_State::Disabled:
 		Ball_Speed = 0.0;
 
-	case EBS_On_Platform:
+	case EBall_State::On_Platform:
 		Center_X_Pos = x_pos;
 		Center_Y_Pos = y_pos;
 		Ball_Speed = 0.0;
@@ -210,19 +210,19 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 		Time_Of_Release = AsConfig::Current_Timer_Tick + Time_On_Platform;
 		break;
 
-	case EBS_Normal:
+	case EBall_State::Normal:
 		Center_X_Pos = x_pos;
 		Center_Y_Pos = y_pos;
 		Ball_Speed = AsConfig::Ball_Normal_Speed;
 		Ball_Direction = direction;
 		break;
 	
-	case EBS_On_Parachute:
+	case EBall_State::On_Parachute:
 		AsConfig::Throw();
 		break;
 
-	case EBS_Off_Parachute:
-		if (Ball_State != EBS_On_Parachute)
+	case EBall_State::Off_Parachute:
+		if (Ball_State != EBall_State::On_Parachute)
 			AsConfig::Throw();
 
 		Ball_Direction = M_PI_4 + 2.0 * M_PI_4 * AsConfig::Rand(2);
@@ -230,8 +230,8 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 		Redraw_Parachute();
 		break;
 
-	case EBS_Teleporting:
-		if (! (Ball_State == EBS_Normal or Ball_State == EBS_On_Parachute or Ball_State == EBS_Teleporting) )
+	case EBall_State::Teleporting:
+		if (! (Ball_State == EBall_State::Normal or Ball_State == EBall_State::On_Parachute or Ball_State == EBall_State::Teleporting) )
 			AsConfig::Throw();
 
 		Center_X_Pos = x_pos;
@@ -240,13 +240,13 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 
 		Redraw_Ball();
 
-		if (Ball_State == EBS_On_Parachute)
+		if (Ball_State == EBall_State::On_Parachute)
 			Redraw_Parachute();
 
 		break;
 
-	case EBS_Lost:
-		if (! (Ball_State == EBS_Normal or Ball_State == EBS_On_Parachute or Ball_State == EBS_Lost) )
+	case EBall_State::Lost:
+		if (! (Ball_State == EBall_State::Normal or Ball_State == EBall_State::On_Parachute or Ball_State == EBall_State::Lost) )
 			AsConfig::Throw();
 
 		Redraw_Parachute();
@@ -301,7 +301,7 @@ bool ABall::Is_Test_Finished()
 		if (Rest_Test_Distance <= 0)
 		{
 			Testing_Is_Active = false;
-			Set_State(EBS_Lost);
+			Set_State(EBall_State::Lost);
 			return true;
 		}
 
@@ -329,7 +329,7 @@ void ABall::Set_On_Parachute(int level_x, int level_y)
 	int cell_x = AsConfig::Level_X_Offset + level_x * AsConfig::Cell_Width;
 	int cell_y = AsConfig::Level_Y_Offset + level_y * AsConfig::Cell_Height;
 
-	Ball_State = EBS_On_Parachute;
+	Ball_State = EBall_State::On_Parachute;
 	Ball_Direction = M_PI + M_PI_2;
 	Ball_Speed = 1.0;
 
@@ -417,7 +417,7 @@ void ABall::Shift_With_Direction(double direction, double platform_speed, double
 
 	Ball_Direction = direction;
 	Ball_Speed = platform_speed;
-	Ball_State = EBS_Normal;
+	Ball_State = EBall_State::Normal;
 
 	Shift_Per_Step(max_speed);
 
@@ -430,7 +430,7 @@ void ABall::Release()
 {
 	double speed = Ball_Speed;
 	double direction = Ball_Direction;
-	Set_State(EBS_Normal, Center_X_Pos, Center_Y_Pos, direction);
+	Set_State(EBall_State::Normal, Center_X_Pos, Center_Y_Pos, direction);
 	Set_Speed(speed);
 	Time_Of_Release = 0;
 }

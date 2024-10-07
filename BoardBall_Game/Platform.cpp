@@ -62,14 +62,14 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 
 got_hit:
 
-	if (ball->Get_State() == EBS_On_Parachute)
-		ball->Set_State(EBS_Off_Parachute);
+	if (ball->Get_State() == EBall_State::On_Parachute)
+		ball->Set_State(EBall_State::Off_Parachute);
 
 	if (Platform_State == EPlatform_State::Adhesive and Platform_State.Adhesive == EPlatform_Transformation::Active)
 	{
 		speed = ball->Get_Speed();
 		ball->Get_Center(x_pos, y_pos);
-		ball->Set_State(EBS_On_Platform, x_pos, y_pos, ball->Get_Direction() );
+		ball->Set_State(EBall_State::On_Platform, x_pos, y_pos, ball->Get_Direction() );
 		ball->Set_Speed(speed);
 	}
 
@@ -355,12 +355,12 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 			//ball->Set_Direction(full_reflect_angle);
 		}
 
-		if (ball->Get_State() == EBS_On_Parachute)
-			ball->Set_State(EBS_Off_Parachute);
+		if (ball->Get_State() == EBall_State::On_Parachute)
+			ball->Set_State(EBall_State::Off_Parachute);
 		else
 		{
 			speed = ball->Get_Speed();
-			ball->Set_State(EBS_Normal, (int)(next_x_pos + AsConfig::Global_Scale * cos(direction)), (int)(next_y_pos - AsConfig::Global_Scale * sin(direction) ), direction);
+			ball->Set_State(EBall_State::Normal, (int)(next_x_pos + AsConfig::Global_Scale * cos(direction)), (int)(next_y_pos - AsConfig::Global_Scale * sin(direction) ), direction);
 			ball->Set_Speed(speed);
 		}
 
