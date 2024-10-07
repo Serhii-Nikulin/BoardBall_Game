@@ -68,7 +68,7 @@ AActive_Brick_Red_Blue::AActive_Brick_Red_Blue(EBrick_Type brick_type, int level
 void AActive_Brick_Red_Blue::Act()
 {
 	if (++Fade_Step < Max_Fade_Step)
-		AsConfig::Invalidate_Rect(Brick_Rect);
+		AsTools::Invalidate_Rect(Brick_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
@@ -95,7 +95,7 @@ void AActive_Brick_Red_Blue::Draw(HDC hdc, RECT& paint_area)
 		if (color != 0)
 			color->Select(hdc);
 
-		AsConfig::Round_Rect(hdc, Brick_Rect);
+		AsTools::Round_Rect(hdc, Brick_Rect);
 	}
 
 }
@@ -148,7 +148,7 @@ void AActive_Brick_Red_Blue::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Typ
 	if (color != 0)
 		color->Select(hdc);
 
-	AsConfig::Round_Rect(hdc, brick_rect);
+	AsTools::Round_Rect(hdc, brick_rect);
 }
 //------------------------------------------------------------------------------------------------------------
 unsigned char AActive_Brick_Red_Blue::Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step)
@@ -213,7 +213,7 @@ void AActive_Brick_Unbreakable::Act()
 {
 	if (Animation_Step < Max_Animation_Step)
 	{
-		AsConfig::Invalidate_Rect(Brick_Rect);
+		AsTools::Invalidate_Rect(Brick_Rect);
 		Animation_Step += 1;
 	}
 }
@@ -229,7 +229,7 @@ bool AActive_Brick_Unbreakable::Is_Finished()
 void AActive_Brick_Unbreakable::Draw_In_Level(HDC hdc, RECT &brick_rect)
 {
 	AsConfig::White_Color.Select(hdc);
-	AsConfig::Round_Rect(hdc, brick_rect);
+	AsTools::Round_Rect(hdc, brick_rect);
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -252,7 +252,7 @@ void AActive_Brick_Multihit::Act()
 	if (Rotation_Step <= Max_Rotation_Step)
 	{
 		++Rotation_Step;
-		AsConfig::Invalidate_Rect(Brick_Rect);
+		AsTools::Invalidate_Rect(Brick_Rect);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -265,7 +265,7 @@ void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)
 	RECT zero_rect{};
 
 	AsConfig::BG_Color.Select(hdc);
-	AsConfig::Round_Rect(hdc, Brick_Rect);
+	AsTools::Round_Rect(hdc, Brick_Rect);
 
 	angle = 4.0 * M_PI * (double)Rotation_Step / Max_Rotation_Step;
 	x_delta = cos(angle);
@@ -303,7 +303,7 @@ void AActive_Brick_Multihit::Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Typ
 	
 
 	AsConfig::White_Color.Select(hdc);
-	AsConfig::Round_Rect(hdc, brick_rect);
+	AsTools::Round_Rect(hdc, brick_rect);
 
 	AsConfig::Red_Color.Select(hdc);
 	Rectangle(hdc, brick_rect.left + scale, brick_rect.top + scale, brick_rect.right - scale - 1, brick_rect.bottom - scale - 1);
@@ -351,8 +351,7 @@ void AActive_Brick_Multihit::Draw_Stage(HDC hdc, RECT &brick_rect, int x, int wi
 	AsConfig::BG_Color.Select(hdc);
 	Rectangle(hdc, stage_rect.left + scale, stage_rect.top + scale, stage_rect.right + scale, stage_rect.bottom + scale);
 
-	AsConfig::Blue_Color.Select(hdc);
-	Rectangle(hdc, stage_rect.left, stage_rect.top, stage_rect.right, stage_rect.bottom);
+	AsTools::Rect(hdc, stage_rect, AsConfig::Blue_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -379,7 +378,7 @@ void AActive_Brick_Teleport::Act()
 	if (Animation_Step <= Max_Animation_Step)
 	{
 		++Animation_Step;
-		AsConfig::Invalidate_Rect(Brick_Rect);
+		AsTools::Invalidate_Rect(Brick_Rect);
 	}
 	else
 	{
@@ -493,7 +492,7 @@ void AActive_Brick_Teleport::Draw_In_Level(HDC hdc, RECT &brick_rect, int step)
 	int low_y = brick_rect.top + 6 * scale - step / 2 + 1;
 
 	AsConfig::Red_Color.Select(hdc);
-	AsConfig::Round_Rect(hdc, brick_rect);
+	AsTools::Round_Rect(hdc, brick_rect);
 
 	AsConfig::Teleport_Color.Select(hdc);
 	Ellipse(hdc, brick_rect.left + 3 * scale + 1, top_y, brick_rect.left + 11 * scale + 1, low_y);
@@ -565,7 +564,7 @@ void AAdvertisement::Act()
 				rect.right = rect.left + AsConfig::Cell_Width * AsConfig::Global_Scale;
 				rect.bottom = rect.top + AsConfig::Cell_Width * AsConfig::Global_Scale;
 
-				AsConfig::Invalidate_Rect(rect);
+				AsTools::Invalidate_Rect(rect);
 			}
 
 	Falling_Speed += Acceleration;
@@ -610,7 +609,7 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 
 	AsConfig::BG_Color.Select(hdc);
 	AsConfig::Blue_Color.Select_Pen(hdc);
-	AsConfig::Round_Rect(hdc, Ad_Rect);
+	AsTools::Round_Rect(hdc, Ad_Rect);
 	POINT table_points[4] = 
 	{
 		{Ad_Rect.left + 1, Ad_Rect.top + 14 * scale}, 
@@ -730,7 +729,7 @@ void AActive_Brick_Ad::Draw(HDC hdc, RECT& paint_rect)
 //------------------------------------------------------------------------------------------------------------
 void AActive_Brick_Ad::Act()
 {
-	AsConfig::Invalidate_Rect(Brick_Rect);
+	AsTools::Invalidate_Rect(Brick_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AActive_Brick_Ad::Is_Finished()

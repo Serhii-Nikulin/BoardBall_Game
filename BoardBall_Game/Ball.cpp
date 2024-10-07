@@ -89,10 +89,7 @@ void ABall::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 		return;
 
 	if (IntersectRect(&intersection_rect, &paint_area, &Prev_Ball_Rect))
-	{
-		AsConfig::BG_Color.Select(hdc);
-		Rectangle(hdc, Prev_Ball_Rect.left, Prev_Ball_Rect.top, Prev_Ball_Rect.right - 1, Prev_Ball_Rect.bottom - 1);
-	}
+		AsTools::Rect(hdc, Prev_Ball_Rect, AsConfig::BG_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ABall::Is_Finished()
@@ -161,14 +158,14 @@ void ABall::Redraw_Ball()
 	Ball_Rect.right = (int)( (Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
 	Ball_Rect.bottom = (int)( (Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
 
-	AsConfig::Invalidate_Rect(Prev_Ball_Rect);
-	AsConfig::Invalidate_Rect(Ball_Rect);
+	AsTools::Invalidate_Rect(Prev_Ball_Rect);
+	AsTools::Invalidate_Rect(Ball_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Redraw_Parachute()
 {
-	AsConfig::Invalidate_Rect(Prev_Parachute_Rect);
-	AsConfig::Invalidate_Rect(Parachute_Rect);
+	AsTools::Invalidate_Rect(Prev_Parachute_Rect);
+	AsTools::Invalidate_Rect(Parachute_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Set_For_Test()
@@ -225,7 +222,7 @@ void ABall::Set_State(EBall_State new_state, double x_pos, double y_pos, double 
 		if (Ball_State != EBall_State::On_Parachute)
 			AsConfig::Throw();
 
-		Ball_Direction = M_PI_4 + 2.0 * M_PI_4 * AsConfig::Rand(2);
+		Ball_Direction = M_PI_4 + 2.0 * M_PI_4 * AsTools::Rand(2);
 		Redraw_Ball();
 		Redraw_Parachute();
 		break;
@@ -402,8 +399,8 @@ void ABall::Clear_Parachute(HDC hdc)
 {
 	AsConfig::BG_Color.Select(hdc);
 
-	AsConfig::Round_Rect(hdc, Prev_Parachute_Rect);
-	AsConfig::Round_Rect(hdc, Parachute_Rect);
+	AsTools::Round_Rect(hdc, Prev_Parachute_Rect);
+	AsTools::Round_Rect(hdc, Parachute_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void ABall::Shift_With_Direction(double direction, double platform_speed, double max_speed)

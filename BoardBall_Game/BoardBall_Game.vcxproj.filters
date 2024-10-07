@@ -19,20 +19,8 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{35cc553d-8b34-419b-80bb-c36368816e8e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Border">
-      <UniqueIdentifier>{ea0fff9f-f2d7-4b2b-bc0b-aa88d16f8a53}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Config">
-      <UniqueIdentifier>{75ae8ced-02fe-469c-bc50-816d69aa9e73}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Level">
       <UniqueIdentifier>{9ce719bf-d7be-4d74-bd72-af8da8b22b37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Ball">
-      <UniqueIdentifier>{c13d61ba-702d-4807-b421-934e3ae6c992}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Platform">
-      <UniqueIdentifier>{3e639b63-b04c-463d-80b1-381184aa6296}</UniqueIdentifier>
     </Filter>
     <Filter Include="Active_Brick">
       <UniqueIdentifier>{196deaad-b76f-4843-88dc-51fff8338943}</UniqueIdentifier>
@@ -40,29 +28,59 @@
     <Filter Include="Falling_Letter">
       <UniqueIdentifier>{7bad7858-6fbc-4f07-a321-18efa96960b0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Ball_Set">
+    <Filter Include="#Ball">
+      <UniqueIdentifier>{076f3f07-3e09-4cce-9151-3b0e0d69a797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Ball\Ball">
+      <UniqueIdentifier>{c13d61ba-702d-4807-b421-934e3ae6c992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Ball\Ball_Set">
       <UniqueIdentifier>{6d2eb33e-5ee6-4538-8133-d8f4d8efb3d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Laser_Beam">
+    <Filter Include="#Laser_Beam">
+      <UniqueIdentifier>{961c4005-498d-4b7d-aea8-40341ecf3a04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Laser_Beam\Laser_Beam">
       <UniqueIdentifier>{10808889-f2f0-46fa-a315-f4daaa5dcfe0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{0d2092c8-ac8b-4f78-ba04-347984a893ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Laser_Beam_Set">
+    <Filter Include="#Laser_Beam\Laser_Beam_Set">
       <UniqueIdentifier>{64546b23-2254-4cf5-b9b3-2628105af30b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform_State">
-      <UniqueIdentifier>{9b7596b7-abdf-4ca8-88e1-da7651802fe7}</UniqueIdentifier>
+    <Filter Include="#Platform">
+      <UniqueIdentifier>{04011bbf-f1a5-417b-ac09-598cb1ac069e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform_Adhesive">
+    <Filter Include="#Platform\Platform">
+      <UniqueIdentifier>{3e639b63-b04c-463d-80b1-381184aa6296}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Platform\Platform_Adhesive">
       <UniqueIdentifier>{bb31be15-8e91-4fa1-bcec-b236bb75da0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform_Expanding">
+    <Filter Include="#Platform\Platform_Expanding">
       <UniqueIdentifier>{bb0c9fc5-2839-48f6-b1fc-874f1a5dac5e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Platform_Laser">
+    <Filter Include="#Platform\Platform_Laser">
       <UniqueIdentifier>{094d388b-d890-4945-b20c-1ef4e51467c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Platform\Platform_State">
+      <UniqueIdentifier>{9b7596b7-abdf-4ca8-88e1-da7651802fe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Border">
+      <UniqueIdentifier>{7ecf3b68-b75a-46da-8ce8-09976caf915d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Border\Border">
+      <UniqueIdentifier>{ea0fff9f-f2d7-4b2b-bc0b-aa88d16f8a53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Border\Gate">
+      <UniqueIdentifier>{6f5a5a66-e45d-4f20-bc9d-15adc548b69c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Tools">
+      <UniqueIdentifier>{645b2094-8cf7-4633-ad42-3239ba308f2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Tools\Config">
+      <UniqueIdentifier>{75ae8ced-02fe-469c-bc50-816d69aa9e73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="#Tools\Common">
+      <UniqueIdentifier>{0d2092c8-ac8b-4f78-ba04-347984a893ed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,19 +100,19 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Border.h">
-      <Filter>Border</Filter>
+      <Filter>#Border\Border</Filter>
     </ClInclude>
     <ClInclude Include="Config.h">
-      <Filter>Config</Filter>
+      <Filter>#Tools\Config</Filter>
     </ClInclude>
     <ClInclude Include="Level.h">
       <Filter>Level</Filter>
     </ClInclude>
     <ClInclude Include="Ball.h">
-      <Filter>Ball</Filter>
+      <Filter>#Ball\Ball</Filter>
     </ClInclude>
     <ClInclude Include="Platform.h">
-      <Filter>Platform</Filter>
+      <Filter>#Platform\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Active_Brick.h">
       <Filter>Active_Brick</Filter>
@@ -103,28 +121,31 @@
       <Filter>Falling_Letter</Filter>
     </ClInclude>
     <ClInclude Include="Ball_Set.h">
-      <Filter>Ball_Set</Filter>
+      <Filter>#Ball\Ball_Set</Filter>
     </ClInclude>
     <ClInclude Include="Laser_Beam.h">
-      <Filter>Laser_Beam</Filter>
+      <Filter>#Laser_Beam\Laser_Beam</Filter>
     </ClInclude>
-    <ClInclude Include="Tools.h">
-      <Filter>Tools</Filter>
+    <ClInclude Include="Common.h">
+      <Filter>#Tools\Common</Filter>
     </ClInclude>
     <ClInclude Include="Laser_Beam_Set.h">
-      <Filter>Laser_Beam_Set</Filter>
+      <Filter>#Laser_Beam\Laser_Beam_Set</Filter>
     </ClInclude>
     <ClInclude Include="Platform_State.h">
-      <Filter>Platform_State</Filter>
+      <Filter>#Platform\Platform_State</Filter>
     </ClInclude>
     <ClInclude Include="Platform_Adhesive.h">
-      <Filter>Platform_Adhesive</Filter>
+      <Filter>#Platform\Platform_Adhesive</Filter>
     </ClInclude>
     <ClInclude Include="Platform_Expanding.h">
-      <Filter>Platform_Expanding</Filter>
+      <Filter>#Platform\Platform_Expanding</Filter>
     </ClInclude>
     <ClInclude Include="Platform_Laser.h">
-      <Filter>Platform_Laser</Filter>
+      <Filter>#Platform\Platform_Laser</Filter>
+    </ClInclude>
+    <ClInclude Include="Gate.h">
+      <Filter>#Border\Gate</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,19 +169,19 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Border.cpp">
-      <Filter>Border</Filter>
+      <Filter>#Border\Border</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
-      <Filter>Config</Filter>
+      <Filter>#Tools\Config</Filter>
     </ClCompile>
     <ClCompile Include="Level.cpp">
       <Filter>Level</Filter>
     </ClCompile>
     <ClCompile Include="Ball.cpp">
-      <Filter>Ball</Filter>
+      <Filter>#Ball\Ball</Filter>
     </ClCompile>
     <ClCompile Include="Platform.cpp">
-      <Filter>Platform</Filter>
+      <Filter>#Platform\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Active_Brick.cpp">
       <Filter>Active_Brick</Filter>
@@ -169,28 +190,31 @@
       <Filter>Falling_Letter</Filter>
     </ClCompile>
     <ClCompile Include="Ball_Set.cpp">
-      <Filter>Ball_Set</Filter>
+      <Filter>#Ball\Ball_Set</Filter>
     </ClCompile>
     <ClCompile Include="Laser_Beam.cpp">
-      <Filter>Laser_Beam</Filter>
+      <Filter>#Laser_Beam\Laser_Beam</Filter>
     </ClCompile>
-    <ClCompile Include="Tools.cpp">
-      <Filter>Tools</Filter>
+    <ClCompile Include="Common.cpp">
+      <Filter>#Tools\Common</Filter>
     </ClCompile>
     <ClCompile Include="Laser_Beam_Set.cpp">
-      <Filter>Laser_Beam_Set</Filter>
+      <Filter>#Laser_Beam\Laser_Beam_Set</Filter>
     </ClCompile>
     <ClCompile Include="Platform_State.cpp">
-      <Filter>Platform_State</Filter>
+      <Filter>#Platform\Platform_State</Filter>
     </ClCompile>
     <ClCompile Include="Platform_Adhesive.cpp">
-      <Filter>Platform_Adhesive</Filter>
+      <Filter>#Platform\Platform_Adhesive</Filter>
     </ClCompile>
     <ClCompile Include="Platform_Expanding.cpp">
-      <Filter>Platform_Expanding</Filter>
+      <Filter>#Platform\Platform_Expanding</Filter>
     </ClCompile>
     <ClCompile Include="Platform_Laser.cpp">
-      <Filter>Platform_Laser</Filter>
+      <Filter>#Platform\Platform_Laser</Filter>
+    </ClCompile>
+    <ClCompile Include="Gate.cpp">
+      <Filter>#Border\Gate</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

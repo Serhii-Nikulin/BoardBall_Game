@@ -505,7 +505,7 @@ void AsLevel::Redraw_Brick(int level_x, int level_y)
 	brick_rect.right = brick_rect.left + AsConfig::Brick_Width * AsConfig::Global_Scale;
 	brick_rect.bottom = brick_rect.top + AsConfig::Brick_Height * AsConfig::Global_Scale;
 
-	AsConfig::Invalidate_Rect(brick_rect);
+	AsTools::Invalidate_Rect(brick_rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_type)
@@ -518,7 +518,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 	if (! (brick_type == EBrick_Type::Blue or brick_type == EBrick_Type::Red) )
 		return false;
 
-	if (AsConfig::Rand(AsConfig::Hits_Per_Letter) != 0)
+	if (AsTools::Rand(AsConfig::Hits_Per_Letter) != 0)
 		return false;
 		
 	if (Falling_Letters_Count >= AsConfig::Max_Falling_Letters_Count)
@@ -532,7 +532,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
 			letter_type = ELetter_Type::L;//AFalling_Letter::Get_Random_Letter_Type();
 
-			switch (AsConfig::Rand(3) )
+			switch (AsTools::Rand(3) )
 			{
 			case 0:
 				letter_type = ELetter_Type::L;
@@ -729,7 +729,7 @@ AActive_Brick_Teleport *AsLevel::Select_Destination_Teleport(int source_x, int s
 		return 0;
 	}
 
-	dest_index = AsConfig::Rand(Teleport_Bricks_Count);
+	dest_index = AsTools::Rand(Teleport_Bricks_Count);
 	
 	if (source_x == Teleport_Bricks_Pos[dest_index].X and source_y == Teleport_Bricks_Pos[dest_index].Y)
 		++dest_index;
@@ -767,11 +767,11 @@ void AsLevel::Draw_Parachute_In_Level(HDC hdc, RECT brick_rect)
 			top_rect.bottom = top_rect.top + height + 1;
 		}
 
-		AsConfig::Round_Rect(hdc, top_rect);
+		AsTools::Round_Rect(hdc, top_rect);
 		bottom_rect = top_rect;
 		bottom_rect.top += height;
 		bottom_rect.bottom += height;
-		AsConfig::Round_Rect(hdc, bottom_rect);
+		AsTools::Round_Rect(hdc, bottom_rect);
 		top_rect.left += width;
 	}
 }

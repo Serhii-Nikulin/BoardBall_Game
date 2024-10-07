@@ -263,8 +263,8 @@ void AFalling_Letter::Act()
 
 	Rotation_Step += 1;
 
-	AsConfig::Invalidate_Rect(Prev_Letter_Cell);
-	AsConfig::Invalidate_Rect(Letter_Cell);
+	AsTools::Invalidate_Rect(Prev_Letter_Cell);
+	AsTools::Invalidate_Rect(Letter_Cell);
 }
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -274,9 +274,7 @@ void AFalling_Letter::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	if (! IntersectRect(&intersection_rect, &paint_area, &Prev_Letter_Cell))
 		return;
 
-	AsConfig::BG_Color.Select(hdc);
-	
-	Rectangle(hdc, Prev_Letter_Cell.left, Prev_Letter_Cell.top, Prev_Letter_Cell.right, Prev_Letter_Cell.bottom);
+	AsTools::Rect(hdc, Prev_Letter_Cell, AsConfig::BG_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Draw(HDC hdc, RECT& paint_area)
@@ -309,8 +307,8 @@ void AFalling_Letter::Get_Letter_Cell(RECT &rect)
 void AFalling_Letter::Finalize()
 {
 	Falling_Letter_State = EFalling_Letter_State::Finalizing;
-	AsConfig::Invalidate_Rect(Prev_Letter_Cell);
-	AsConfig::Invalidate_Rect(Letter_Cell);
+	AsTools::Invalidate_Rect(Prev_Letter_Cell);
+	AsTools::Invalidate_Rect(Letter_Cell);
 }
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Test_Draw_All_Steps(HDC hdc)
@@ -343,7 +341,7 @@ void AFalling_Letter::Init()
 ELetter_Type AFalling_Letter::Get_Random_Letter_Type()
 {
 	int i;
-	int letter_popularity = AsConfig::Rand(All_Letters_Popularity);
+	int letter_popularity = AsTools::Rand(All_Letters_Popularity);
 
 	for (i = 0; (ELetter_Type)i < ELetter_Type::Max; i++)
 	{

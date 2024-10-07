@@ -124,7 +124,7 @@ int AsEngine::On_Timer()
 void AsEngine::Restart_Level()
 {
 	Game_State = EGame_State::Restart_Level;
-	Border.Open_Gate(AsConfig::Gates_Counter - 1, true);
+	Border.Open_Gate(AsConfig::Gates_Count - 1, true);
 	Border.Open_Gate(5, false);
 
 	/*Border.Open_Gate(6, false);
@@ -176,7 +176,7 @@ void AsEngine::Act()
 	}
 
 	if (Game_State == EGame_State::Restart_Level)
-		if (Border.Is_Gate_Opened(AsConfig::Gates_Counter - 1) )
+		if (Border.Is_Gate_Opened(AsConfig::Gates_Count - 1) )
 			Platform.Set_State(EPlatform_State::Rolling);	
 }
 //------------------------------------------------------------------------------------------------------------

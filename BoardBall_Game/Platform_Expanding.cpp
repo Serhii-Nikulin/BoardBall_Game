@@ -118,8 +118,9 @@ void AsPlatform_Expanding::Draw_State(HDC hdc, double x, double &current_width, 
 
 	//3.Inner part
 	Inner_Color->Select(hdc);
-	Rectangle(hdc, inner_rect.left, inner_rect.top, inner_rect.right, inner_rect.bottom);
-
+	Rectangle(hdc, inner_rect.left, inner_rect.top, inner_rect.right, inner_rect.bottom); // ##
+	//AsTools::Rect(hdc, inner_rect, *Inner_Color);
+	
 	//4.Truss
 	ratio = current_width / Max_Expanding_Width;
 	Draw_Expanding_Truss(hdc, x, y, ratio);
