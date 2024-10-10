@@ -90,9 +90,7 @@ void ALaser_Beam::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	if (! IntersectRect(&intersection_rect, &Prev_Laser_Rect, &paint_area) )
 		return;
 
-	AsConfig::BG_Color.Select(hdc);
-
-	Rectangle(hdc, Prev_Laser_Rect.left, Prev_Laser_Rect.top, Prev_Laser_Rect.right, Prev_Laser_Rect.bottom);
+	AsTools::Rect(hdc, Prev_Laser_Rect, AsConfig::BG_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ALaser_Beam::Is_Finished()
@@ -120,8 +118,8 @@ void ALaser_Beam::Redraw_Beam()
 	Laser_Rect.right = Laser_Rect.left + Width * AsConfig::Global_Scale + 1;
 	Laser_Rect.bottom = Laser_Rect.top + (Height + 1) * AsConfig::Global_Scale - 1;
 
-	AsConfig::Invalidate_Rect(Laser_Rect);
-	AsConfig::Invalidate_Rect(Prev_Laser_Rect);
+	AsTools::Invalidate_Rect(Laser_Rect);
+	AsTools::Invalidate_Rect(Prev_Laser_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool ALaser_Beam::Is_Active()

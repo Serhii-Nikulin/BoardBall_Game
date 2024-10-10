@@ -62,14 +62,14 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 
 got_hit:
 
-	if (ball->Get_State() == EBS_On_Parachute)
-		ball->Set_State(EBS_Off_Parachute);
+	if (ball->Get_State() == EBall_State::On_Parachute)
+		ball->Set_State(EBall_State::Off_Parachute);
 
 	if (Platform_State == EPlatform_State::Adhesive and Platform_State.Adhesive == EPlatform_Transformation::Active)
 	{
 		speed = ball->Get_Speed();
 		ball->Get_Center(x_pos, y_pos);
-		ball->Set_State(EBS_On_Platform, x_pos, y_pos, ball->Get_Direction() );
+		ball->Set_State(EBall_State::On_Platform, x_pos, y_pos, ball->Get_Direction() );
 		ball->Set_Speed(speed);
 	}
 
@@ -266,8 +266,8 @@ void AsPlatform::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	case EPlatform_State::Adhesive:
 	case EPlatform_State::Expanding:
 	case EPlatform_State::Laser:
-		AsConfig::BG_Color.Select(hdc);
-		Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
+		AsTools::Rect(hdc, Prev_Platform_Rect, AsConfig::BG_Color);
+
 	default:
 		return;
 	}
@@ -355,12 +355,12 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 			//ball->Set_Direction(full_reflect_angle);
 		}
 
-		if (ball->Get_State() == EBS_On_Parachute)
-			ball->Set_State(EBS_Off_Parachute);
+		if (ball->Get_State() == EBall_State::On_Parachute)
+			ball->Set_State(EBall_State::Off_Parachute);
 		else
 		{
 			speed = ball->Get_Speed();
-			ball->Set_State(EBS_Normal, (int)(next_x_pos + AsConfig::Global_Scale * cos(direction)), (int)(next_y_pos - AsConfig::Global_Scale * sin(direction) ), direction);
+			ball->Set_State(EBall_State::Normal, (int)(next_x_pos + AsConfig::Global_Scale * cos(direction)), (int)(next_y_pos - AsConfig::Global_Scale * sin(direction) ), direction);
 			ball->Set_Speed(speed);
 		}
 
@@ -494,7 +494,7 @@ void AsPlatform::Draw_Normal_State(HDC hdc, RECT& paint_area)
 	inner_rect.right = int( (x + 4 + Inner_Width) * d_scale);
 	inner_rect.bottom = (y + 1 + AsConfig::Platform_Inner_Height) * scale;
 
-	AsConfig::Round_Rect(hdc, inner_rect, AsConfig::Platform_Inner_Height);
+	AsTools::Round_Rect(hdc, inner_rect, AsConfig::Platform_Inner_Height);
 
 	//draw highlight
 	Platform_Expanding.Draw_Circle_Highlight(hdc, int(x * d_scale), y * scale);
@@ -535,7 +535,7 @@ void AsPlatform::Draw_Meltdown_State(HDC hdc, RECT& paint_area)
 		if (Meltdown_Platform_Y_Pos[i] > max_platform_y)
 			continue;
 
-		y_offset = AsConfig::Rand(Meltdown_Speed);
+		y_offset = AsTools::Rand(Meltdown_Speed);
 
 		x = Platform_Rect.left + i;
 		y = Meltdown_Platform_Y_Pos[i];
@@ -629,8 +629,8 @@ void AsPlatform::Redraw(bool update_rect)
 		Prev_Platform_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale + AsConfig::Global_Scale;
 	}
 	
-	AsConfig::Invalidate_Rect(Prev_Platform_Rect);
-	AsConfig::Invalidate_Rect(Platform_Rect);
+	AsTools::Invalidate_Rect(Prev_Platform_Rect);
+	AsTools::Invalidate_Rect(Platform_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsPlatform::Draw_Roll_In_State(HDC hdc, RECT& paint_area)

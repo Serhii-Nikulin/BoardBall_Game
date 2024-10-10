@@ -5,10 +5,12 @@
 #include "Platform.h"
 #include "Level.h"
 
-enum EGame_State
+enum class EGame_State: unsigned char
 {
-	EGS_Test_Ball,
-	EGS_Play_Level, EGS_Lost_Ball, EGS_Restart_Level
+	Test_Ball,
+	Play_Level, 
+	Lost_Ball, 
+	Restart_Level
 };
 //------------------------------------------------------------------------------------------------------------
 const int Timer_ID = WM_USER + 1;
@@ -16,9 +18,11 @@ const int Timer_ID = WM_USER + 1;
 class AsEngine
 {
 public:
-	enum EKey_Type
+	enum class EKey_Type: unsigned char
 	{
-		EKT_Left, EKT_Right, EKT_Space
+		Left, 
+		Right, 
+		Space
 	};
 
 	AsEngine();
@@ -34,6 +38,7 @@ private:
 	void Act();
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
 	void Shift_Movers();
+	void Add_Next_Module(int &index, AGame_Object *game_obj);
 
 	EGame_State Game_State;
 	AsLevel Level;
@@ -41,8 +46,8 @@ private:
 	AsPlatform Platform;
 	AsBall_Set Ball_Set;
 	AsLaser_Beam_Set Laser_Beam_Set;
-	AMover *Movers[AsConfig::Max_Movers_Count];
-	AGraphics_Object *Modules[AsConfig::Max_Modules_Count];
+
+	AGame_Object *Modules[AsConfig::Max_Modules_Count];
 	double Rest_Distance;
 	int Life_Count;
 };

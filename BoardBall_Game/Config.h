@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools.h"
+#include "Common.h"
 
 //------------------------------------------------------------------------------------------------------------
 class AsConfig
@@ -7,13 +7,8 @@ class AsConfig
 public:
 	static void Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush);
 	static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
-	static int Rand(int range);
-	static void Rect(HDC hdc, RECT &rect, const AColor &color);
-	static void Rect(HDC hdc, int x, int y, int width, int height, const AColor &color);
-
-	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
+	
 	static void Throw();
-	static void Invalidate_Rect(RECT &rect);
 
 	static HWND Hwnd;
 	static const int Global_Scale = 3;
@@ -55,7 +50,6 @@ public:
 	static const int Max_Falling_Letters_Count = 20;
 
 	static const int Max_Balls_Count = 10;
-	static const int Max_Movers_Count = 10;
 
 	static const double Acceleration;
 	static const double Ball_Normal_Speed;
@@ -70,6 +64,16 @@ public:
 	static const int Platform_Circle_Size = 7;
 	static const int Platform_Inner_Height = 5;
 
-	static const int Gates_Counter = 8;
+	static const int Gates_Count = 8;
+};
+//------------------------------------------------------------------------------------------------------------
+class AsTools
+{
+public:
+	static int Rand(int range);
+	static void Rect(HDC hdc, RECT &rect, const AColor &color);
+	static void Rect(HDC hdc, int x, int y, int width, int height, const AColor &color);
+	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
+	static void Invalidate_Rect(RECT &rect);
 };
 //------------------------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@
 #include "Platform_Laser.h"// + Laser_Beam_Set.h + Laser_Beam.h
 
 //------------------------------------------------------------------------------------------------------------
-class AsPlatform: public AHit_Checker, public AMover, public AGraphics_Object
+class AsPlatform: public AHit_Checker, public AGame_Object
 {
 public:
 	AsPlatform();
