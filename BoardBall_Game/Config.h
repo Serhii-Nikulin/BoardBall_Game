@@ -50,7 +50,6 @@ public:
 	static const int Max_Falling_Letters_Count = 20;
 
 	static const int Max_Balls_Count = 10;
-	static const int Max_Movers_Count = 10;
 
 	static const double Acceleration;
 	static const double Ball_Normal_Speed;

@@ -4,13 +4,18 @@
 #include "Gate.h"
 
 //------------------------------------------------------------------------------------------------------------
-class AsBorder: public AHit_Checker, public AGraphics_Object
+class AsBorder: public AHit_Checker, public AGame_Object
 {
 public:
 	~AsBorder();
 	AsBorder();
 
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
+
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
 
 	virtual void Act();
 	virtual void Draw(HDC HDC, RECT &paint_area);

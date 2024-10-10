@@ -2,7 +2,7 @@
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Movers{}, Modules{}, Ball_Set(), Laser_Beam_Set()
+	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set()
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -10,7 +10,8 @@ void AsEngine::Init_Engine(HWND hwnd)
 {
 	SYSTEMTIME sys_time;
 	FILETIME file_time;
-	
+	int index;
+
 	GetSystemTime(&sys_time);
 	SystemTimeToFileTime(&sys_time, &file_time);
 	srand(file_time.dwLowDateTime);
@@ -36,17 +37,13 @@ void AsEngine::Init_Engine(HWND hwnd)
 	
 	SetTimer(AsConfig::Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);
 
-	memset(Movers, 0, sizeof(Movers) );
-	Movers[0] = &Platform;
-	Movers[1] = &Ball_Set;
-	Movers[2] = &Laser_Beam_Set;
-
+	index = 0;
 	memset(Modules, 0, sizeof(Modules) );
-	Modules[0] = &Level;//1
-	Modules[1] = &Border;//2 - floor effect
-	Modules[2] = &Platform;
-	Modules[3] = &Ball_Set;
-	Modules[4] = &Laser_Beam_Set;
+	Add_Next_Module(index, &Level); // 1
+	Add_Next_Module(index, &Border); // 2 - floor effect
+	Add_Next_Module(index, &Platform);
+	Add_Next_Module(index, &Ball_Set);
+	Add_Next_Module(index, &Laser_Beam_Set);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
@@ -236,11 +233,11 @@ void AsEngine::Shift_Movers()
 	int i;
 	double current_speed, max_speed = 0;
 	
-	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
+	for (i = 0; i < AsConfig::Max_Modules_Count; i++)
 	{
-		if (Movers[i] != 0)
+		if (Modules[i] != 0)
 		{
-			current_speed = fabs(Movers[i]->Get_Speed() );
+			current_speed = fabs(Modules[i]->Get_Speed() );
 
 			if (current_speed > max_speed)
 				max_speed = current_speed;
@@ -249,15 +246,15 @@ void AsEngine::Shift_Movers()
 
 	Rest_Distance += max_speed;
 
-	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
-		if (Movers[i] != 0)
-			Movers[i]->Begin_Movement();
+	for (i = 0; i < AsConfig::Max_Modules_Count; i++)
+		if (Modules[i] != 0)
+			Modules[i]->Begin_Movement();
 
 	while (Rest_Distance > 0.0)
 	{
-		for (i = 0; i < AsConfig::Max_Movers_Count; i++)
-			if (Movers[i] != 0)
-				Movers[i]->Shift_Per_Step(max_speed);
+		for (i = 0; i < AsConfig::Max_Modules_Count; i++)
+			if (Modules[i] != 0)
+				Modules[i]->Shift_Per_Step(max_speed);
 
 		Rest_Distance -= AsConfig::Moving_Step_Size;
 	}
@@ -272,8 +269,14 @@ void AsEngine::Shift_Movers()
  				int yy = 0; 
 	}*/
 
- 	for (i = 0; i < AsConfig::Max_Movers_Count; i++)
-		if (Movers[i] != 0)
-			Movers[i]->Finish_Movement();
+ 	for (i = 0; i < AsConfig::Max_Modules_Count; i++)
+		if (Modules[i] != 0)
+			Modules[i]->Finish_Movement();
+}
+//------------------------------------------------------------------------------------------------------------
+void AsEngine::Add_Next_Module(int &index, AGame_Object *game_obj)
+{
+	if (index >= 0 and index < AsConfig::Max_Modules_Count)
+		Modules[index++] = game_obj;
 }
 //------------------------------------------------------------------------------------------------------------

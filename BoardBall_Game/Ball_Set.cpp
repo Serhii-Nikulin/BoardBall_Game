@@ -2,46 +2,6 @@
 
 //AsBall_Set
 //------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Begin_Movement()
-{
-	int i;
-
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Begin_Movement();
-}
-//------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Finish_Movement()
-{
-	int i;
-
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Finish_Movement();
-}
-//------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Shift_Per_Step(double max_speed)
-{
-	int i;
-
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Shift_Per_Step(max_speed);
-}
-//------------------------------------------------------------------------------------------------------------
-double AsBall_Set::Get_Speed()
-{
-	int i;
-	double current_speed, max_speed = 0;
-
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-	{
-		current_speed = Balls[i].Get_Speed();
-
-		if (current_speed > max_speed)
-			max_speed = current_speed;
-	}
-
-	return max_speed;
-}
-//------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Act()
 {
 	int i;
@@ -55,27 +15,6 @@ void AsBall_Set::Act()
 			if (current_ball->Time_Of_Release != 0 and current_ball->Time_Of_Release <= AsConfig::Current_Timer_Tick)
 				current_ball->Release();
 	}
-}
-//------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Draw(HDC hdc, RECT &paint_area)
-{
-	int i;
-
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Draw(hdc, paint_area);
-}
-//------------------------------------------------------------------------------------------------------------
-void AsBall_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
-{
-	int i;
-
-	for (i = 0; i < AsConfig::Max_Balls_Count; i++)
-		Balls[i].Clear_Prev_Animation(hdc, paint_area);
-}
-//------------------------------------------------------------------------------------------------------------
-bool AsBall_Set::Is_Finished()
-{
-	return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AsBall_Set::Release_From_Platform()
@@ -274,5 +213,15 @@ void AsBall_Set::Shift_By_Platform(double direction, double platform_speed, doub
 			current_ball->Shift_With_Direction(direction, platform_speed, max_speed);
 		}
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsBall_Set::Get_Next_Game_Object(int &index, AGame_Object **game_obj)
+{
+	if (index < 0 or index >= AsConfig::Max_Balls_Count)
+		return false;
+
+	*game_obj = &Balls[index++];
+
+	return true;
 }
 //------------------------------------------------------------------------------------------------------------

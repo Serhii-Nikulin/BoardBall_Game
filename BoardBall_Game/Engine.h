@@ -38,6 +38,7 @@ private:
 	void Act();
 	void On_Falling_Letter(AFalling_Letter *falling_Letter);
 	void Shift_Movers();
+	void Add_Next_Module(int &index, AGame_Object *game_obj);
 
 	EGame_State Game_State;
 	AsLevel Level;
@@ -45,8 +46,8 @@ private:
 	AsPlatform Platform;
 	AsBall_Set Ball_Set;
 	AsLaser_Beam_Set Laser_Beam_Set;
-	AMover *Movers[AsConfig::Max_Movers_Count];
-	AGraphics_Object *Modules[AsConfig::Max_Modules_Count];
+
+	AGame_Object *Modules[AsConfig::Max_Modules_Count];
 	double Rest_Distance;
 	int Life_Count;
 };
