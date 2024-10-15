@@ -1,5 +1,14 @@
 #pragma once
 #include "Border.h"
+
+//------------------------------------------------------------------------------------------------------------
+enum class EEye_State: unsigned char
+{
+	Closed, 
+	Opening, 
+	Staring,
+	Closing
+};
 //------------------------------------------------------------------------------------------------------------
 class AMonster: public AGame_Object
 {
@@ -20,11 +29,19 @@ public:
 private:
 	int X_Pos, Y_Pos;
 	double Cornea_Height;
+	int Start_Blink_Timeout;
 
 	static const int Width = 16, Height = 16;
 	static const int Max_Cornea_Height = 11;
 
 	RECT Monster_Rect;
+	EEye_State Eye_State;
+
+	static const int Blink_Stages_Count = 7;
+	static const double Blink_Timeouts[Blink_Stages_Count];
+	static const EEye_State Blink_States[Blink_Stages_Count];
+	int Blink_Ticks[Blink_Stages_Count];
+	int Total_Animation_Timeout;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsMonster_Set: public AsGame_Objects_Set

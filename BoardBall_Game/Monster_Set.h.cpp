@@ -2,8 +2,12 @@
 
 //AMonster
 //------------------------------------------------------------------------------------------------------------
+const double AMonster::Blink_Timeouts[AMonster::Blink_Stages_Count] = { 0.5, 0.5, 1.0, 0.5, 
+	0.5, 0.5, 1.2};
+const EEye_State AMonster::Blink_States[AMonster::Blink_Stages_Count] = {EEye_State::Closed, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing};
+//------------------------------------------------------------------------------------------------------------
 AMonster::AMonster()
-: Is_Active(false), Monster_Rect{}, X_Pos(0), Y_Pos(0), Cornea_Height(0)
+	: Is_Active(false), Monster_Rect{}, X_Pos(0), Y_Pos(0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -26,6 +30,54 @@ double AMonster::Get_Speed()
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Act()
 {
+	int i;
+	int current_tick_offset, prev_tick;
+	double ratio;
+
+	if (! Is_Active)
+		return;
+
+	current_tick_offset = (AsConfig::Current_Timer_Tick - Start_Blink_Timeout) % Total_Animation_Timeout;
+
+	for (i = 0; i < Blink_Stages_Count; i++)
+	{
+		if (current_tick_offset < Blink_Ticks[i])
+		{
+			Eye_State = Blink_States[i];
+			break;
+		}	
+	}
+
+	if (i == 0)
+		prev_tick = 0;
+	else
+		prev_tick = Blink_Ticks[i - 1];
+
+	ratio = ((double)current_tick_offset - prev_tick) / (Blink_Ticks[i] - prev_tick);
+
+	switch (Eye_State)
+	{
+	case EEye_State::Closed:
+		Cornea_Height = 0.0;
+		break;
+
+	case EEye_State::Opening:
+		Cornea_Height = ratio * Max_Cornea_Height;
+		break;
+
+	case EEye_State::Staring:
+		Cornea_Height = Max_Cornea_Height;
+		break;
+
+	case EEye_State::Closing:
+		Cornea_Height = (1.0 - ratio) * Max_Cornea_Height;
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
+
+	AsTools::Invalidate_Rect(Monster_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Draw(HDC hdc, RECT &paint_area)
@@ -61,14 +113,15 @@ void AMonster::Draw(HDC hdc, RECT &paint_area)
 
 	AsTools::Ellipse(hdc, rect, AsConfig::Red_Color);
 	
-	Cornea_Height = Max_Cornea_Height / 2.0 / 2.0;
+	if (Eye_State == EEye_State::Closed)
+		return;
 
 	//Draw cornea
 	cornea_rect = Monster_Rect;
 	cornea_rect.left += 1 * scale + half_scale;
 	cornea_rect.right -= 1 * scale + half_scale;
-	cornea_rect.top += int( (Height / 2.0 - Cornea_Height) * AsConfig::D_Global_Scale);
-	cornea_rect.bottom -= int( (Height / 2.0 - Cornea_Height) * AsConfig::D_Global_Scale);
+	cornea_rect.top += int( (Height - Cornea_Height) / 2.0 * AsConfig::D_Global_Scale);
+	cornea_rect.bottom -= int( (Height - Cornea_Height) / 2.0 * AsConfig::D_Global_Scale);
 
 	SelectClipRgn(hdc, 0);
 	DeleteObject(region);
@@ -114,18 +167,31 @@ bool AMonster::Is_Finished()
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Activate(int x_pos, int y_pos)
 {
+	int i;
 	const int scale = AsConfig::Global_Scale;
+	double current_timeout = 0.0;
+
 	if (Is_Active)
 		return;
 
 	Is_Active = true;
-	X_Pos = x_pos;
+	X_Pos = x_pos + 10;
 	Y_Pos = y_pos;
 
 	Monster_Rect.left = X_Pos * scale;
 	Monster_Rect.top = Y_Pos * scale;
 	Monster_Rect.right = Monster_Rect.left + Width * scale;
 	Monster_Rect.bottom = Monster_Rect.top + Height * scale;
+
+	Start_Blink_Timeout = AsConfig::Current_Timer_Tick;
+
+	for (i = 0; i < Blink_Stages_Count; i++)
+	{
+		current_timeout += Blink_Timeouts[i];
+		Blink_Ticks[i] = current_timeout * AsConfig::FPS;
+	}
+
+	Total_Animation_Timeout = Blink_Ticks[i - 1];
 }
 //------------------------------------------------------------------------------------------------------------
 
