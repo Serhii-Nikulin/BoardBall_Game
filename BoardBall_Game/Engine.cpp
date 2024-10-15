@@ -2,7 +2,7 @@
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set()
+	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set(), Monster_Set()
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -27,6 +27,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	AFalling_Letter::Init();
 	Platform.Init(&Laser_Beam_Set, &Ball_Set);
 	Level.Init();
+	Monster_Set.Init(&Border);
 	Level.Set_Current_Level(AsLevel::Level_01);
 	/*Ball.Set_State(EBall_State::Normal);
 	Platform.Set_State(EPS_Normal); */
@@ -44,6 +45,9 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Add_Next_Module(index, &Platform);
 	Add_Next_Module(index, &Ball_Set);
 	Add_Next_Module(index, &Laser_Beam_Set);
+	Add_Next_Module(index, &Monster_Set);
+
+	Monster_Set.Emit_From_Gate(4);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
@@ -122,14 +126,6 @@ void AsEngine::Restart_Level()
 {
 	Game_State = EGame_State::Restart_Level;
 	Border.Open_Gate(AsConfig::Gates_Count - 1, true);
-	Border.Open_Gate(5, false);
-
-	/*Border.Open_Gate(6, false);
-	Border.Open_Gate(4, false);
-	Border.Open_Gate(3, false);
-	Border.Open_Gate(2, false);
-	Border.Open_Gate(1, false);
-	Border.Open_Gate(0, false);*/
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Play_Level()

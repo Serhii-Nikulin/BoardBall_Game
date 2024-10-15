@@ -46,6 +46,11 @@ public:
 	static const AColor Advert_Blue_Table_Color;
 	static const AColor Advert_Red_Table_Color;
 
+	static const AColor Monster_Dark_Red_Color;
+	static const AColor Monster_Cornea_Color;
+	static const AColor Monster_Iris_Color;
+	static const AColor BG_Outline_Color;
+
 	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
 
@@ -74,6 +79,7 @@ public:
 	static void Rect(HDC hdc, RECT &rect, const AColor &color);
 	static void Rect(HDC hdc, int x, int y, int width, int height, const AColor &color);
 	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
+	static void Ellipse(HDC hdc, RECT &rect, const AColor &color);
 	static void Invalidate_Rect(RECT &rect);
 };
 //------------------------------------------------------------------------------------------------------------

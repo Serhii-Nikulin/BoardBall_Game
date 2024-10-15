@@ -16,6 +16,11 @@ const AColor AsConfig::Teleport_Color(AsConfig::Blue_Color, AsConfig::Global_Sca
 const AColor AsConfig::Advert_Blue_Table_Color(AsConfig::Blue_Color, AsConfig::Global_Scale);
 const AColor AsConfig::Advert_Red_Table_Color(AsConfig::Red_Color, 2 * AsConfig::Global_Scale);
 
+const AColor AsConfig::Monster_Dark_Red_Color(191, 31, 31);
+const AColor AsConfig::Monster_Cornea_Color(AsConfig::BG_Color, AsConfig::Global_Scale * 2 / 3, AsConfig::White_Color);
+const AColor AsConfig::Monster_Iris_Color(AsConfig::BG_Color, AsConfig::Global_Scale * 2 / 3, AsConfig::Blue_Color);
+const AColor AsConfig::BG_Outline_Color(AsConfig::BG_Color, AsConfig::Global_Scale * 2 / 3);
+
 const double AsConfig::Acceleration = 1.001;
 const double AsConfig::Ball_Normal_Speed = 3.0 * 2;
 //------------------------------------------------------------------------------------------------------------
@@ -71,6 +76,12 @@ void AsTools::Round_Rect(HDC hdc, RECT &rect, int corner_radius)
 {
 	int radius = corner_radius * AsConfig::Global_Scale;
 	RoundRect(hdc, rect.left, rect.top, rect.right - 1, rect.bottom - 1, radius, radius);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsTools::Ellipse(HDC hdc, RECT &rect, const AColor &color)
+{
+	color.Select(hdc);
+	::Ellipse(hdc, rect.left, rect.top, rect.right - 1, rect.bottom - 1);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsTools::Invalidate_Rect(RECT &rect)

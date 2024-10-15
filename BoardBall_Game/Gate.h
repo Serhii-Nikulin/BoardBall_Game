@@ -29,6 +29,7 @@ public:
 	void Open_Gate(bool short_open);
 	bool Is_Opened() const;
 	void Get_Y_Limits(int &gate_top_y, int &gate_low_y) const;
+	void Get_Pos(int &x_pos, int &y_pos);
 
 private:
 	void Draw_Cup(HDC hdc, bool is_top);
