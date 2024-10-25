@@ -392,7 +392,7 @@ void AsPlatform::Set_State(EPlatform_State new_state)
 		Rolling_Step = Max_Rolling_Step - 1;
 		Inner_Width = 0;
 		Platform_State.Rolling = EPlatform_Substate_Rolling::Roll_In;
-
+		Redraw();
 		break;
 
 	case EPlatform_State::Meltdown:

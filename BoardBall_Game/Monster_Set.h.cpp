@@ -1,5 +1,83 @@
 #include "Monster_Set.h"
 
+//AExplosive_Ball
+//------------------------------------------------------------------------------------------------------------
+AExplosive_Ball::AExplosive_Ball()
+: X_Pos(0), Y_Pos(0), Size(0.0), Max_Size(0.0), Step_Count(0), Size_Step(0.0), Explosive_Ball_Rect{}, Explosive_Ball_State(EExplosive_Ball_State::Idle)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AExplosive_Ball::Act()
+{
+	switch(Explosive_Ball_State)
+	{
+	case EExplosive_Ball_State::Idle:
+		break;
+
+	case EExplosive_Ball_State::Expanding:
+
+		Size += Size_Step;
+
+		if (Size >= Max_Size)
+		{
+			Size = Max_Size;
+			Explosive_Ball_State = EExplosive_Ball_State::Fading;
+		}
+		else
+			Update_Exploding_Ball_Rect();
+
+		break;
+
+	case EExplosive_Ball_State::Fading:
+
+		break;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AExplosive_Ball::Draw(HDC hdc, RECT &paint_area)
+{
+	if (Explosive_Ball_State == EExplosive_Ball_State::Idle)
+		return;
+
+	AsTools::Ellipse(hdc, Explosive_Ball_Rect, AsConfig::Monster_Dark_Red_Color);
+}
+//------------------------------------------------------------------------------------------------------------
+void AExplosive_Ball::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+bool AExplosive_Ball::Is_Finished()
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AExplosive_Ball::Explode(int x_pos, int y_pos, double max_size, int step_count)
+{
+	Explosive_Ball_State = EExplosive_Ball_State::Expanding;
+
+	Size = 0.0;
+	X_Pos = x_pos;
+	Y_Pos = y_pos;
+	Max_Size = max_size;
+	Step_Count = step_count;
+	Size_Step = (double)Max_Size / (double)Step_Count;
+
+	Update_Exploding_Ball_Rect();
+}
+//------------------------------------------------------------------------------------------------------------
+void AExplosive_Ball::Update_Exploding_Ball_Rect()
+{
+	Explosive_Ball_Rect.left = X_Pos - (int)Size / 2.0;
+	Explosive_Ball_Rect.right = Explosive_Ball_Rect.left + Size;
+	Explosive_Ball_Rect.top = Y_Pos - (int)Size / 2.0;
+	Explosive_Ball_Rect.bottom = Explosive_Ball_Rect.top + Size;
+
+	//AsTools::Invalidate_Rect(Explosive_Ball_Rect);
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
 //AMonster
 //------------------------------------------------------------------------------------------------------------
 const double AMonster::Blink_Timeouts[AMonster::Blink_Stages_Count] = { 0.5, 0.5, 1.0, 0.5, 
@@ -7,7 +85,7 @@ const double AMonster::Blink_Timeouts[AMonster::Blink_Stages_Count] = { 0.5, 0.5
 const EEye_State AMonster::Blink_States[AMonster::Blink_Stages_Count] = {EEye_State::Closed, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing};
 //------------------------------------------------------------------------------------------------------------
 AMonster::AMonster()
-	: Is_Active(false), Monster_Rect{}, X_Pos(0), Y_Pos(0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0)
+	: Monster_State(EMonster_State::Missing), Monster_Rect{}, X_Pos(0), Y_Pos(0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -30,12 +108,31 @@ double AMonster::Get_Speed()
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Act()
 {
+	switch(Monster_State)
+	{
+	case EMonster_State::Missing:
+		return;
+
+	case EMonster_State::Alive:
+		Act_Alive();
+		break;
+
+	case EMonster_State::Destroying:
+		Act_Destroying();
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
+
+	AsTools::Invalidate_Rect(Monster_Rect);
+}
+//------------------------------------------------------------------------------------------------------------
+void AMonster::Act_Alive()
+{
 	int i;
 	int current_tick_offset, prev_tick;
 	double ratio;
-
-	if (! Is_Active)
-		return;
 
 	current_tick_offset = (AsConfig::Current_Timer_Tick - Start_Blink_Timeout) % Total_Animation_Timeout;
 
@@ -76,24 +173,48 @@ void AMonster::Act()
 	default:
 		AsConfig::Throw();
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AMonster::Act_Destroying()
+{
+	int i;
 
-	AsTools::Invalidate_Rect(Monster_Rect);
+	for (i = 0; i < Explosive_Balls_Count; i++)
+		Explosive_Balls[i].Act();
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Draw(HDC hdc, RECT &paint_area)
 {
 	RECT intersection_rect;
+
+	if (! IntersectRect(&intersection_rect, &Monster_Rect, &paint_area) )
+		return;
+
+	switch (Monster_State)
+	{
+	case EMonster_State::Missing:
+		break;
+
+	case EMonster_State::Alive:
+		Draw_Alive(hdc);
+		break;
+
+	case EMonster_State::Destroying:
+		Draw_Destroying(hdc, paint_area);
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AMonster::Draw_Alive(HDC hdc)
+{
 	HRGN region;
 
 	RECT rect, cornea_rect;
 	const int scale = AsConfig::Global_Scale;
 	const int half_scale = scale / 2;
-
-	if (! Is_Active)
-		return;
-
-	if (! IntersectRect(&intersection_rect, &Monster_Rect, &paint_area) )
-		return;
 
 	rect = Monster_Rect;
 	rect.right += 1;
@@ -156,6 +277,15 @@ void AMonster::Draw(HDC hdc, RECT &paint_area)
 	Arc(hdc, cornea_rect.left, cornea_rect.top, cornea_rect.right - 1, cornea_rect.bottom - 1, 0, 0, 0, 0);
 }
 //------------------------------------------------------------------------------------------------------------
+void AMonster::Draw_Destroying(HDC hdc, RECT &paint_area)
+{
+	int i;
+	
+	for (i = 0; i < Explosive_Balls_Count; i++)
+		Explosive_Balls[i].Draw(hdc, paint_area);
+
+}
+//------------------------------------------------------------------------------------------------------------
 void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
 }
@@ -171,10 +301,10 @@ void AMonster::Activate(int x_pos, int y_pos)
 	const int scale = AsConfig::Global_Scale;
 	double current_timeout = 0.0;
 
-	if (Is_Active)
+	if (Monster_State == EMonster_State::Alive)
 		return;
 
-	Is_Active = true;
+	Monster_State = EMonster_State::Alive;
 	X_Pos = x_pos + 10;
 	Y_Pos = y_pos;
 
@@ -192,6 +322,21 @@ void AMonster::Activate(int x_pos, int y_pos)
 	}
 
 	Total_Animation_Timeout = Blink_Ticks[i - 1];
+}
+//------------------------------------------------------------------------------------------------------------
+bool AMonster::Is_Active()
+{
+	if (Monster_State == EMonster_State::Missing)
+		return false;
+	else
+		return true;
+}
+//------------------------------------------------------------------------------------------------------------
+void AMonster::Destroy()
+{
+	Monster_State = EMonster_State::Destroying;
+
+	Explosive_Balls[0].Explode(Monster_Rect.left + 20, Monster_Rect.top + 20, 30.0, 50);
 }
 //------------------------------------------------------------------------------------------------------------
 
@@ -222,7 +367,7 @@ void AsMonster_Set::Emit_From_Gate(int gate_index)
 
 	for (i = 0; i < Max_Monsters_Count; i++)
 	{
-		if (! Monsters[i].Is_Active)
+		if (! Monsters[i].Is_Active() )
 		{
 			monster = &Monsters[i];
 			break;
@@ -234,6 +379,7 @@ void AsMonster_Set::Emit_From_Gate(int gate_index)
 
 	Border->Get_Gate_Pos(gate_index, gate_x_pos, gate_y_pos);
 	monster->Activate(gate_x_pos, gate_y_pos);
+	monster->Destroy();
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsMonster_Set::Get_Next_Game_Object(int &index, AGame_Object **object)

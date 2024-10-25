@@ -10,6 +10,44 @@ enum class EEye_State: unsigned char
 	Closing
 };
 //------------------------------------------------------------------------------------------------------------
+enum class EExplosive_Ball_State: unsigned char
+{
+	Idle,
+	Expanding,
+	Fading
+};
+//------------------------------------------------------------------------------------------------------------
+enum class EMonster_State: unsigned char
+{
+	Missing,
+	Alive,
+	Destroying
+};
+//------------------------------------------------------------------------------------------------------------
+class AExplosive_Ball: public AGraphics_Object
+{
+public:
+	AExplosive_Ball();
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
+	void Explode(int x_pos, int y_pos, double max_size, int count_count);
+
+private:
+	void Update_Exploding_Ball_Rect();
+
+	int X_Pos, Y_Pos;
+	double Size, Max_Size;
+	int Step_Count;
+	double Size_Step;
+
+	RECT Explosive_Ball_Rect;
+	EExplosive_Ball_State Explosive_Ball_State;
+};
+//------------------------------------------------------------------------------------------------------------
 class AMonster: public AGame_Object
 {
 public:
@@ -25,8 +63,15 @@ public:
 	virtual bool Is_Finished();
 
 	void Activate(int x_pos, int y_pos);
-	bool Is_Active;
+	bool Is_Active();
+	void Destroy();
+
 private:
+	void Draw_Alive(HDC hdc);
+	void Draw_Destroying(HDC hdc, RECT &paint_area);
+	void Act_Alive();
+	void Act_Destroying();
+
 	int X_Pos, Y_Pos;
 	double Cornea_Height;
 	int Start_Blink_Timeout;
@@ -36,12 +81,16 @@ private:
 
 	RECT Monster_Rect;
 	EEye_State Eye_State;
+	EMonster_State Monster_State;
 
 	static const int Blink_Stages_Count = 7;
 	static const double Blink_Timeouts[Blink_Stages_Count];
 	static const EEye_State Blink_States[Blink_Stages_Count];
 	int Blink_Ticks[Blink_Stages_Count];
 	int Total_Animation_Timeout;
+
+	static const int Explosive_Balls_Count = 10;
+	AExplosive_Ball Explosive_Balls[Explosive_Balls_Count];
 };
 //------------------------------------------------------------------------------------------------------------
 class AsMonster_Set: public AsGame_Objects_Set
