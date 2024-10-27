@@ -1,9 +1,10 @@
 #include "Monster_Set.h"
 
 //AExplosive_Ball
+AColor AExplosive_Ball::Fading_Red_Colors[Max_Fade_Step] = {};
 //------------------------------------------------------------------------------------------------------------
 AExplosive_Ball::AExplosive_Ball()
-: X_Pos(0), Y_Pos(0), Size(0.0), Max_Size(0.0), Step_Count(0), Size_Step(0.0), Explosive_Ball_Rect{}, Explosive_Ball_State(EExplosive_Ball_State::Idle)
+: X_Pos(0), Y_Pos(0), Size(0.0), Max_Size(0.0), Step_Count(0), Size_Step(0.0), Explosive_Ball_Rect{}, Explosive_Ball_State(EExplosive_Ball_State::Idle), Start_Fading_Tick(0)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -22,6 +23,7 @@ void AExplosive_Ball::Act()
 		{
 			Size = Max_Size;
 			Explosive_Ball_State = EExplosive_Ball_State::Fading;
+			Start_Fading_Tick = AsConfig::Current_Timer_Tick;
 		}
 		else
 			Update_Exploding_Ball_Rect();
@@ -29,6 +31,8 @@ void AExplosive_Ball::Act()
 		break;
 
 	case EExplosive_Ball_State::Fading:
+		if (AsConfig::Current_Timer_Tick > Start_Fading_Tick + Fading_Timeout)
+			Explosive_Ball_State = EExplosive_Ball_State::Idle;
 
 		break;
 	}
@@ -36,10 +40,38 @@ void AExplosive_Ball::Act()
 //------------------------------------------------------------------------------------------------------------
 void AExplosive_Ball::Draw(HDC hdc, RECT &paint_area)
 {
-	if (Explosive_Ball_State == EExplosive_Ball_State::Idle)
+	int current_timeout;
+	int color_index;
+	double ratio;
+
+	switch (Explosive_Ball_State)
+	{
+	case EExplosive_Ball_State::Idle:
 		return;
 
-	AsTools::Ellipse(hdc, Explosive_Ball_Rect, AsConfig::Monster_Dark_Red_Color);
+	case EExplosive_Ball_State::Expanding:
+		AsTools::Ellipse(hdc, Explosive_Ball_Rect, AsConfig::Monster_Dark_Red_Color);
+		break;
+
+	case EExplosive_Ball_State::Fading:
+		current_timeout = AsConfig::Current_Timer_Tick - Start_Fading_Tick;
+
+		if (current_timeout > Fading_Timeout)
+			current_timeout = Fading_Timeout;
+
+		if (current_timeout == Fading_Timeout)
+			AsTools::Ellipse(hdc, Explosive_Ball_Rect, AsConfig::BG_Color);
+		else
+		{
+			ratio = (double)current_timeout / (double)Fading_Timeout;
+			color_index = (int)round( (Max_Fade_Step - 1) * ratio);
+
+			AsTools::Ellipse(hdc, Explosive_Ball_Rect, Fading_Red_Colors[color_index]);
+		}
+
+		break;
+	}
+	
 }
 //------------------------------------------------------------------------------------------------------------
 void AExplosive_Ball::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -64,13 +96,24 @@ void AExplosive_Ball::Explode(int x_pos, int y_pos, double max_size, int step_co
 
 	Update_Exploding_Ball_Rect();
 }
+
+//------------------------------------------------------------------------------------------------------------
+void AExplosive_Ball::Setup_Colors()
+{
+	int i;
+
+	for (i = 0; i < Max_Fade_Step; i++)
+	{
+		AsTools::Get_Fading_Color(AsConfig::Red_Color, i, Fading_Red_Colors[i], Max_Fade_Step);
+	}
+}
 //------------------------------------------------------------------------------------------------------------
 void AExplosive_Ball::Update_Exploding_Ball_Rect()
 {
-	Explosive_Ball_Rect.left = X_Pos - (int)Size / 2.0;
-	Explosive_Ball_Rect.right = Explosive_Ball_Rect.left + Size;
-	Explosive_Ball_Rect.top = Y_Pos - (int)Size / 2.0;
-	Explosive_Ball_Rect.bottom = Explosive_Ball_Rect.top + Size;
+	Explosive_Ball_Rect.left = (int)(X_Pos - (Size / 2.0) );
+	Explosive_Ball_Rect.right = (int)(Explosive_Ball_Rect.left + Size);
+	Explosive_Ball_Rect.top = (int)(Y_Pos - (Size / 2.0) );
+	Explosive_Ball_Rect.bottom = (int)(Explosive_Ball_Rect.top + Size);
 
 	//AsTools::Invalidate_Rect(Explosive_Ball_Rect);
 }
@@ -288,6 +331,12 @@ void AMonster::Draw_Destroying(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
+	RECT intersection_rect;
+
+	if (! IntersectRect(&intersection_rect, &paint_area, &Monster_Rect) )
+		return;
+
+	AsTools::Ellipse(hdc, Monster_Rect, AsConfig::BG_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AMonster::Is_Finished()

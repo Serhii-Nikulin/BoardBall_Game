@@ -53,6 +53,22 @@ void AsConfig::Throw()
 
 //AsTools
 //------------------------------------------------------------------------------------------------------------
+unsigned char AsTools::Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step, int max_fade_step)
+{
+	return color - color * step / (max_fade_step - 1) + bg_color * step / (max_fade_step - 1);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsTools::Get_Fading_Color(const AColor& origin_color, int step, AColor& result_color, int max_fade_step)
+{
+	unsigned char r, g, b;
+
+	r = Get_Fading_Channel(origin_color.R, AsConfig::BG_Color.R, step, max_fade_step);
+	g = Get_Fading_Channel(origin_color.G, AsConfig::BG_Color.G, step, max_fade_step);
+	b = Get_Fading_Channel(origin_color.B, AsConfig::BG_Color.B, step, max_fade_step);
+
+	result_color = AColor(r, g, b);
+}
+//------------------------------------------------------------------------------------------------------------
 int AsTools::Rand(int range)
 {
 	return rand() * range / RAND_MAX;

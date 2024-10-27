@@ -33,7 +33,8 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Platform.Set_State(EPS_Normal); */
 	
 	AActive_Brick_Red_Blue::Setup_Colors();
-	
+	AExplosive_Ball::Setup_Colors();
+
 	Platform.Redraw();
 	
 	SetTimer(AsConfig::Hwnd, Timer_ID, 1000 / AsConfig::FPS, NULL);

@@ -75,6 +75,9 @@ public:
 class AsTools
 {
 public:
+	static unsigned char Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step, int max_fade_step);
+	static void Get_Fading_Color(const AColor &origin_color, int step, AColor &result_color, int max_fade_step);
+
 	static int Rand(int range);
 	static void Rect(HDC hdc, RECT &rect, const AColor &color);
 	static void Rect(HDC hdc, int x, int y, int width, int height, const AColor &color);

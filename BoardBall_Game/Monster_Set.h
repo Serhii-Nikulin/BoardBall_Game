@@ -35,6 +35,7 @@ public:
 	virtual bool Is_Finished();
 
 	void Explode(int x_pos, int y_pos, double max_size, int count_count);
+	static void Setup_Colors();
 
 private:
 	void Update_Exploding_Ball_Rect();
@@ -43,6 +44,10 @@ private:
 	double Size, Max_Size;
 	int Step_Count;
 	double Size_Step;
+	int Start_Fading_Tick;
+	static const int Fading_Timeout = AsConfig::FPS;
+	static const int Max_Fade_Step = AsConfig::FPS;
+	static AColor Fading_Red_Colors[Max_Fade_Step];
 
 	RECT Explosive_Ball_Rect;
 	EExplosive_Ball_State Explosive_Ball_State;
