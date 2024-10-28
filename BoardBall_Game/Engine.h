@@ -4,6 +4,7 @@
 //#include "Ball.h"
 #include "Platform.h"
 #include "Level.h"
+#include "Monster_Set.h"
 
 enum class EGame_State: unsigned char
 {
@@ -46,6 +47,7 @@ private:
 	AsPlatform Platform;
 	AsBall_Set Ball_Set;
 	AsLaser_Beam_Set Laser_Beam_Set;
+	AsMonster_Set Monster_Set;
 
 	AGame_Object *Modules[AsConfig::Max_Modules_Count];
 	double Rest_Distance;

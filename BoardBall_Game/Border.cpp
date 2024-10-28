@@ -163,6 +163,14 @@ bool AsBorder::Is_Gate_Opened(int gate_index)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void AsBorder::Get_Gate_Pos(int gate_index, int &x_pos, int &y_pos)
+{
+	if (gate_index > 0 and gate_index < AsConfig::Gates_Count)
+		Gates[gate_index]->Get_Pos(x_pos, y_pos);
+	else
+		AsConfig::Throw();
+}
+//------------------------------------------------------------------------------------------------------------
 void AsBorder::Draw_Element(HDC hdc, int x, int y, bool top_border, RECT &paint_area)
 {
 	int i;

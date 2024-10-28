@@ -54,9 +54,6 @@ public:
 	static void Draw_In_Level(HDC hdc, RECT &brick_rect, EBrick_Type brick_type);
 
 private:
-	static unsigned char Get_Fading_Channel(unsigned char color, unsigned char bg_color, int step);
-	static void Get_Fading_Color(const AColor &origin_color, int step, AColor &result_color);
-
 	int Fade_Step;
 
 	static const int Max_Fade_Step = AsConfig::FPS;
