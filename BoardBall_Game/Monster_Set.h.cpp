@@ -2,9 +2,10 @@
 
 //AExplosive_Ball
 AColor AExplosive_Ball::Fading_Red_Colors[Max_Fade_Step] = {};
+AColor AExplosive_Ball::Fading_Blue_Colors[Max_Fade_Step] = {};
 //------------------------------------------------------------------------------------------------------------
 AExplosive_Ball::AExplosive_Ball()
-: X_Pos(0), Y_Pos(0), Size(0.0), Max_Size(0.0), Step_Count(0), Size_Step(0.0), Explosive_Ball_Rect{}, Explosive_Ball_State(EExplosive_Ball_State::Idle), Start_Fading_Tick(0)
+: X_Pos(0), Y_Pos(0), Size(0.0), Max_Size(0.0), Step_Count(0), Size_Step(0.0), Explosive_Ball_Rect{}, Explosive_Ball_State(EExplosive_Ball_State::Idle), Start_Fading_Tick(0), Time_Offset(0), Start_Expanding_Tick(0), Is_Red(false)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -13,6 +14,13 @@ void AExplosive_Ball::Act()
 	switch(Explosive_Ball_State)
 	{
 	case EExplosive_Ball_State::Idle:
+		break;
+
+	case EExplosive_Ball_State::Charging:
+
+		if(AsConfig::Current_Timer_Tick >= Start_Expanding_Tick)
+			Explosive_Ball_State = EExplosive_Ball_State::Expanding;
+
 		break;
 
 	case EExplosive_Ball_State::Expanding:
@@ -43,14 +51,23 @@ void AExplosive_Ball::Draw(HDC hdc, RECT &paint_area)
 	int current_timeout;
 	int color_index;
 	double ratio;
+	const AColor *color = 0;
 
 	switch (Explosive_Ball_State)
 	{
 	case EExplosive_Ball_State::Idle:
+	case EExplosive_Ball_State::Charging:
 		return;
 
 	case EExplosive_Ball_State::Expanding:
-		AsTools::Ellipse(hdc, Explosive_Ball_Rect, AsConfig::Monster_Dark_Red_Color);
+
+		if(Is_Red)
+			color = &AsConfig::Explosion_Red_Color;
+		else
+			color = &AsConfig::Explosion_Blue_Color;
+		
+		AsTools::Ellipse(hdc, Explosive_Ball_Rect, *color);
+
 		break;
 
 	case EExplosive_Ball_State::Fading:
@@ -66,7 +83,12 @@ void AExplosive_Ball::Draw(HDC hdc, RECT &paint_area)
 			ratio = (double)current_timeout / (double)Fading_Timeout;
 			color_index = (int)round( (Max_Fade_Step - 1) * ratio);
 
-			AsTools::Ellipse(hdc, Explosive_Ball_Rect, Fading_Red_Colors[color_index]);
+			if(Is_Red)
+				color = &Fading_Red_Colors[color_index];
+			else
+				color = &Fading_Blue_Colors[color_index];
+
+			AsTools::Ellipse(hdc, Explosive_Ball_Rect, *color);
 		}
 
 		break;
@@ -76,16 +98,17 @@ void AExplosive_Ball::Draw(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AExplosive_Ball::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
+	// stub
 }
 //------------------------------------------------------------------------------------------------------------
 bool AExplosive_Ball::Is_Finished()
 {
-	return false;
+	return false; // stub
 }
 //------------------------------------------------------------------------------------------------------------
-void AExplosive_Ball::Explode(int x_pos, int y_pos, double max_size, int step_count)
+void AExplosive_Ball::Explode(int x_pos, int y_pos, double max_size, bool is_red, int time_offset, int step_count)
 {
-	Explosive_Ball_State = EExplosive_Ball_State::Expanding;
+	Explosive_Ball_State = EExplosive_Ball_State::Charging;
 
 	Size = 0.0;
 	X_Pos = x_pos;
@@ -93,10 +116,12 @@ void AExplosive_Ball::Explode(int x_pos, int y_pos, double max_size, int step_co
 	Max_Size = max_size;
 	Step_Count = step_count;
 	Size_Step = (double)Max_Size / (double)Step_Count;
+	Time_Offset = time_offset;
+	Start_Expanding_Tick = AsConfig::Current_Timer_Tick + time_offset;
+	Is_Red = is_red;
 
 	Update_Exploding_Ball_Rect();
 }
-
 //------------------------------------------------------------------------------------------------------------
 void AExplosive_Ball::Setup_Colors()
 {
@@ -105,6 +130,7 @@ void AExplosive_Ball::Setup_Colors()
 	for (i = 0; i < Max_Fade_Step; i++)
 	{
 		AsTools::Get_Fading_Color(AsConfig::Red_Color, i, Fading_Red_Colors[i], Max_Fade_Step);
+		AsTools::Get_Fading_Color(AsConfig::Blue_Color, i, Fading_Blue_Colors[i], Max_Fade_Step);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -326,7 +352,6 @@ void AMonster::Draw_Destroying(HDC hdc, RECT &paint_area)
 	
 	for (i = 0; i < Explosive_Balls_Count; i++)
 		Explosive_Balls[i].Draw(hdc, paint_area);
-
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -367,7 +392,7 @@ void AMonster::Activate(int x_pos, int y_pos)
 	for (i = 0; i < Blink_Stages_Count; i++)
 	{
 		current_timeout += Blink_Timeouts[i];
-		Blink_Ticks[i] = current_timeout * AsConfig::FPS;
+		Blink_Ticks[i] = (int)(current_timeout * AsConfig::FPS);
 	}
 
 	Total_Animation_Timeout = Blink_Ticks[i - 1];
@@ -383,9 +408,39 @@ bool AMonster::Is_Active()
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Destroy()
 {
+	int i;
+	const int& scale = AsConfig::Global_Scale;
+	int half_width = Width * scale / 2;
+	int half_height = Height * scale / 2;
+
+	int x_pos = X_Pos * scale + half_width;
+	int y_pos = Y_Pos * scale + half_height;
+	int x_offset, y_offset;
+	int size, time_offset;
+	int half_size, rest_size;
+
+	half_size = half_width;
+
+	if (half_size > half_height)
+		half_size = half_height;
+
 	Monster_State = EMonster_State::Destroying;
 
-	Explosive_Balls[0].Explode(Monster_Rect.left + 20, Monster_Rect.top + 20, 30.0, 50);
+	for (i = 0; i < Explosive_Balls_Count; i++)
+	{
+		time_offset = AsTools::Rand(AsConfig::FPS * 2);
+
+		x_offset = AsTools::Rand(half_width) - half_width / 2;
+		y_offset = AsTools::Rand(half_height) - half_height / 2;
+
+		rest_size = half_size - (int)sqrt(x_offset * x_offset + y_offset * y_offset);
+		size = AsTools::Rand(rest_size / 2) + rest_size / 2;
+
+		if (size < scale)
+			size = scale;
+
+			Explosive_Balls[i].Explode(x_pos + x_offset, y_pos + y_offset, size * 2, AsTools::Rand(2), time_offset, 10);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 

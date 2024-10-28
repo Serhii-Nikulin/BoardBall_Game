@@ -21,6 +21,9 @@ const AColor AsConfig::Monster_Cornea_Color(AsConfig::BG_Color, AsConfig::Global
 const AColor AsConfig::Monster_Iris_Color(AsConfig::BG_Color, AsConfig::Global_Scale * 2 / 3, AsConfig::Blue_Color);
 const AColor AsConfig::BG_Outline_Color(AsConfig::BG_Color, AsConfig::Global_Scale * 2 / 3);
 
+const AColor AsConfig::Explosion_Red_Color(AsConfig::White_Color, 0, AsConfig::Red_Color);
+const AColor AsConfig::Explosion_Blue_Color(AsConfig::White_Color, 0, AsConfig::Blue_Color);
+
 const double AsConfig::Acceleration = 1.001;
 const double AsConfig::Ball_Normal_Speed = 3.0 * 2;
 //------------------------------------------------------------------------------------------------------------

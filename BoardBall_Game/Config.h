@@ -51,6 +51,9 @@ public:
 	static const AColor Monster_Iris_Color;
 	static const AColor BG_Outline_Color;
 
+	static const AColor Explosion_Red_Color;
+	static const AColor Explosion_Blue_Color;
+
 	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
 
