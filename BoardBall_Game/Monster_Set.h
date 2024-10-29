@@ -73,7 +73,7 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
-	void Activate(int x_pos, int y_pos);
+	void Activate(int x_pos, int y_pos, bool moving_right);
 	bool Is_Active();
 	void Destroy();
 
@@ -82,15 +82,19 @@ private:
 	void Draw_Destroying(HDC hdc, RECT &paint_area);
 	void Act_Alive();
 	void Act_Destroying();
+	void Redraw_Monster();
 
-	int X_Pos, Y_Pos;
+	double X_Pos, Y_Pos;
 	double Cornea_Height;
 	int Start_Blink_Timeout;
+
+	double Speed;
+	double Direction;
 
 	static const int Width = 16, Height = 16;
 	static const int Max_Cornea_Height = 11;
 
-	RECT Monster_Rect;
+	RECT Monster_Rect, Prev_Monster_Rect;
 	EEye_State Eye_State;
 	EMonster_State Monster_State;
 

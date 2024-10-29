@@ -154,25 +154,35 @@ const double AMonster::Blink_Timeouts[AMonster::Blink_Stages_Count] = { 0.5, 0.5
 const EEye_State AMonster::Blink_States[AMonster::Blink_Stages_Count] = {EEye_State::Closed, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing};
 //------------------------------------------------------------------------------------------------------------
 AMonster::AMonster()
-	: Monster_State(EMonster_State::Missing), Monster_Rect{}, X_Pos(0), Y_Pos(0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0)
+	: Monster_State(EMonster_State::Missing), Monster_Rect{}, Prev_Monster_Rect{}, X_Pos(0.0), Y_Pos(0.0), Speed(0.0), Direction(0.0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0)
 {
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Begin_Movement()
 {
+	// stub
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Finish_Movement()
 {
+	if (! Is_Active() )
+		return;
+
+	Redraw_Monster();
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Shift_Per_Step(double max_speed)
 {
+	double next_step;
+
+	next_step = Speed * AsConfig::Moving_Step_Size / max_speed ;
+	X_Pos += next_step * cos(Direction);
+	Y_Pos -= next_step * sin(Direction);
 }
 //------------------------------------------------------------------------------------------------------------
 double AMonster::Get_Speed()
 {
-	return 0.0;
+	return Speed;
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Act()
@@ -219,7 +229,7 @@ void AMonster::Act_Alive()
 	else
 		prev_tick = Blink_Ticks[i - 1];
 
-	ratio = ((double)current_tick_offset - prev_tick) / (Blink_Ticks[i] - prev_tick);
+	ratio = ( (double)current_tick_offset - prev_tick) / (Blink_Ticks[i] - prev_tick);
 
 	switch (Eye_State)
 	{
@@ -250,6 +260,20 @@ void AMonster::Act_Destroying()
 
 	for (i = 0; i < Explosive_Balls_Count; i++)
 		Explosive_Balls[i].Act();
+}
+//------------------------------------------------------------------------------------------------------------
+void AMonster::Redraw_Monster()
+{
+	double scale = AsConfig::Global_Scale;
+
+	Prev_Monster_Rect = Monster_Rect;
+
+	Monster_Rect.left = (int)(X_Pos * scale);
+	Monster_Rect.top = (int)(Y_Pos * scale);
+	Monster_Rect.right = Monster_Rect.left + Width * scale;
+	Monster_Rect.bottom = Monster_Rect.top + Height * scale;
+
+	AsTools::Invalidate_Rect(Prev_Monster_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Draw(HDC hdc, RECT &paint_area)
@@ -361,7 +385,7 @@ void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 	if (! IntersectRect(&intersection_rect, &paint_area, &Monster_Rect) )
 		return;
 
-	AsTools::Ellipse(hdc, Monster_Rect, AsConfig::BG_Color);
+	AsTools::Ellipse(hdc, Prev_Monster_Rect, AsConfig::BG_Color);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AMonster::Is_Finished()
@@ -369,7 +393,7 @@ bool AMonster::Is_Finished()
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AMonster::Activate(int x_pos, int y_pos)
+void AMonster::Activate(int x_pos, int y_pos, bool moving_right)
 {
 	int i;
 	const int scale = AsConfig::Global_Scale;
@@ -379,13 +403,17 @@ void AMonster::Activate(int x_pos, int y_pos)
 		return;
 
 	Monster_State = EMonster_State::Alive;
-	X_Pos = x_pos + 10;
+	X_Pos = x_pos;
 	Y_Pos = y_pos;
+	Speed = AsConfig::Moving_Step_Size;
 
-	Monster_Rect.left = X_Pos * scale;
-	Monster_Rect.top = Y_Pos * scale;
-	Monster_Rect.right = Monster_Rect.left + Width * scale;
-	Monster_Rect.bottom = Monster_Rect.top + Height * scale;
+	if (moving_right)
+		Direction = 0.0;
+	else
+	{
+		Direction = M_PI;
+		X_Pos = X_Pos - Width + AGate::Width;
+	}
 
 	Start_Blink_Timeout = AsConfig::Current_Timer_Tick;
 
@@ -396,6 +424,8 @@ void AMonster::Activate(int x_pos, int y_pos)
 	}
 
 	Total_Animation_Timeout = Blink_Ticks[i - 1];
+
+	Redraw_Monster();
 }
 //------------------------------------------------------------------------------------------------------------
 bool AMonster::Is_Active()
@@ -413,8 +443,8 @@ void AMonster::Destroy()
 	int half_width = Width * scale / 2;
 	int half_height = Height * scale / 2;
 
-	int x_pos = X_Pos * scale + half_width;
-	int y_pos = Y_Pos * scale + half_height;
+	int x_pos = (int)(X_Pos * scale + half_width);
+	int y_pos = (int)(Y_Pos * scale + half_height);
 	int x_offset, y_offset;
 	int size, time_offset;
 	int half_size, rest_size;
@@ -463,6 +493,7 @@ void AsMonster_Set::Emit_From_Gate(int gate_index)
 {
 	int i;
 	int gate_x_pos, gate_y_pos;
+	bool gate_is_left;
 
 	AMonster *monster = 0;
 
@@ -481,9 +512,14 @@ void AsMonster_Set::Emit_From_Gate(int gate_index)
 	if (monster == 0)
 		return;
 
+	if (gate_index % 2 == 0)
+		gate_is_left = true;
+	else
+		gate_is_left = false;
+
 	Border->Get_Gate_Pos(gate_index, gate_x_pos, gate_y_pos);
-	monster->Activate(gate_x_pos, gate_y_pos);
-	monster->Destroy();
+	monster->Activate(gate_x_pos, gate_y_pos, gate_is_left);
+	//monster->Destroy();
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsMonster_Set::Get_Next_Game_Object(int &index, AGame_Object **object)

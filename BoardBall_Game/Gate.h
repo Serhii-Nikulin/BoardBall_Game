@@ -30,6 +30,7 @@ public:
 	bool Is_Opened() const;
 	void Get_Y_Limits(int &gate_top_y, int &gate_low_y) const;
 	void Get_Pos(int &x_pos, int &y_pos);
+	static const int Width = 6;
 
 private:
 	void Draw_Cup(HDC hdc, bool is_top);
@@ -45,7 +46,6 @@ private:
 
 	int X_Pos;
 	double Y_Pos, Origin_Y_Pos;
-	const int Width = 6;
 	const int Height = 19;
 
 	double Gap_Height;

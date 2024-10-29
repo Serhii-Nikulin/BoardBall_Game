@@ -49,6 +49,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Add_Next_Module(index, &Monster_Set);
 
 	Monster_Set.Emit_From_Gate(4);
+	Monster_Set.Emit_From_Gate(5);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
