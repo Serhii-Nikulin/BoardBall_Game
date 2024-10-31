@@ -135,9 +135,9 @@ HBRUSH AColor::Get_Brush() const
 
 
 
-//AsGame_Objects_Set
+//AGame_Objects_Set
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Begin_Movement()
+void AGame_Objects_Set::Begin_Movement()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -146,7 +146,7 @@ void AsGame_Objects_Set::Begin_Movement()
 		object->Begin_Movement();
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Finish_Movement()
+void AGame_Objects_Set::Finish_Movement()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -155,7 +155,7 @@ void AsGame_Objects_Set::Finish_Movement()
 		object->Finish_Movement();
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Shift_Per_Step(double max_speed)
+void AGame_Objects_Set::Shift_Per_Step(double max_speed)
 {
 	int index = 0;
 	AGame_Object *object;
@@ -164,7 +164,7 @@ void AsGame_Objects_Set::Shift_Per_Step(double max_speed)
 		object->Shift_Per_Step(max_speed);
 }
 //------------------------------------------------------------------------------------------------------------
-double AsGame_Objects_Set::Get_Speed()
+double AGame_Objects_Set::Get_Speed()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -181,7 +181,7 @@ double AsGame_Objects_Set::Get_Speed()
 	return max_speed;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Act()
+void AGame_Objects_Set::Act()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -190,7 +190,7 @@ void AsGame_Objects_Set::Act()
 		object->Act();
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Draw(HDC hdc, RECT &paint_area)
+void AGame_Objects_Set::Draw(HDC hdc, RECT &paint_area)
 {
 	int index = 0;
 	AGame_Object *object;
@@ -199,7 +199,7 @@ void AsGame_Objects_Set::Draw(HDC hdc, RECT &paint_area)
 		object->Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+void AGame_Objects_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
 	int index = 0;
 	AGame_Object *object;
@@ -208,7 +208,7 @@ void AsGame_Objects_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 		object->Clear_Prev_Animation(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsGame_Objects_Set::Is_Finished()
+bool AGame_Objects_Set::Is_Finished()
 {
 	return false;
 }

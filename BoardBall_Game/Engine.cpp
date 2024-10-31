@@ -47,9 +47,6 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Add_Next_Module(index, &Ball_Set);
 	Add_Next_Module(index, &Laser_Beam_Set);
 	Add_Next_Module(index, &Monster_Set);
-
-	Monster_Set.Emit_From_Gate(4);
-	Monster_Set.Emit_From_Gate(5);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
@@ -115,6 +112,7 @@ int AsEngine::On_Timer()
 		{
 			Game_State = EGame_State::Play_Level;
 			Ball_Set.Set_On_Platform();
+			Monster_Set.Activate(10);
 		}
 		break;
 	}

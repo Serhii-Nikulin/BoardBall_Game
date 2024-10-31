@@ -4,8 +4,7 @@
 
 //------------------------------------------------------------------------------------------------------------
 int AsLevel::Active_Bricks_Count = 0;
-//------------------------------------------------------------------------------------------------------------
-char AsLevel::Current_Level[Level_Height][Level_Width];
+AsLevel *AsLevel::Level = 0;
 //------------------------------------------------------------------------------------------------------------
 char AsLevel::Level_01[AsLevel::Level_Height][AsLevel::Level_Width] = {
 	//  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11
@@ -58,8 +57,10 @@ AsLevel::AsLevel()
 	: Teleport_Bricks_Count(0),Teleport_Bricks_Pos(0), Level_Rect{}, Active_Brick(EBrick_Type::Blue, 0, 0), 
 	Current_Brick_Left_X(0), Current_Brick_Right_X(0), Current_Brick_Top_Y(0), Current_Brick_Low_Y(0), 
 	Active_Bricks{}, Advertisement(0), Parachute_Color(AsConfig::Red_Color, AsConfig::Global_Scale, AsConfig::Blue_Color), 
-	Should_Stop_Level(false)
-{}
+	Should_Stop_Level(false), Current_Level{}
+{
+	Level = this;
+}
 //------------------------------------------------------------------------------------------------------------
 void AsLevel::Init()
 {
@@ -374,6 +375,24 @@ void AsLevel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 bool AsLevel::Is_Finished()
 {
 	return false;// code stub
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsLevel::Has_Brick_At_Pos(int level_x_pos, int level_y_pos)
+{
+	EBrick_Type brick_type;
+
+	if (level_x_pos < 0 || level_x_pos >= Level_Width)
+		return false;
+
+	if(level_y_pos < 0 || level_y_pos >= Level_Height)
+		return false;
+
+	brick_type = (EBrick_Type)Level->Current_Level[level_y_pos][level_x_pos];
+
+	if (brick_type == EBrick_Type::None)
+		return false;
+	else
+		return true;
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsLevel::Is_Horizontal_Hit_First(double next_x_pos, double next_y_pos)

@@ -222,7 +222,7 @@
     <ClCompile Include="Gate.cpp">
       <Filter>#Border\Gate</Filter>
     </ClCompile>
-    <ClCompile Include="Monster_Set.h.cpp">
+    <ClCompile Include="Monster_Set.cpp">
       <Filter>Monster_Set</Filter>
     </ClCompile>
   </ItemGroup>

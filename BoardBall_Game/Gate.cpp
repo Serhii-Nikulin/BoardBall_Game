@@ -6,10 +6,10 @@ const double AGate::Max_Gap_Short_Height = 9.0;
 const double AGate::Gap_Height_Short_Step = Max_Gap_Short_Height / (double)AsConfig::FPS;
 
 const double AGate::Max_Gap_Long_Height = 18.0;
-const double AGate::Gap_Height_Long_Step = Max_Gap_Long_Height / (3.0 * (double)AsConfig::FPS);
+const double AGate::Gap_Height_Long_Step = Max_Gap_Long_Height / (1.5 * (double)AsConfig::FPS);
 //------------------------------------------------------------------------------------------------------------
-AGate::AGate(int x_pos, int y_pos)
-	: X_Pos(x_pos), Y_Pos(y_pos), Origin_Y_Pos(y_pos), Gate_State(EGate_State::Closed), Gate_Transformation(EGate_Transformation::Unknown), Gap_Height(0.0), Gate_Close_Tick(0)
+AGate::AGate(int x_pos, int y_pos, int level_x_pos, int level_y_pos)
+	: X_Pos(x_pos), Y_Pos(y_pos), Origin_Y_Pos(y_pos), Gate_State(EGate_State::Closed), Gate_Transformation(EGate_Transformation::Unknown), Gap_Height(0.0), Gate_Close_Tick(0), Level_X_Pos(level_x_pos), Level_Y_Pos(level_y_pos)
 {
 	int scale = AsConfig::Global_Scale;
 
@@ -408,6 +408,14 @@ bool AGate::Is_Opened() const
 			return true;
 
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AGate::Is_Closed() const
+{
+	if (Gate_State == EGate_State::Closed)
+		return true;
+	else
+		return false;
 }
 //------------------------------------------------------------------------------------------------------------
 void AGate::Get_Y_Limits(int &gate_top_y, int &gate_low_y) const

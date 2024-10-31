@@ -21,6 +21,7 @@ enum class EExplosive_Ball_State: unsigned char
 enum class EMonster_State: unsigned char
 {
 	Missing,
+	Emitting,
 	Alive,
 	Destroying
 };
@@ -91,6 +92,8 @@ private:
 	double Speed;
 	double Direction;
 
+	int Direction_Switch_Tick;
+
 	static const int Width = 16, Height = 16;
 	static const int Max_Cornea_Height = 11;
 
@@ -104,22 +107,39 @@ private:
 	int Blink_Ticks[Blink_Stages_Count];
 	int Total_Animation_Timeout;
 
+	int Alive_Timer_Tick;
+
 	static const int Explosive_Balls_Count = 20;
 	AExplosive_Ball Explosive_Balls[Explosive_Balls_Count];
 };
 //------------------------------------------------------------------------------------------------------------
-class AsMonster_Set: public AsGame_Objects_Set
+enum class EMonster_Set_State: unsigned char
+{
+	Idle,
+	Selecting_Next_Gate,
+	Waiting_Gate_Opening,
+	Waiting_Gate_Closing
+};
+//------------------------------------------------------------------------------------------------------------
+class AsMonster_Set: public AGame_Objects_Set
 {
 public:
 	AsMonster_Set();
+	void Act();
 	void Init(AsBorder *border);
 	void Emit_From_Gate(int gate_index);
-
+	void Activate(int max_alive_monsters_count);
 private:
 	bool Get_Next_Game_Object(int &index, AGame_Object **game_obj);
 	static const int Max_Monsters_Count = 10;
+
 	AMonster Monsters[Max_Monsters_Count];
 
+	EMonster_Set_State Monster_Set_State;
+
 	AsBorder *Border; // UNO
+
+	int Current_Gate_Index;
+	int Max_Alive_Monsters_Count;
 };
 //------------------------------------------------------------------------------------------------------------

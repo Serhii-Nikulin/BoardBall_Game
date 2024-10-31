@@ -24,7 +24,9 @@ public:
 
 	void Redraw_Floor();
 	void Open_Gate(int gate_index, bool short_open);
+	int Long_Open_Gate();
 	bool Is_Gate_Opened(int gate_index);
+	bool Is_Gate_Closed(int gate_index);
 	void Get_Gate_Pos(int gate_index, int &x_pos, int &y_pos);
 
 

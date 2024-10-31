@@ -154,7 +154,7 @@ const double AMonster::Blink_Timeouts[AMonster::Blink_Stages_Count] = { 0.5, 0.5
 const EEye_State AMonster::Blink_States[AMonster::Blink_Stages_Count] = {EEye_State::Closed, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing, EEye_State::Opening, EEye_State::Staring, EEye_State::Closing};
 //------------------------------------------------------------------------------------------------------------
 AMonster::AMonster()
-	: Monster_State(EMonster_State::Missing), Monster_Rect{}, Prev_Monster_Rect{}, X_Pos(0.0), Y_Pos(0.0), Speed(0.0), Direction(0.0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0)
+	: Monster_State(EMonster_State::Missing), Monster_Rect{}, Prev_Monster_Rect{}, X_Pos(0.0), Y_Pos(0.0), Speed(0.0), Direction(0.0), Cornea_Height(0), Eye_State(EEye_State::Closed), Blink_Ticks{}, Start_Blink_Timeout(0), Total_Animation_Timeout(0), Direction_Switch_Tick(0), Alive_Timer_Tick(0)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -175,9 +175,37 @@ void AMonster::Shift_Per_Step(double max_speed)
 {
 	double next_step;
 
-	next_step = Speed * AsConfig::Moving_Step_Size / max_speed ;
+	next_step = Speed * AsConfig::Moving_Step_Size / max_speed;
+
 	X_Pos += next_step * cos(Direction);
 	Y_Pos -= next_step * sin(Direction);
+
+	if (Monster_State == EMonster_State::Alive)
+	{
+		if (X_Pos < (double)AsConfig::Level_X_Offset)
+		{
+			X_Pos = (double)AsConfig::Level_X_Offset;
+			Direction += M_PI;
+		}
+
+		if (Y_Pos < (double)AsConfig::Level_Y_Offset)
+		{
+			Y_Pos = (double)AsConfig::Level_Y_Offset;
+			Direction += M_PI;
+		}
+
+		if (X_Pos > (double)AsConfig::Max_X_Pos - Width)
+		{
+			X_Pos = (double)AsConfig::Max_X_Pos - Width;
+			Direction += M_PI;
+		}
+
+		if (Y_Pos > (double)AsConfig::Max_Y_Pos - Height)
+		{
+			Y_Pos = (double)AsConfig::Max_Y_Pos - Height;
+			Direction += M_PI;
+		}
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 double AMonster::Get_Speed()
@@ -191,6 +219,11 @@ void AMonster::Act()
 	{
 	case EMonster_State::Missing:
 		return;
+
+	case EMonster_State::Emitting:
+		if (AsConfig::Current_Timer_Tick >= Alive_Timer_Tick)
+			Monster_State = EMonster_State::Alive;
+		break;
 
 	case EMonster_State::Alive:
 		Act_Alive();
@@ -212,6 +245,7 @@ void AMonster::Act_Alive()
 	int i;
 	int current_tick_offset, prev_tick;
 	double ratio;
+	double direction_delta;
 
 	current_tick_offset = (AsConfig::Current_Timer_Tick - Start_Blink_Timeout) % Total_Animation_Timeout;
 
@@ -252,6 +286,13 @@ void AMonster::Act_Alive()
 	default:
 		AsConfig::Throw();
 	}
+
+	if (AsConfig::Current_Timer_Tick > Direction_Switch_Tick)
+	{
+		direction_delta = (45 - AsTools::Rand(90) ) * M_PI / 180.0;
+		Direction += direction_delta;
+		Direction_Switch_Tick += AsConfig::FPS + AsTools::Rand(AsConfig::FPS * 2);
+	}
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Act_Destroying()
@@ -264,16 +305,15 @@ void AMonster::Act_Destroying()
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Redraw_Monster()
 {
-	double scale = AsConfig::Global_Scale;
-
 	Prev_Monster_Rect = Monster_Rect;
 
-	Monster_Rect.left = (int)(X_Pos * scale);
-	Monster_Rect.top = (int)(Y_Pos * scale);
-	Monster_Rect.right = Monster_Rect.left + Width * scale;
-	Monster_Rect.bottom = Monster_Rect.top + Height * scale;
+	Monster_Rect.left = (int)(X_Pos * AsConfig::D_Global_Scale);
+	Monster_Rect.top = (int)(Y_Pos * AsConfig::D_Global_Scale);
+	Monster_Rect.right = Monster_Rect.left + Width * AsConfig::Global_Scale;
+	Monster_Rect.bottom = Monster_Rect.top + Height * AsConfig::Global_Scale;
 
 	AsTools::Invalidate_Rect(Prev_Monster_Rect);
+	AsTools::Invalidate_Rect(Monster_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Draw(HDC hdc, RECT &paint_area)
@@ -288,6 +328,7 @@ void AMonster::Draw(HDC hdc, RECT &paint_area)
 	case EMonster_State::Missing:
 		break;
 
+	case EMonster_State::Emitting:
 	case EMonster_State::Alive:
 		Draw_Alive(hdc);
 		break;
@@ -398,14 +439,15 @@ void AMonster::Activate(int x_pos, int y_pos, bool moving_right)
 	int i;
 	const int scale = AsConfig::Global_Scale;
 	double current_timeout = 0.0;
+	int emitting_time_offset;
 
-	if (Monster_State == EMonster_State::Alive)
-		return;
-
-	Monster_State = EMonster_State::Alive;
+	Monster_State = EMonster_State::Emitting;
 	X_Pos = x_pos;
 	Y_Pos = y_pos;
-	Speed = AsConfig::Moving_Step_Size;
+	Speed = AsConfig::Moving_Step_Size * (1 + AsTools::Rand(3) );
+
+	emitting_time_offset = (int)(AGate::Width / Speed);
+	Alive_Timer_Tick = AsConfig::Current_Timer_Tick + emitting_time_offset;
 
 	if (moving_right)
 		Direction = 0.0;
@@ -469,7 +511,7 @@ void AMonster::Destroy()
 		if (size < scale)
 			size = scale;
 
-			Explosive_Balls[i].Explode(x_pos + x_offset, y_pos + y_offset, size * 2, AsTools::Rand(2), time_offset, 10);
+		Explosive_Balls[i].Explode(x_pos + x_offset, y_pos + y_offset, size * 2, AsTools::Rand(2), time_offset, 10);
 	}
 }
 //------------------------------------------------------------------------------------------------------------
@@ -480,8 +522,52 @@ void AMonster::Destroy()
 //AsMonster_Set
 //------------------------------------------------------------------------------------------------------------
 AsMonster_Set::AsMonster_Set()
-: Border(0), Monsters{}
+: Border(0), Monsters{}, Monster_Set_State(EMonster_Set_State::Idle), Current_Gate_Index(-1), Max_Alive_Monsters_Count(0)
 {
+}
+//------------------------------------------------------------------------------------------------------------
+void AsMonster_Set::Act()
+{
+	int i;
+	int current_alive_monsters_count = 0;
+
+	switch (Monster_Set_State)
+	{
+	case EMonster_Set_State::Idle:
+		break;
+
+	case EMonster_Set_State::Selecting_Next_Gate:
+		for (i = 0; i < Max_Monsters_Count; i++)
+			if (Monsters[i].Is_Active() )
+				current_alive_monsters_count += 1;
+
+		if (current_alive_monsters_count < Max_Alive_Monsters_Count)
+		{
+			Current_Gate_Index = Border->Long_Open_Gate();
+			Monster_Set_State = EMonster_Set_State::Waiting_Gate_Opening;
+		}
+		break;
+
+	case EMonster_Set_State::Waiting_Gate_Opening:
+		if (Border->Is_Gate_Opened(Current_Gate_Index) )
+		{
+			Emit_From_Gate(Current_Gate_Index);
+			Monster_Set_State = EMonster_Set_State::Waiting_Gate_Closing;
+		}
+		break;
+
+	case EMonster_Set_State::Waiting_Gate_Closing:
+		if (Border->Is_Gate_Closed(Current_Gate_Index) )
+		{
+			Monster_Set_State = EMonster_Set_State::Selecting_Next_Gate;
+		}
+		break;
+
+	default:
+		AsConfig::Throw();
+	}
+
+	AGame_Objects_Set::Act();
 }
 //------------------------------------------------------------------------------------------------------------
 void AsMonster_Set::Init(AsBorder *border)
@@ -518,8 +604,14 @@ void AsMonster_Set::Emit_From_Gate(int gate_index)
 		gate_is_left = false;
 
 	Border->Get_Gate_Pos(gate_index, gate_x_pos, gate_y_pos);
-	monster->Activate(gate_x_pos, gate_y_pos, gate_is_left);
+	monster->Activate(gate_x_pos, gate_y_pos + 1, gate_is_left);
 	//monster->Destroy();
+}
+//------------------------------------------------------------------------------------------------------------
+void AsMonster_Set::Activate(int max_alive_monsters_count)
+{
+	Monster_Set_State = EMonster_Set_State::Selecting_Next_Gate;
+	Max_Alive_Monsters_Count = max_alive_monsters_count;
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsMonster_Set::Get_Next_Game_Object(int &index, AGame_Object **object)

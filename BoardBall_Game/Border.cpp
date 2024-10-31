@@ -1,5 +1,6 @@
 #include "Border.h"
 #include "Config.h"
+#include "Level.h"
 
 //AsBorder
 //------------------------------------------------------------------------------------------------------------
@@ -17,10 +18,12 @@ AsBorder::~AsBorder()
 AsBorder::AsBorder()
 	:Gates{}
 {
-	Gates[0] = new AGate(1, 29);
-	Gates[1] = new AGate(AsConfig::Max_X_Pos, 29);
-	Gates[2] = new AGate(1, 77);
-	Gates[3] = new AGate(AsConfig::Max_X_Pos, 77);
+	Gates[0] = new AGate(1, 29, 0, 3);
+	Gates[1] = new AGate(AsConfig::Max_X_Pos, 29, AsLevel::Level_Width - 1, 3);
+
+	Gates[2] = new AGate(1, 77, 0, 9);
+	Gates[3] = new AGate(AsConfig::Max_X_Pos, 77, AsLevel::Level_Width - 1, 9);
+
 	Gates[4] = new AGate(1, 129);
 	Gates[5] = new AGate(AsConfig::Max_X_Pos, 129);
 	Gates[6] = new AGate(1, 178);
@@ -152,6 +155,47 @@ void AsBorder::Open_Gate(int gate_index, bool short_open)
 		AsConfig::Throw();
 }
 //------------------------------------------------------------------------------------------------------------
+int AsBorder::Long_Open_Gate()
+{
+	int i;
+	int gate_index;
+	AGate *gate;
+	bool got_gate = false;
+
+	gate_index = AsTools::Rand(AsConfig::Gates_Count);
+
+	for (i = 0; i < AsConfig::Gates_Count; i++)
+	{
+		gate = Gates[gate_index];
+
+		if (gate->Is_Closed() )
+		{
+			if (gate->Level_X_Pos == -1)
+			{
+				got_gate = true;
+				break;
+			}
+
+			if (! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos) and ! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos + 1) )
+			{
+				got_gate = true;
+				break;
+			}
+		}
+
+		gate_index += 1;
+
+		if (gate_index >= AsConfig::Gates_Count)
+			gate_index = 0;
+	}
+
+	if (got_gate == false)
+		AsConfig::Throw();
+
+	Open_Gate(gate_index, false);
+	return gate_index;
+}
+//------------------------------------------------------------------------------------------------------------
 bool AsBorder::Is_Gate_Opened(int gate_index)
 {
 	if (gate_index >= 0 and gate_index < AsConfig::Gates_Count)
@@ -163,9 +207,20 @@ bool AsBorder::Is_Gate_Opened(int gate_index)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsBorder::Is_Gate_Closed(int gate_index)
+{
+	if (gate_index >= 0 and gate_index < AsConfig::Gates_Count)
+		return Gates[gate_index]->Is_Closed();
+	else
+	{
+		AsConfig::Throw();
+		return false;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 void AsBorder::Get_Gate_Pos(int gate_index, int &x_pos, int &y_pos)
 {
-	if (gate_index > 0 and gate_index < AsConfig::Gates_Count)
+	if (gate_index >= 0 and gate_index < AsConfig::Gates_Count)
 		Gates[gate_index]->Get_Pos(x_pos, y_pos);
 	else
 		AsConfig::Throw();

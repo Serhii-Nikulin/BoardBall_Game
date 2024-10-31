@@ -26,6 +26,8 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
+	static bool Has_Brick_At_Pos(int level_x_pos, int level_y_pos);
+
 	void Init();
 	void Clear_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
 	void Drow_Objects(HDC hdc, RECT &paint_area, AGraphics_Object **objects_array, int objects_max_counter);
@@ -34,7 +36,7 @@ public:
 	static const int Level_Height = 14;
 	static const int Level_Width = 12;
 
-	static char Current_Level[Level_Height][Level_Width];
+	char Current_Level[Level_Height][Level_Width];
 	static char Level_01[Level_Height][Level_Width];
 
 	static char Test_Level[Level_Height][Level_Width];
@@ -77,5 +79,7 @@ private:
 	int Falling_Letters_Count = 0;
 	AFalling_Letter *Falling_Letters[AsConfig::Max_Falling_Letters_Count] = {};
 	AAdvertisement *Advertisement;
+
+	static AsLevel *Level;
 };
 //------------------------------------------------------------------------------------------------------------

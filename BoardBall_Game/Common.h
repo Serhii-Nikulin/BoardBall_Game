@@ -75,7 +75,7 @@ class AGame_Object: public AMover, public AGraphics_Object
 {
 };
 //------------------------------------------------------------------------------------------------------------
-class AsGame_Objects_Set: public AGame_Object
+class AGame_Objects_Set: public AGame_Object
 {
 public:
 	virtual void Begin_Movement();
