@@ -38,30 +38,8 @@ public:
 
 };
 //------------------------------------------------------------------------------------------------------------
-class ABall_Object
-{
-public:
-	virtual void Set_Direction(double speed) = 0;
-	virtual double Get_Direction() = 0;
 
-	virtual EBall_State Get_State() = 0;
-	static const int Start_Ball_Position_On_Platform = 104;
-	static const int Platform_Y_Pos = 185;
-	static const int Ball_Radius = 2;
 
-	/*virtual void Set_State(EBall_State new_state, double x_pos = AsConfig::Start_Ball_Position_On_Platform, double y_pos = AsConfig::Platform_Y_Pos - AsConfig::Ball_Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4) = 0;	*/
-	
-	virtual void Set_State(EBall_State new_state, double x_pos = Start_Ball_Position_On_Platform, double y_pos = Platform_Y_Pos - Ball_Radius + 1 + 1.0 / 3, double direction = M_PI_4) = 0;
-	virtual void Reflect(bool from_horizontal) = 0;
-	virtual void Draw_Teleporting(HDC hdc, int step) = 0;
-	virtual void Set_On_Parachute(int level_x, int level_y) = 0;
-	virtual void Get_Center(double &x_pos, double &y_pos) = 0;
-	virtual bool Is_Moving_Up() = 0;
-	virtual bool Is_Moving_Left() = 0;
-
-	virtual double Get_Speed() = 0;
-	virtual void Set_Speed(double speed) = 0;
-};
 //------------------------------------------------------------------------------------------------------------
 class AColor
 {

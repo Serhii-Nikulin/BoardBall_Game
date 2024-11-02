@@ -22,9 +22,7 @@ public:
 
 	virtual EBall_State Get_State();
 
-	/*virtual void Set_State(EBall_State new_state, double x_pos = AsConfig::Start_Ball_Position_On_Platform, double y_pos = AsConfig::Platform_Y_Pos - AsConfig::Ball_Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4);*/
-
-	virtual void Set_State(EBall_State new_state, double x_pos = Start_Ball_Position_On_Platform, double y_pos = Platform_Y_Pos - Ball_Radius + 1 + 1.0 / 3, double direction = M_PI_4);
+	virtual void Set_State(EBall_State new_state, double x_pos = AsConfig::Start_Ball_Position_On_Platform, double y_pos = AsConfig::Platform_Y_Pos - AsConfig::Ball_Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4);	
 
 	virtual void Get_Center(double &x_pos, double &y_pos);
 	virtual bool Is_Moving_Up();

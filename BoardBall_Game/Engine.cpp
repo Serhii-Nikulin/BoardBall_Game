@@ -114,7 +114,7 @@ int AsEngine::On_Timer()
 		{
 			Game_State = EGame_State::Play_Level;
 			Ball_Set.Set_On_Platform();
-			Monster_Set.Activate(10);
+			//Monster_Set.Activate(10);
 		}
 		break;
 	}

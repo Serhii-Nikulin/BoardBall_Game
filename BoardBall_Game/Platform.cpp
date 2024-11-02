@@ -37,12 +37,12 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object* b
 	platform_ball_x = X_Pos + circle_radius;
 	platform_ball_y = AsConfig::Platform_Y_Pos + circle_radius;
 
-	if (AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, circle_radius, platform_ball_x, platform_ball_y, ball) )//from left
+	if (AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, platform_ball_x, platform_ball_y, circle_radius, ball) )//from left
 		goto got_hit;
 
 	platform_ball_x = X_Pos + circle_radius + (Width - AsConfig::Platform_Circle_Size);
 
-	if (AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, circle_radius, platform_ball_x, platform_ball_y, ball) )//from right
+	if (AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, platform_ball_x, platform_ball_y, circle_radius, ball) )//from right
 		goto got_hit;
 
 	inner_top_y = AsConfig::Platform_Y_Pos + 1;

@@ -125,8 +125,7 @@ bool AsTools::Reflect_On_Circle(double next_x_pos, double next_y_pos, double cir
 	two_radiuses = circle_radius + AsConfig::Ball_Radius;
 
 	if (distance + AsConfig::Moving_Step_Size < two_radiuses)
-	{// ћ€чик коснулс€ бокового шарика
-
+	{
 		beta = atan2(-dy, dx);
 
 		related_ball_direction = ball->Get_Direction();
