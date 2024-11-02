@@ -21,8 +21,10 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Hit_Checker_List.Add_Hit_Checker(&Border);
 	ABall::Hit_Checker_List.Add_Hit_Checker(&Level);
 	ABall::Hit_Checker_List.Add_Hit_Checker(&Platform);
+	ABall::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
 
 	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Level);
+	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
 	
 	AFalling_Letter::Init();
 	Platform.Init(&Laser_Beam_Set, &Ball_Set);
@@ -218,7 +220,6 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		break;
 	default:
 		AsConfig::Throw();
-
 	}
 
 	falling_letter->Finalize();

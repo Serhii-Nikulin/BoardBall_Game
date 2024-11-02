@@ -2,7 +2,6 @@
 
 //ABall
 //------------------------------------------------------------------------------------------------------------
-const double ABall::Radius = 2;
 const double ABall::Min_Ball_Direction = M_PI / 8.0;
 AHit_Checker_List ABall::Hit_Checker_List;
 //------------------------------------------------------------------------------------------------------------
@@ -153,10 +152,10 @@ void ABall::Shift_Per_Step(double max_speed)
 //------------------------------------------------------------------------------------------------------------
 void ABall::Redraw_Ball()
 {
-	Ball_Rect.left = (int)( (Center_X_Pos - Radius) * AsConfig::Global_Scale);
-	Ball_Rect.top = (int)( (Center_Y_Pos - Radius) * AsConfig::Global_Scale);
-	Ball_Rect.right = (int)( (Center_X_Pos + Radius) * AsConfig::Global_Scale) - 1;
-	Ball_Rect.bottom = (int)( (Center_Y_Pos + Radius) * AsConfig::Global_Scale) - 1;
+	Ball_Rect.left = (int)( (Center_X_Pos - AsConfig::Ball_Radius) * AsConfig::Global_Scale);
+	Ball_Rect.top = (int)( (Center_Y_Pos - AsConfig::Ball_Radius) * AsConfig::Global_Scale);
+	Ball_Rect.right = (int)( (Center_X_Pos + AsConfig::Ball_Radius) * AsConfig::Global_Scale) - 1;
+	Ball_Rect.bottom = (int)( (Center_Y_Pos + AsConfig::Ball_Radius) * AsConfig::Global_Scale) - 1;
 
 	AsTools::Invalidate_Rect(Prev_Ball_Rect);
 	AsTools::Invalidate_Rect(Ball_Rect);

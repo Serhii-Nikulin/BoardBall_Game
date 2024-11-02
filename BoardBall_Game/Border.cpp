@@ -35,36 +35,36 @@ AsBorder::AsBorder()
 	Floor_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
+bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball)
 {
 	bool got_hit = false;
 
-	if (next_x_pos - ball->Radius < AsConfig::Border_X_Offset)
+	if (next_x_pos - AsConfig::Ball_Radius < AsConfig::Border_X_Offset)
 	{
 		got_hit = true;
 		ball->Reflect(false);//from left vertical
 	}
 
-	if (next_y_pos - ball->Radius < AsConfig::Border_Y_Offset)
+	if (next_y_pos - AsConfig::Ball_Radius < AsConfig::Border_Y_Offset)
 	{
 		got_hit = true;
 		ball->Reflect(true);//from top horizontal
 	}
 
-	if (next_x_pos + ball->Radius > AsConfig::Max_X_Pos)
+	if (next_x_pos + AsConfig::Ball_Radius > AsConfig::Max_X_Pos)
 	{
 		got_hit = true;
 		ball->Reflect(false);//from right vertical
 	}
 
 	if (AsConfig::Has_Floor)
-		if (next_y_pos + ball->Radius > AsConfig::Max_Y_Pos - 1)
+		if (next_y_pos + AsConfig::Ball_Radius > AsConfig::Max_Y_Pos - 1)
 		{
 			got_hit = true;
 			ball->Reflect(true);//from low horizontal
 		}
 
-	if (next_y_pos - ball->Radius * 4 > AsConfig::Max_Y_Pos)
+	if (next_y_pos - AsConfig::Ball_Radius * 4 > AsConfig::Max_Y_Pos)
 		ball->Set_State(EBall_State::Lost);
 
  	return got_hit;

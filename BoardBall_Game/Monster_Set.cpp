@@ -51,6 +51,28 @@ void AsMonster_Set::Act()
 	AGame_Objects_Set::Act();
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsMonster_Set::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball)
+{
+	int i;
+
+	for (i = 0; i < Max_Monsters_Count; i++)
+		if (Monsters[i].Check_Hit(next_x_pos, next_y_pos, ball) )
+			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsMonster_Set::Check_Hit(double next_x_pos, double next_y_pos)
+{
+	int i;
+
+	for (i = 0; i < Max_Monsters_Count; i++)
+		if (Monsters[i].Check_Hit(next_x_pos, next_y_pos) )
+			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
 void AsMonster_Set::Init(AsBorder *border)
 {
 	Border = border;

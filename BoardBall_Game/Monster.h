@@ -18,7 +18,7 @@ enum class EMonster_State: unsigned char
 	Destroying
 };
 //------------------------------------------------------------------------------------------------------------
-class AMonster: public AGame_Object
+class AMonster: public AGame_Object, public AHit_Checker
 {
 public:
 	AMonster();
@@ -32,6 +32,9 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball) ; // check hit with ball
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos); // check hit with laser_beams
+
 	void Activate(int x_pos, int y_pos, bool moving_right);
 	bool Is_Active();
 	void Destroy();
@@ -42,6 +45,8 @@ private:
 	void Act_Alive();
 	void Act_Destroying();
 	void Redraw_Monster();
+	void Update_Rect(int x_pos, int y_pos, RECT &rect);
+
 
 	double X_Pos, Y_Pos;
 	double Cornea_Height;

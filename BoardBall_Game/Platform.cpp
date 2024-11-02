@@ -17,7 +17,7 @@ void AsPlatform::Init(AsLaser_Beam_Set *laser_beam_set, AsBall_Set *ball_set)
 	Platform_Laser.Init(laser_beam_set, Platform_Inner_Color, Platform_Circle_Color, Highlight_Color);
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
+bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object* ball)
 {
 	double inner_top_y;
 	double inner_low_y;
@@ -27,23 +27,32 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	double x_pos, y_pos;
 	double speed;
 
+	double circle_radius;
+	double platform_ball_x, platform_ball_y;
+
 	if (next_y_pos < AsConfig::Platform_Y_Pos)
 		return false;
 
-	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball))//from left
+	circle_radius = AsConfig::Platform_Circle_Size / 2.0;
+	platform_ball_x = X_Pos + circle_radius;
+	platform_ball_y = AsConfig::Platform_Y_Pos + circle_radius;
+
+	if (AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, circle_radius, platform_ball_x, platform_ball_y, ball) )//from left
 		goto got_hit;
 
-	if (Reflect_On_Circle(next_x_pos, next_y_pos, ball, + (Width - AsConfig::Platform_Circle_Size)))//from right
+	platform_ball_x = X_Pos + circle_radius + (Width - AsConfig::Platform_Circle_Size);
+
+	if (AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, circle_radius, platform_ball_x, platform_ball_y, ball) )//from right
 		goto got_hit;
 
 	inner_top_y = AsConfig::Platform_Y_Pos + 1;
 	inner_low_y = AsConfig::Platform_Y_Pos + AsConfig::Platform_Inner_Height + 1;
-	inner_left_x = double(X_Pos + AsConfig::Platform_Circle_Size - 1 + ball->Radius);
-	inner_right_x = double(X_Pos + Width - AsConfig::Platform_Circle_Size - ball->Radius);
+	inner_left_x = double(X_Pos + AsConfig::Platform_Circle_Size - 1 + AsConfig::Ball_Radius);
+	inner_right_x = double(X_Pos + Width - AsConfig::Platform_Circle_Size - AsConfig::Ball_Radius);
 
 	if (ball->Is_Moving_Up())
 	{
-		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - inner_low_y, ball->Radius, inner_left_x, inner_right_x))
+		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - inner_low_y, AsConfig::Ball_Radius, inner_left_x, inner_right_x))
 		{
 			ball->Reflect(true);//from platform horizontal
 			goto got_hit;
@@ -51,7 +60,7 @@ bool AsPlatform::Check_Hit(double next_x_pos, double next_y_pos, ABall* ball)
 	}
 	else
 	{
-		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - inner_top_y, ball->Radius, inner_left_x, inner_right_x))
+		if (Hit_Circle_On_Line(next_x_pos, next_y_pos - inner_top_y, AsConfig::Ball_Radius, inner_left_x, inner_right_x))
 		{
 			ball->Reflect(true);//from platform horizontal
 			goto got_hit;
@@ -327,10 +336,10 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 	double direction;
 	double speed;
 
-	double ball_left_x = next_x_pos - ball->Radius;
-	double ball_right_x = next_x_pos + ball->Radius;
-	double ball_top_y = next_y_pos - ball->Radius;
-	double ball_low_y = next_y_pos + ball->Radius;
+	double ball_left_x = next_x_pos - AsConfig::Ball_Radius;
+	double ball_right_x = next_x_pos + AsConfig::Ball_Radius;
+	double ball_top_y = next_y_pos - AsConfig::Ball_Radius;
+	double ball_low_y = next_y_pos + AsConfig::Ball_Radius;
 
 	platform_ball_x = X_Pos + x_offset + circle_radius;
 	platform_ball_y = AsConfig::Platform_Y_Pos + circle_radius;
@@ -352,7 +361,6 @@ bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *
 			reflect_angle = angle_to_normal + M_PI - ball->Get_Direction();
 			full_reflect_angle = angle_to_normal + reflect_angle;
 			direction = full_reflect_angle;
-			//ball->Set_Direction(full_reflect_angle);
 		}
 
 		if (ball->Get_State() == EBall_State::On_Parachute)

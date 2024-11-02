@@ -4,6 +4,18 @@
 #include <Windows.h>
 
 //------------------------------------------------------------------------------------------------------------
+enum class EBall_State: unsigned char
+{
+	Disabled,
+
+	Normal, 
+	Lost, 
+	On_Platform, 
+	On_Parachute, 
+	Off_Parachute, 
+	Teleporting
+};
+//------------------------------------------------------------------------------------------------------------
 class AGraphics_Object
 {
 public:
@@ -26,29 +38,29 @@ public:
 
 };
 //------------------------------------------------------------------------------------------------------------
-class ABall;
-//------------------------------------------------------------------------------------------------------------
-class AHit_Checker
+class ABall_Object
 {
 public:
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball) = 0;
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos);
+	virtual void Set_Direction(double speed) = 0;
+	virtual double Get_Direction() = 0;
 
-	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
-};
-//------------------------------------------------------------------------------------------------------------
-class AHit_Checker_List
-{
-public:
-	AHit_Checker_List();
-	void Add_Hit_Checker(AHit_Checker *hit_checker);
-	bool Check_Hit(double x_pos, double y_pos);
-	bool Check_Hit(double x_pos, double y_pos, ABall *ball);
+	virtual EBall_State Get_State() = 0;
+	static const int Start_Ball_Position_On_Platform = 104;
+	static const int Platform_Y_Pos = 185;
+	static const int Ball_Radius = 2;
 
-private:
-	static const int Hit_Checkers_Count = 3;
-	int Counter_Hit_Checker;
-	AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
+	/*virtual void Set_State(EBall_State new_state, double x_pos = AsConfig::Start_Ball_Position_On_Platform, double y_pos = AsConfig::Platform_Y_Pos - AsConfig::Ball_Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4) = 0;	*/
+	
+	virtual void Set_State(EBall_State new_state, double x_pos = Start_Ball_Position_On_Platform, double y_pos = Platform_Y_Pos - Ball_Radius + 1 + 1.0 / 3, double direction = M_PI_4) = 0;
+	virtual void Reflect(bool from_horizontal) = 0;
+	virtual void Draw_Teleporting(HDC hdc, int step) = 0;
+	virtual void Set_On_Parachute(int level_x, int level_y) = 0;
+	virtual void Get_Center(double &x_pos, double &y_pos) = 0;
+	virtual bool Is_Moving_Up() = 0;
+	virtual bool Is_Moving_Left() = 0;
+
+	virtual double Get_Speed() = 0;
+	virtual void Set_Speed(double speed) = 0;
 };
 //------------------------------------------------------------------------------------------------------------
 class AColor

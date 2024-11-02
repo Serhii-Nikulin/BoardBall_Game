@@ -39,8 +39,7 @@ private:
 	static AColor Fading_Red_Colors[Max_Fade_Step];
 	static AColor Fading_Blue_Colors[Max_Fade_Step];
 
-
-	RECT Explosive_Ball_Rect;
 	EExplosive_Ball_State Explosive_Ball_State;
+	RECT Explosive_Ball_Rect;
 };
 //------------------------------------------------------------------------------------------------------------

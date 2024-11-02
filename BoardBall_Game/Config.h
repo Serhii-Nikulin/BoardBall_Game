@@ -54,7 +54,7 @@ public:
 	static const AColor Explosion_Red_Color;
 	static const AColor Explosion_Blue_Color;
 
-	static const int Hits_Per_Letter = 1;
+	static const int Hits_Per_Letter = 100;
 	static const int Max_Falling_Letters_Count = 20;
 
 	static const int Max_Balls_Count = 10;
@@ -73,6 +73,8 @@ public:
 	static const int Platform_Inner_Height = 5;
 
 	static const int Gates_Count = 8;
+
+	static const double Ball_Radius;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsTools
@@ -87,5 +89,29 @@ public:
 	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
 	static void Ellipse(HDC hdc, RECT &rect, const AColor &color);
 	static void Invalidate_Rect(RECT &rect);
+	static bool Reflect_On_Circle(double next_x_pos, double next_y_pos, double circle_x, double circle_y, double circle_radius, ABall_Object *ball);
+};
+//------------------------------------------------------------------------------------------------------------
+class AHit_Checker
+{
+public:
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball) = 0; // check hit with ball
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos); // check hit with laser_beams
+
+	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
+};
+//------------------------------------------------------------------------------------------------------------
+class AHit_Checker_List
+{
+public:
+	AHit_Checker_List();
+	void Add_Hit_Checker(AHit_Checker *hit_checker);
+	bool Check_Hit(double x_pos, double y_pos);
+	bool Check_Hit(double x_pos, double y_pos, ABall_Object *ball);
+
+private:
+	static const int Hit_Checkers_Count = 4;
+	int Counter_Hit_Checker;
+	AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
 };
 //------------------------------------------------------------------------------------------------------------

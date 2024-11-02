@@ -104,7 +104,10 @@ void AExplosive_Ball::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 bool AExplosive_Ball::Is_Finished()
 {
-	return false; // stub
+	if (Explosive_Ball_State == EExplosive_Ball_State::Idle)
+		return true;
+	else
+		return false; // stub
 }
 //------------------------------------------------------------------------------------------------------------
 void AExplosive_Ball::Explode(int x_pos, int y_pos, double max_size, bool is_red, int time_offset, int step_count)

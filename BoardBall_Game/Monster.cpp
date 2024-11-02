@@ -1,5 +1,6 @@
 #include "Monster.h"
 #include "Gate.h"
+#include "Level.h"
 
 //AMonster
 //------------------------------------------------------------------------------------------------------------
@@ -27,39 +28,71 @@ void AMonster::Finish_Movement()
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Shift_Per_Step(double max_speed)
 {
+	int i;
 	double next_step;
+	double next_x_pos, next_y_pos;
+	RECT monster_rect;
+	double angle_correction = M_PI / 8.0;
+	int max_corrections_count = int(M_PI * 2.0 / angle_correction);
+	double origin_direction = Direction;
+	bool got_hit = false;
+
+	if (! (Monster_State == EMonster_State::Missing or Monster_State == EMonster_State::Alive) )
+		return;
 
 	next_step = Speed * AsConfig::Moving_Step_Size / max_speed;
 
-	X_Pos += next_step * cos(Direction);
-	Y_Pos -= next_step * sin(Direction);
+	for (i = 0; i < max_corrections_count; i++)
+	{
+		next_x_pos = X_Pos + next_step * cos(Direction);
+		next_y_pos = Y_Pos - next_step * sin(Direction);
+
+		Update_Rect(next_x_pos, next_y_pos, monster_rect);
+
+		if (AsLevel::Has_Brick_At_Rect(monster_rect) )
+			Direction += angle_correction;
+		else
+		{
+			got_hit = true;
+			break;
+		}
+	}
+
+	if (! got_hit)
+	{
+		Direction = origin_direction - M_PI;
+		return;
+	}
 
 	if (Monster_State == EMonster_State::Alive)
 	{
-		if (X_Pos < (double)AsConfig::Level_X_Offset)
+		if (next_x_pos < (double)AsConfig::Level_X_Offset)
 		{
-			X_Pos = (double)AsConfig::Level_X_Offset;
+			next_x_pos = (double)AsConfig::Level_X_Offset;
 			Direction += M_PI;
 		}
 
-		if (Y_Pos < (double)AsConfig::Level_Y_Offset)
+		if (next_y_pos < (double)AsConfig::Level_Y_Offset)
 		{
-			Y_Pos = (double)AsConfig::Level_Y_Offset;
+			next_y_pos = (double)AsConfig::Level_Y_Offset;
 			Direction += M_PI;
 		}
 
-		if (X_Pos > (double)AsConfig::Max_X_Pos - Width)
+		if (next_x_pos > (double)AsConfig::Max_X_Pos - Width)
 		{
-			X_Pos = (double)AsConfig::Max_X_Pos - Width;
+			next_x_pos = (double)AsConfig::Max_X_Pos - Width;
 			Direction += M_PI;
 		}
 
-		if (Y_Pos > (double)AsConfig::Max_Y_Pos - Height)
+		if (next_y_pos > (double)AsConfig::Max_Y_Pos - Height)
 		{
-			Y_Pos = (double)AsConfig::Max_Y_Pos - Height;
+			next_y_pos = (double)AsConfig::Max_Y_Pos - Height;
 			Direction += M_PI;
 		}
 	}
+
+	X_Pos = next_x_pos;
+	Y_Pos = next_y_pos;
 }
 //------------------------------------------------------------------------------------------------------------
 double AMonster::Get_Speed()
@@ -161,13 +194,18 @@ void AMonster::Redraw_Monster()
 {
 	Prev_Monster_Rect = Monster_Rect;
 
-	Monster_Rect.left = (int)(X_Pos * AsConfig::D_Global_Scale);
-	Monster_Rect.top = (int)(Y_Pos * AsConfig::D_Global_Scale);
-	Monster_Rect.right = Monster_Rect.left + Width * AsConfig::Global_Scale;
-	Monster_Rect.bottom = Monster_Rect.top + Height * AsConfig::Global_Scale;
+	Update_Rect(X_Pos, Y_Pos, Monster_Rect);
 
 	AsTools::Invalidate_Rect(Prev_Monster_Rect);
 	AsTools::Invalidate_Rect(Monster_Rect);
+}
+//------------------------------------------------------------------------------------------------------------
+void AMonster::Update_Rect(int x_pos, int y_pos, RECT &rect)
+{
+	rect.left = (int)(x_pos * AsConfig::D_Global_Scale);
+	rect.top = (int)(y_pos * AsConfig::D_Global_Scale);
+	rect.right = rect.left + Width * AsConfig::Global_Scale;
+	rect.bottom = rect.top + Height * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Draw(HDC hdc, RECT &paint_area)
@@ -268,9 +306,16 @@ void AMonster::Draw_Alive(HDC hdc)
 void AMonster::Draw_Destroying(HDC hdc, RECT &paint_area)
 {
 	int i;
+	bool destroying_is_finished = true;
 
 	for (i = 0; i < Explosive_Balls_Count; i++)
+	{
 		Explosive_Balls[i].Draw(hdc, paint_area);
+		destroying_is_finished &= Explosive_Balls[i].Is_Finished();
+	}
+
+	if (destroying_is_finished)
+		Monster_State == EMonster_State::Missing;
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -285,6 +330,31 @@ void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 bool AMonster::Is_Finished()
 {
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AMonster::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball)
+{
+	if (Monster_State == EMonster_State::Destroying)
+		return false;
+
+	double radius = (double)Width / 2.0;
+
+	if (! AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, X_Pos + radius, Y_Pos + radius, radius, ball) )
+		return false;
+
+	Destroy();
+	
+	return true;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AMonster::Check_Hit(double next_x_pos, double next_y_pos)
+{
+	/*if (! AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, Width / 2.0, X_Pos + Width / 2.0, Y_Pos + Height/ 2.0) )
+		return true;
+
+	Destroy();*/
+
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
