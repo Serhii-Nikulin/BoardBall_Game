@@ -36,6 +36,7 @@ void AMonster::Shift_Per_Step(double max_speed)
 	int max_corrections_count = int(M_PI * 2.0 / angle_correction);
 	double origin_direction = Direction;
 	bool got_hit = false;
+	double max_y_pos = (double)AsConfig::Max_Y_Pos - 1.0 - Height;
 
 	if (! (Monster_State == EMonster_State::Missing or Monster_State == EMonster_State::Alive) )
 		return;
@@ -84,9 +85,9 @@ void AMonster::Shift_Per_Step(double max_speed)
 			Direction += M_PI;
 		}
 
-		if (next_y_pos > (double)AsConfig::Max_Y_Pos - Height)
+		if (next_y_pos > max_y_pos)
 		{
-			next_y_pos = (double)AsConfig::Max_Y_Pos - Height;
+			next_y_pos = max_y_pos;
 			Direction += M_PI;
 		}
 	}
@@ -335,7 +336,7 @@ bool AMonster::Is_Finished()
 //------------------------------------------------------------------------------------------------------------
 bool AMonster::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball)
 {
-	if (Monster_State == EMonster_State::Destroying)
+	if (! (Monster_State == EMonster_State::Emitting or Monster_State == EMonster_State::Alive) )
 		return false;
 
 	double radius = (double)Width / 2.0;
@@ -350,10 +351,34 @@ bool AMonster::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *bal
 //------------------------------------------------------------------------------------------------------------
 bool AMonster::Check_Hit(double next_x_pos, double next_y_pos)
 {
-	/*if (! AsTools::Reflect_On_Circle(next_x_pos, next_y_pos, Width / 2.0, X_Pos + Width / 2.0, Y_Pos + Height/ 2.0) )
-		return true;
+	if (! (Monster_State == EMonster_State::Emitting or Monster_State == EMonster_State::Alive) )
+		return false;
 
-	Destroy();*/
+	if (next_x_pos >= X_Pos and next_x_pos <= X_Pos + Width)
+		if (next_y_pos >= Y_Pos and next_y_pos <= Y_Pos + Height)
+		{
+			Destroy();
+			return true;
+		}
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AMonster::Check_Hit(RECT &rect)
+{
+	RECT intersection_rect;
+	RECT monster_rect;
+
+	if (! (Monster_State == EMonster_State::Emitting or Monster_State == EMonster_State::Alive) )
+		return false;
+
+	Update_Rect(X_Pos, Y_Pos, monster_rect);
+
+	if (IntersectRect(&intersection_rect, &rect, &monster_rect) )
+	{
+		Destroy();
+		return true;
+	}
 
 	return false;
 }

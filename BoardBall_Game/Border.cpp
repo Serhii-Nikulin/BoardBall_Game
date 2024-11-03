@@ -168,20 +168,21 @@ int AsBorder::Long_Open_Gate()
 	{
 		gate = Gates[gate_index];
 
-		if (gate->Is_Closed() )
-		{
-			if (gate->Level_X_Pos == -1)
+		if (gate_index != AsConfig::Gates_Count - 1)
+			if (gate->Is_Closed() )
 			{
-				got_gate = true;
-				break;
-			}
+				if (gate->Level_X_Pos == -1)
+				{
+					got_gate = true;
+					break;
+				}
 
-			if (! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos) and ! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos + 1) )
-			{
-				got_gate = true;
-				break;
+				if (! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos) and ! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos + 1) )
+				{
+					got_gate = true;
+					break;
+				}
 			}
-		}
 
 		gate_index += 1;
 

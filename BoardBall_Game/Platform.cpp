@@ -2,6 +2,7 @@
 
 //AsPlatform
 int AsPlatform::Meltdown_Platform_Y_Pos[AsConfig::Platform_Normal_Width * AsConfig::Global_Scale];
+AHit_Checker_List AsPlatform::Hit_Checker_List;
 //------------------------------------------------------------------------------------------------------------
 AsPlatform::AsPlatform() :
 	Inner_Width(Normal_Inner_Width), Rolling_Step(0), Width(28), X_Pos(AsConfig::Start_Ball_Position_On_Platform - Width / 2), Prev_Platform_Rect{}, Platform_Rect{}, Normal_Platform_Image_Width (28 * AsConfig::Global_Scale), 
@@ -321,7 +322,9 @@ void AsPlatform::Shift_Per_Step(double max_speed)
 		{
 			Ball_Set->Shift_By_Platform(0.0, fabs(Speed), max_speed);
 		}
-	}		
+	}
+
+	Hit_Checker_List.Check_Hit(Platform_Rect);
 }
 //------------------------------------------------------------------------------------------------------------
 bool AsPlatform::Reflect_On_Circle(double next_x_pos, double next_y_pos, ABall *ball, double x_offset)
@@ -594,7 +597,7 @@ bool AsPlatform::Get_Platform_Image_Storke_Color(int x, int y, int &stroke_len, 
 			else
 				break;
 		}
-
+		 
 		offset += Normal_Platform_Image_Width;
 	}
 

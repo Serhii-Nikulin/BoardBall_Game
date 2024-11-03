@@ -296,9 +296,8 @@ bool AsLevel::Check_Hit(double next_x_pos, double next_y_pos)
 	if (brick_y >= Level_Height or brick_y < 0)
 		return false;
 
-	if ((EBrick_Type)Current_Level[brick_y][brick_x] == EBrick_Type::None)
+	if ( (EBrick_Type)Current_Level[brick_y][brick_x] == EBrick_Type::None)
 		return false;
-
 
 	On_Hit(brick_x, brick_y, 0, true);
 	return true;
@@ -597,7 +596,7 @@ bool AsLevel::Add_Falling_Letter(int level_x, int level_y, EBrick_Type brick_typ
 			letter_y = (AsConfig::Level_Y_Offset + AsConfig::Cell_Height * level_y) * AsConfig::Global_Scale;
 			letter_type = ELetter_Type::L;//AFalling_Letter::Get_Random_Letter_Type();
 
-			switch (AsTools::Rand(3) )
+			switch (AsTools::Rand(1) )
 			{
 			case 0:
 				letter_type = ELetter_Type::L;

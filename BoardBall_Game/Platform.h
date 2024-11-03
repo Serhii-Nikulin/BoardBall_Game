@@ -31,6 +31,8 @@ public:
 	bool Hit_By(AFalling_Letter *falling_letter) const;
 	void On_Space_Key(bool key_down);
 
+	static AHit_Checker_List Hit_Checker_List;
+
 	double Width;
 	int Inner_Width;
 	double X_Pos;

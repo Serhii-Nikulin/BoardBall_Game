@@ -25,6 +25,8 @@ void AsEngine::Init_Engine(HWND hwnd)
 
 	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Level);
 	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
+
+	AsPlatform::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
 	
 	AFalling_Letter::Init();
 	Platform.Init(&Laser_Beam_Set, &Ball_Set);
@@ -114,7 +116,7 @@ int AsEngine::On_Timer()
 		{
 			Game_State = EGame_State::Play_Level;
 			Ball_Set.Set_On_Platform();
-			//Monster_Set.Activate(10);
+			Monster_Set.Activate(10);
 		}
 		break;
 	}
@@ -139,6 +141,8 @@ void AsEngine::Play_Level()
 		Game_State = EGame_State::Lost_Ball;
 		Platform.Set_State(EPlatform_State::Meltdown);
 		Level.Stop();
+		Monster_Set.Destroy_All();
+		Laser_Beam_Set.Disable_All();
 	}
 	else
 		Ball_Set.Accelerate();

@@ -33,7 +33,7 @@ HWND AsConfig::Hwnd;
 
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
-bool AsConfig::Has_Floor = true;
+bool AsConfig::Has_Floor = false;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
 {
@@ -176,6 +176,11 @@ bool AHit_Checker::Check_Hit(double x_pos, double y_pos)
 	return false;
 }
 //------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Check_Hit(RECT &rect)
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
 
 
 
@@ -211,6 +216,18 @@ bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos, ABall_Object *ball
 	for (i = 0; i < Hit_Checkers_Count; ++i)
 		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos, ball) )
 			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker_List::Check_Hit(RECT &rect)
+{
+	int i;
+
+	for (i = 0; i < Hit_Checkers_Count; i++)
+		if (Hit_Checkers[i] != 0)
+			if (Hit_Checkers[i]->Check_Hit(rect) )
+				return true;
 
 	return false;
 }

@@ -34,6 +34,8 @@ public:
 
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball) ; // check hit with ball
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos); // check hit with laser_beams
+	virtual bool Check_Hit(RECT &rect);
+
 
 	void Activate(int x_pos, int y_pos, bool moving_right);
 	bool Is_Active();

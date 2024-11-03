@@ -54,7 +54,7 @@ public:
 	static const AColor Explosion_Red_Color;
 	static const AColor Explosion_Blue_Color;
 
-	static const int Hits_Per_Letter = 100;
+	static const int Hits_Per_Letter = 1;
 	static const int Max_Falling_Letters_Count = 20;
 
 	static const int Max_Balls_Count = 10;
@@ -121,6 +121,7 @@ class AHit_Checker
 public:
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball) = 0; // check hit with ball
 	virtual bool Check_Hit(double next_x_pos, double next_y_pos); // check hit with laser_beams
+	virtual bool Check_Hit(RECT &rect);
 
 	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
 };
@@ -132,6 +133,7 @@ public:
 	void Add_Hit_Checker(AHit_Checker *hit_checker);
 	bool Check_Hit(double x_pos, double y_pos);
 	bool Check_Hit(double x_pos, double y_pos, ABall_Object *ball);
+	bool Check_Hit(RECT &rect);
 
 private:
 	static const int Hit_Checkers_Count = 4;
