@@ -21,8 +21,12 @@ void AsEngine::Init_Engine(HWND hwnd)
 	ABall::Hit_Checker_List.Add_Hit_Checker(&Border);
 	ABall::Hit_Checker_List.Add_Hit_Checker(&Level);
 	ABall::Hit_Checker_List.Add_Hit_Checker(&Platform);
+	ABall::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
 
 	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Level);
+	ALaser_Beam::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
+
+	AsPlatform::Hit_Checker_List.Add_Hit_Checker(&Monster_Set);
 	
 	AFalling_Letter::Init();
 	Platform.Init(&Laser_Beam_Set, &Ball_Set);
@@ -47,8 +51,6 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Add_Next_Module(index, &Ball_Set);
 	Add_Next_Module(index, &Laser_Beam_Set);
 	Add_Next_Module(index, &Monster_Set);
-
-	Monster_Set.Emit_From_Gate(4);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
@@ -114,6 +116,7 @@ int AsEngine::On_Timer()
 		{
 			Game_State = EGame_State::Play_Level;
 			Ball_Set.Set_On_Platform();
+			Monster_Set.Activate(10);
 		}
 		break;
 	}
@@ -138,6 +141,8 @@ void AsEngine::Play_Level()
 		Game_State = EGame_State::Lost_Ball;
 		Platform.Set_State(EPlatform_State::Meltdown);
 		Level.Stop();
+		Monster_Set.Destroy_All();
+		Laser_Beam_Set.Disable_All();
 	}
 	else
 		Ball_Set.Accelerate();
@@ -219,7 +224,6 @@ void AsEngine::On_Falling_Letter(AFalling_Letter *falling_letter)
 		break;
 	default:
 		AsConfig::Throw();
-
 	}
 
 	falling_letter->Finalize();

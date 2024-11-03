@@ -1,5 +1,6 @@
 #include "Border.h"
 #include "Config.h"
+#include "Level.h"
 
 //AsBorder
 //------------------------------------------------------------------------------------------------------------
@@ -17,10 +18,12 @@ AsBorder::~AsBorder()
 AsBorder::AsBorder()
 	:Gates{}
 {
-	Gates[0] = new AGate(1, 29);
-	Gates[1] = new AGate(AsConfig::Max_X_Pos, 29);
-	Gates[2] = new AGate(1, 77);
-	Gates[3] = new AGate(AsConfig::Max_X_Pos, 77);
+	Gates[0] = new AGate(1, 29, 0, 3);
+	Gates[1] = new AGate(AsConfig::Max_X_Pos, 29, AsLevel::Level_Width - 1, 3);
+
+	Gates[2] = new AGate(1, 77, 0, 9);
+	Gates[3] = new AGate(AsConfig::Max_X_Pos, 77, AsLevel::Level_Width - 1, 9);
+
 	Gates[4] = new AGate(1, 129);
 	Gates[5] = new AGate(AsConfig::Max_X_Pos, 129);
 	Gates[6] = new AGate(1, 178);
@@ -32,36 +35,36 @@ AsBorder::AsBorder()
 	Floor_Rect.bottom = AsConfig::Max_Y_Pos * AsConfig::Global_Scale;
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall *ball)
+bool AsBorder::Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball)
 {
 	bool got_hit = false;
 
-	if (next_x_pos - ball->Radius < AsConfig::Border_X_Offset)
+	if (next_x_pos - AsConfig::Ball_Radius < AsConfig::Border_X_Offset)
 	{
 		got_hit = true;
 		ball->Reflect(false);//from left vertical
 	}
 
-	if (next_y_pos - ball->Radius < AsConfig::Border_Y_Offset)
+	if (next_y_pos - AsConfig::Ball_Radius < AsConfig::Border_Y_Offset)
 	{
 		got_hit = true;
 		ball->Reflect(true);//from top horizontal
 	}
 
-	if (next_x_pos + ball->Radius > AsConfig::Max_X_Pos)
+	if (next_x_pos + AsConfig::Ball_Radius > AsConfig::Max_X_Pos)
 	{
 		got_hit = true;
 		ball->Reflect(false);//from right vertical
 	}
 
 	if (AsConfig::Has_Floor)
-		if (next_y_pos + ball->Radius > AsConfig::Max_Y_Pos - 1)
+		if (next_y_pos + AsConfig::Ball_Radius > AsConfig::Max_Y_Pos - 1)
 		{
 			got_hit = true;
 			ball->Reflect(true);//from low horizontal
 		}
 
-	if (next_y_pos - ball->Radius * 4 > AsConfig::Max_Y_Pos)
+	if (next_y_pos - AsConfig::Ball_Radius * 4 > AsConfig::Max_Y_Pos)
 		ball->Set_State(EBall_State::Lost);
 
  	return got_hit;
@@ -152,6 +155,48 @@ void AsBorder::Open_Gate(int gate_index, bool short_open)
 		AsConfig::Throw();
 }
 //------------------------------------------------------------------------------------------------------------
+int AsBorder::Long_Open_Gate()
+{
+	int i;
+	int gate_index;
+	AGate *gate;
+	bool got_gate = false;
+
+	gate_index = AsTools::Rand(AsConfig::Gates_Count);
+
+	for (i = 0; i < AsConfig::Gates_Count; i++)
+	{
+		gate = Gates[gate_index];
+
+		if (gate_index != AsConfig::Gates_Count - 1)
+			if (gate->Is_Closed() )
+			{
+				if (gate->Level_X_Pos == -1)
+				{
+					got_gate = true;
+					break;
+				}
+
+				if (! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos) and ! AsLevel::Has_Brick_At_Pos(gate->Level_X_Pos, gate->Level_Y_Pos + 1) )
+				{
+					got_gate = true;
+					break;
+				}
+			}
+
+		gate_index += 1;
+
+		if (gate_index >= AsConfig::Gates_Count)
+			gate_index = 0;
+	}
+
+	if (got_gate == false)
+		AsConfig::Throw();
+
+	Open_Gate(gate_index, false);
+	return gate_index;
+}
+//------------------------------------------------------------------------------------------------------------
 bool AsBorder::Is_Gate_Opened(int gate_index)
 {
 	if (gate_index >= 0 and gate_index < AsConfig::Gates_Count)
@@ -163,9 +208,20 @@ bool AsBorder::Is_Gate_Opened(int gate_index)
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+bool AsBorder::Is_Gate_Closed(int gate_index)
+{
+	if (gate_index >= 0 and gate_index < AsConfig::Gates_Count)
+		return Gates[gate_index]->Is_Closed();
+	else
+	{
+		AsConfig::Throw();
+		return false;
+	}
+}
+//------------------------------------------------------------------------------------------------------------
 void AsBorder::Get_Gate_Pos(int gate_index, int &x_pos, int &y_pos)
 {
-	if (gate_index > 0 and gate_index < AsConfig::Gates_Count)
+	if (gate_index >= 0 and gate_index < AsConfig::Gates_Count)
 		Gates[gate_index]->Get_Pos(x_pos, y_pos);
 	else
 		AsConfig::Throw();

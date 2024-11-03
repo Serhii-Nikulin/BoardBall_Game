@@ -1,5 +1,5 @@
 #pragma once
-#include "Ball.h"
+#include "Config.h"
 
 enum class EBrick_Type: unsigned char
 {
@@ -125,19 +125,19 @@ class AActive_Brick_Teleport: public AActive_Brick
 {
 public:
 	~AActive_Brick_Teleport();
-	AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport);
+	AActive_Brick_Teleport(int level_x, int level_y, ABall_Object *ball, AActive_Brick_Teleport *destination_teleport);
 
 	virtual void Act();
 	virtual void Draw(HDC hdc, RECT &paint_rect);
 	virtual bool Is_Finished();
-	void Set_Ball(ABall *ball);
+	void Set_Ball(ABall_Object *ball);
 
 	static void Draw_In_Level(HDC hdc, RECT &brick_rect, int step = 0);
 
 	EDirection_Type Release_Direction;
 private:
 	ETeleport_State Teleport_State;
-	ABall *Ball;
+	ABall_Object *Ball;
 	AActive_Brick_Teleport *Destination_Teleport;
 	static const int Max_Animation_Step = 12;
 	int Animation_Step;

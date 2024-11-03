@@ -11,7 +11,7 @@ public:
 	AsPlatform();
 	void Init(AsLaser_Beam_Set *laser_beam_set, AsBall_Set *ball_set);
 
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball);
 	virtual void Begin_Movement();
 	virtual void Finish_Movement();
 	virtual void Shift_Per_Step(double max_speed);
@@ -30,6 +30,8 @@ public:
 	bool Has_State(EPlatform_Substate_Regular regular_state);
 	bool Hit_By(AFalling_Letter *falling_letter) const;
 	void On_Space_Key(bool key_down);
+
+	static AHit_Checker_List Hit_Checker_List;
 
 	double Width;
 	int Inner_Width;

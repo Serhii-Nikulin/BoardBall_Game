@@ -20,69 +20,6 @@ AMover::~AMover()
 
 
 
-//AHit_Checker
-//------------------------------------------------------------------------------------------------------------
-bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value)
-{
-	if (eval_dist > radius)
-		return false;
-
-	//value * value + eval_pos * eval_pos = radius * radius
-
-	double value = sqrt(radius * radius - eval_dist * eval_dist);
-
-	if ((next_pos + value) > min_value and (next_pos - value) < max_value)
-		return true;
-
-	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-bool AHit_Checker::Check_Hit(double x_pos, double y_pos)
-{
-	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-
-
-
-
-//------------------------------------------------------------------------------------------------------------
-AHit_Checker_List::AHit_Checker_List()
-	: Counter_Hit_Checker(0), Hit_Checkers{}
-{
-}
-//------------------------------------------------------------------------------------------------------------
-void AHit_Checker_List::Add_Hit_Checker(AHit_Checker *hit_checker)
-{
-	if (Counter_Hit_Checker < Hit_Checkers_Count)
-		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
-}
-//------------------------------------------------------------------------------------------------------------
-bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos)
-{
-	int i;
-
-	for (i = 0; i < Counter_Hit_Checker; ++i)
-		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos) )
-			return true;
-
-	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos, ABall *ball)
-{
-	int i;
-	for (i = 0; i < Hit_Checkers_Count; ++i)
-		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos, ball) )
-			return true;
-
-	return false;
-}
-//------------------------------------------------------------------------------------------------------------
-
-
-
-
 //AColor
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():
@@ -135,9 +72,9 @@ HBRUSH AColor::Get_Brush() const
 
 
 
-//AsGame_Objects_Set
+//AGame_Objects_Set
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Begin_Movement()
+void AGame_Objects_Set::Begin_Movement()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -146,7 +83,7 @@ void AsGame_Objects_Set::Begin_Movement()
 		object->Begin_Movement();
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Finish_Movement()
+void AGame_Objects_Set::Finish_Movement()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -155,7 +92,7 @@ void AsGame_Objects_Set::Finish_Movement()
 		object->Finish_Movement();
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Shift_Per_Step(double max_speed)
+void AGame_Objects_Set::Shift_Per_Step(double max_speed)
 {
 	int index = 0;
 	AGame_Object *object;
@@ -164,7 +101,7 @@ void AsGame_Objects_Set::Shift_Per_Step(double max_speed)
 		object->Shift_Per_Step(max_speed);
 }
 //------------------------------------------------------------------------------------------------------------
-double AsGame_Objects_Set::Get_Speed()
+double AGame_Objects_Set::Get_Speed()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -181,7 +118,7 @@ double AsGame_Objects_Set::Get_Speed()
 	return max_speed;
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Act()
+void AGame_Objects_Set::Act()
 {
 	int index = 0;
 	AGame_Object *object;
@@ -190,7 +127,7 @@ void AsGame_Objects_Set::Act()
 		object->Act();
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Draw(HDC hdc, RECT &paint_area)
+void AGame_Objects_Set::Draw(HDC hdc, RECT &paint_area)
 {
 	int index = 0;
 	AGame_Object *object;
@@ -199,7 +136,7 @@ void AsGame_Objects_Set::Draw(HDC hdc, RECT &paint_area)
 		object->Draw(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
-void AsGame_Objects_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+void AGame_Objects_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 {
 	int index = 0;
 	AGame_Object *object;
@@ -208,7 +145,7 @@ void AsGame_Objects_Set::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 		object->Clear_Prev_Animation(hdc, paint_area);
 }
 //------------------------------------------------------------------------------------------------------------
-bool AsGame_Objects_Set::Is_Finished()
+bool AGame_Objects_Set::Is_Finished()
 {
 	return false;
 }

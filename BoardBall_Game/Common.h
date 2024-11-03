@@ -4,6 +4,18 @@
 #include <Windows.h>
 
 //------------------------------------------------------------------------------------------------------------
+enum class EBall_State: unsigned char
+{
+	Disabled,
+
+	Normal, 
+	Lost, 
+	On_Platform, 
+	On_Parachute, 
+	Off_Parachute, 
+	Teleporting
+};
+//------------------------------------------------------------------------------------------------------------
 class AGraphics_Object
 {
 public:
@@ -26,30 +38,8 @@ public:
 
 };
 //------------------------------------------------------------------------------------------------------------
-class ABall;
-//------------------------------------------------------------------------------------------------------------
-class AHit_Checker
-{
-public:
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball) = 0;
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos);
 
-	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
-};
-//------------------------------------------------------------------------------------------------------------
-class AHit_Checker_List
-{
-public:
-	AHit_Checker_List();
-	void Add_Hit_Checker(AHit_Checker *hit_checker);
-	bool Check_Hit(double x_pos, double y_pos);
-	bool Check_Hit(double x_pos, double y_pos, ABall *ball);
 
-private:
-	static const int Hit_Checkers_Count = 3;
-	int Counter_Hit_Checker;
-	AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
-};
 //------------------------------------------------------------------------------------------------------------
 class AColor
 {
@@ -75,7 +65,7 @@ class AGame_Object: public AMover, public AGraphics_Object
 {
 };
 //------------------------------------------------------------------------------------------------------------
-class AsGame_Objects_Set: public AGame_Object
+class AGame_Objects_Set: public AGame_Object
 {
 public:
 	virtual void Begin_Movement();

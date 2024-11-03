@@ -30,8 +30,8 @@ public:
 	bool Is_Active();
 
 	static AHit_Checker_List Hit_Checker_List;
-private:
 	void Disable();
+private:
 
 	double X_Pos, Y_Pos;
 	double Speed;

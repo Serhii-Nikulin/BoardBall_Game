@@ -348,7 +348,7 @@ AActive_Brick_Teleport::~AActive_Brick_Teleport()
 {
 }
 //------------------------------------------------------------------------------------------------------------
-AActive_Brick_Teleport::AActive_Brick_Teleport(int level_x, int level_y, ABall *ball, AActive_Brick_Teleport *destination_teleport)
+AActive_Brick_Teleport::AActive_Brick_Teleport(int level_x, int level_y, ABall_Object *ball, AActive_Brick_Teleport *destination_teleport)
 	:AActive_Brick(EBrick_Type::Teleport, level_x, level_y), Teleport_State(ETeleport_State::Starting), Animation_Step(0), Ball(ball), Destination_Teleport(destination_teleport)
 {
 	Set_Ball(ball);
@@ -388,23 +388,23 @@ void AActive_Brick_Teleport::Act()
 				switch (Release_Direction)
 				{
 				case EDirection_Type::Left:
-					ball_x = Get_Brick_X_Pos(false) - ABall::Radius;
+					ball_x = Get_Brick_X_Pos(false) - AsConfig::Ball_Radius;
 					ball_y = Get_Brick_Y_Pos(true);
 					break;
 
 				case EDirection_Type::Up:
 					ball_x = Get_Brick_X_Pos(true);
-					ball_y = Get_Brick_Y_Pos(false) - ABall::Radius;
+					ball_y = Get_Brick_Y_Pos(false) - AsConfig::Ball_Radius;
 					break;
 
 				case EDirection_Type::Right:
-					ball_x = Get_Brick_X_Pos(false) + AsConfig::Brick_Width + ABall::Radius;
+					ball_x = Get_Brick_X_Pos(false) + AsConfig::Brick_Width + AsConfig::Ball_Radius;
 					ball_y = Get_Brick_Y_Pos(true);
 					break;
 
 				case EDirection_Type::Down:
 					ball_x = Get_Brick_X_Pos(true);
-					ball_y = Get_Brick_Y_Pos(false) + AsConfig::Brick_Height + ABall::Radius;
+					ball_y = Get_Brick_Y_Pos(false) + AsConfig::Brick_Height + AsConfig::Ball_Radius;
 					break;
 
 				default:
@@ -455,7 +455,7 @@ bool AActive_Brick_Teleport::Is_Finished()
 		return false;
 }
 //------------------------------------------------------------------------------------------------------------
-void AActive_Brick_Teleport::Set_Ball(ABall *ball)
+void AActive_Brick_Teleport::Set_Ball(ABall_Object *ball)
 {
 	double ball_x, ball_y;
 

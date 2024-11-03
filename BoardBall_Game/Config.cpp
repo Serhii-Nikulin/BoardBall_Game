@@ -26,12 +26,14 @@ const AColor AsConfig::Explosion_Blue_Color(AsConfig::White_Color, 0, AsConfig::
 
 const double AsConfig::Acceleration = 1.001;
 const double AsConfig::Ball_Normal_Speed = 3.0 * 2;
+
+const double AsConfig::Ball_Radius = 2.0;
 //------------------------------------------------------------------------------------------------------------
 HWND AsConfig::Hwnd;
 
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
-bool AsConfig::Has_Floor = true;
+bool AsConfig::Has_Floor = false;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)
 {
@@ -106,5 +108,127 @@ void AsTools::Ellipse(HDC hdc, RECT &rect, const AColor &color)
 void AsTools::Invalidate_Rect(RECT &rect)
 {
 	InvalidateRect(AsConfig::Hwnd, &rect, FALSE);
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsTools::Reflect_On_Circle(double next_x_pos, double next_y_pos, double circle_x, double circle_y, double circle_radius, ABall_Object *ball)
+{
+	double dx, dy;
+	double distance, two_radiuses;
+	double alpha, beta, gamma;
+	double related_ball_direction;
+	const double pi_2 = 2.0 * M_PI;
+
+	dx = next_x_pos - circle_x;
+	dy = next_y_pos - circle_y;
+
+	distance = sqrt(dx * dx + dy * dy);
+	two_radiuses = circle_radius + AsConfig::Ball_Radius;
+
+	if (distance + AsConfig::Moving_Step_Size < two_radiuses)
+	{
+		beta = atan2(-dy, dx);
+
+		related_ball_direction = ball->Get_Direction();
+		related_ball_direction -= beta;
+
+		if (related_ball_direction > pi_2)
+			related_ball_direction -= pi_2;
+
+		if (related_ball_direction < 0.0)
+			related_ball_direction += pi_2;
+
+		if (related_ball_direction > M_PI_2 && related_ball_direction < M_PI + M_PI_2)
+		{
+			alpha = beta + M_PI - ball->Get_Direction();
+			gamma = beta + alpha;
+
+			ball->Set_Direction(gamma);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+//AHit_Checker
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value)
+{
+	if (eval_dist > radius)
+		return false;
+
+	//value * value + eval_pos * eval_pos = radius * radius
+
+	double value = sqrt(radius * radius - eval_dist * eval_dist);
+
+	if ((next_pos + value) > min_value and (next_pos - value) < max_value)
+		return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Check_Hit(double x_pos, double y_pos)
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker::Check_Hit(RECT &rect)
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
+AHit_Checker_List::AHit_Checker_List()
+	: Counter_Hit_Checker(0), Hit_Checkers{}
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AHit_Checker_List::Add_Hit_Checker(AHit_Checker *hit_checker)
+{
+	if (Counter_Hit_Checker < Hit_Checkers_Count)
+		Hit_Checkers[Counter_Hit_Checker++] = hit_checker;
+	else
+		AsConfig::Throw();
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos)
+{
+	int i;
+
+	for (i = 0; i < Counter_Hit_Checker; ++i)
+		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos) )
+			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker_List::Check_Hit(double x_pos, double y_pos, ABall_Object *ball)
+{
+	int i;
+	for (i = 0; i < Hit_Checkers_Count; ++i)
+		if (Hit_Checkers[i]->Check_Hit(x_pos, y_pos, ball) )
+			return true;
+
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+bool AHit_Checker_List::Check_Hit(RECT &rect)
+{
+	int i;
+
+	for (i = 0; i < Hit_Checkers_Count; i++)
+		if (Hit_Checkers[i] != 0)
+			if (Hit_Checkers[i]->Check_Hit(rect) )
+				return true;
+
+	return false;
 }
 //------------------------------------------------------------------------------------------------------------

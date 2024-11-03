@@ -1,7 +1,6 @@
 #pragma once
 #include "Border.h"
 #include "Ball_Set.h"
-//#include "Ball.h"
 #include "Platform.h"
 #include "Level.h"
 #include "Monster_Set.h"

@@ -20,7 +20,7 @@ enum class EGate_Transformation: unsigned char
 class AGate: public AGraphics_Object
 {
 public:
-	AGate(int x_pos, int y_pos);
+	AGate(int x_pos, int y_pos, int level_x_pos = -1, int level_y_pos = -1);
 	virtual void Act();
 	virtual void Draw(HDC HDC, RECT &paint_area);
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
@@ -28,8 +28,12 @@ public:
 
 	void Open_Gate(bool short_open);
 	bool Is_Opened() const;
+	bool Is_Closed() const;
 	void Get_Y_Limits(int &gate_top_y, int &gate_low_y) const;
 	void Get_Pos(int &x_pos, int &y_pos);
+	static const int Width = 6;
+
+	int Level_X_Pos, Level_Y_Pos;
 
 private:
 	void Draw_Cup(HDC hdc, bool is_top);
@@ -45,7 +49,6 @@ private:
 
 	int X_Pos;
 	double Y_Pos, Origin_Y_Pos;
-	const int Width = 6;
 	const int Height = 19;
 
 	double Gap_Height;

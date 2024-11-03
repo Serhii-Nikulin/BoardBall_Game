@@ -31,7 +31,10 @@ void AsBall_Set::Set_On_Platform()
 	int i;
 
 	for (i = 0; i < 1; i++)
+	{
 		Balls[i].Set_State(EBall_State::On_Platform);
+		Balls[i].Time_Of_Release = 0;
+	}
 
 	for (NULL; i < AsConfig::Max_Balls_Count; i++)
 		Balls[i].Set_State(EBall_State::Disabled);

@@ -1,6 +1,5 @@
 #pragma once
 //#include "Config.h"
-#include "Ball.h"
 #include "Gate.h"
 
 //------------------------------------------------------------------------------------------------------------
@@ -10,7 +9,7 @@ public:
 	~AsBorder();
 	AsBorder();
 
-	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall *ball);
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball);
 
 	virtual void Begin_Movement();
 	virtual void Finish_Movement();
@@ -24,7 +23,9 @@ public:
 
 	void Redraw_Floor();
 	void Open_Gate(int gate_index, bool short_open);
+	int Long_Open_Gate();
 	bool Is_Gate_Opened(int gate_index);
+	bool Is_Gate_Closed(int gate_index);
 	void Get_Gate_Pos(int gate_index, int &x_pos, int &y_pos);
 
 

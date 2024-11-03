@@ -73,6 +73,32 @@ public:
 	static const int Platform_Inner_Height = 5;
 
 	static const int Gates_Count = 8;
+
+	static const double Ball_Radius;
+};
+//------------------------------------------------------------------------------------------------------------
+class ABall_Object
+{
+public:
+	virtual void Set_Direction(double speed) = 0;
+	virtual double Get_Direction() = 0;
+
+	virtual EBall_State Get_State() = 0;
+	static const int Start_Ball_Position_On_Platform = 104;
+	static const int Platform_Y_Pos = 185;
+	static const int Ball_Radius = 2;
+
+	virtual void Set_State(EBall_State new_state, double x_pos = AsConfig::Start_Ball_Position_On_Platform, double y_pos = AsConfig::Platform_Y_Pos - AsConfig::Ball_Radius + 1 + 1.0 / AsConfig::Global_Scale, double direction = M_PI_4) = 0;	
+
+	virtual void Reflect(bool from_horizontal) = 0;
+	virtual void Draw_Teleporting(HDC hdc, int step) = 0;
+	virtual void Set_On_Parachute(int level_x, int level_y) = 0;
+	virtual void Get_Center(double &x_pos, double &y_pos) = 0;
+	virtual bool Is_Moving_Up() = 0;
+	virtual bool Is_Moving_Left() = 0;
+
+	virtual double Get_Speed() = 0;
+	virtual void Set_Speed(double speed) = 0;
 };
 //------------------------------------------------------------------------------------------------------------
 class AsTools
@@ -87,5 +113,31 @@ public:
 	static void Round_Rect(HDC hdc, RECT &rect, int corner_radius = 2);
 	static void Ellipse(HDC hdc, RECT &rect, const AColor &color);
 	static void Invalidate_Rect(RECT &rect);
+	static bool Reflect_On_Circle(double next_x_pos, double next_y_pos, double circle_x, double circle_y, double circle_radius, ABall_Object *ball);
+};
+//------------------------------------------------------------------------------------------------------------
+class AHit_Checker
+{
+public:
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos, ABall_Object *ball) = 0; // check hit with ball
+	virtual bool Check_Hit(double next_x_pos, double next_y_pos); // check hit with laser_beams
+	virtual bool Check_Hit(RECT &rect);
+
+	bool Hit_Circle_On_Line(double next_pos, double eval_dist, double radius, double min_value, double max_value);
+};
+//------------------------------------------------------------------------------------------------------------
+class AHit_Checker_List
+{
+public:
+	AHit_Checker_List();
+	void Add_Hit_Checker(AHit_Checker *hit_checker);
+	bool Check_Hit(double x_pos, double y_pos);
+	bool Check_Hit(double x_pos, double y_pos, ABall_Object *ball);
+	bool Check_Hit(RECT &rect);
+
+private:
+	static const int Hit_Checkers_Count = 4;
+	int Counter_Hit_Checker;
+	AHit_Checker *Hit_Checkers[Hit_Checkers_Count];
 };
 //------------------------------------------------------------------------------------------------------------
