@@ -48,7 +48,7 @@ void AMonster::Shift_Per_Step(double max_speed)
 		next_x_pos = X_Pos + next_step * cos(Direction);
 		next_y_pos = Y_Pos - next_step * sin(Direction);
 
-		Update_Rect(next_x_pos, next_y_pos, monster_rect);
+		Update_Rect( (int)next_x_pos, (int)next_y_pos, monster_rect);
 
 		if (AsLevel::Has_Brick_At_Rect(monster_rect) )
 			Direction += angle_correction;
@@ -195,7 +195,7 @@ void AMonster::Redraw_Monster()
 {
 	Prev_Monster_Rect = Monster_Rect;
 
-	Update_Rect(X_Pos, Y_Pos, Monster_Rect);
+	Update_Rect( (int)X_Pos, (int)Y_Pos, Monster_Rect);
 
 	AsTools::Invalidate_Rect(Prev_Monster_Rect);
 	AsTools::Invalidate_Rect(Monster_Rect);
@@ -316,7 +316,7 @@ void AMonster::Draw_Destroying(HDC hdc, RECT &paint_area)
 	}
 
 	if (destroying_is_finished)
-		Monster_State == EMonster_State::Missing;
+		Monster_State = EMonster_State::Missing;
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -372,7 +372,7 @@ bool AMonster::Check_Hit(RECT &rect)
 	if (! (Monster_State == EMonster_State::Emitting or Monster_State == EMonster_State::Alive) )
 		return false;
 
-	Update_Rect(X_Pos, Y_Pos, monster_rect);
+	Update_Rect( (int)X_Pos, (int)Y_Pos, monster_rect);
 
 	if (IntersectRect(&intersection_rect, &rect, &monster_rect) )
 	{
@@ -419,7 +419,7 @@ void AMonster::Activate(int x_pos, int y_pos, bool moving_right)
 	Redraw_Monster();
 }
 //------------------------------------------------------------------------------------------------------------
-bool AMonster::Is_Active()
+bool AMonster::Is_Active() const
 {
 	if (Monster_State == EMonster_State::Missing)
 		return false;
