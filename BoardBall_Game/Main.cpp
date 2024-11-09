@@ -3,41 +3,100 @@
 
 #define MAX_LOADSTRING 100
 
-AsEngine Engine;
-
-HINSTANCE hInst;
-WCHAR szTitle[MAX_LOADSTRING];
-WCHAR szWindowClass[MAX_LOADSTRING];
-
-ATOM MyRegisterClass(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE, int);
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 //------------------------------------------------------------------------------------------------------------
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+AsMain_Window Main_Window;
+AsMain_Window *AsMain_Window::Window = 0;
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+//AsFrame_DC
+//------------------------------------------------------------------------------------------------------------
+AsFrame_DC::~AsFrame_DC()
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+	DeleteObject(Bitmap);
+	DeleteObject(DC);
+}
+//------------------------------------------------------------------------------------------------------------
+AsFrame_DC::AsFrame_DC()
+: DC(0), Bitmap(0), Width(0), Height(0) 
+{
+}
+//------------------------------------------------------------------------------------------------------------
+HDC AsFrame_DC::Get_DC(HWND hwnd, HDC hdc)
+{
+	RECT rect;
+	int dc_width, dc_height;
 
-	// TODO: Place code here.
+	GetClientRect(hwnd, &rect);
 
-	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadStringW(hInstance, IDC_BOARDBALLGAME, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
+	dc_width = rect.right - rect.left;
+	dc_height = rect.bottom - rect.top;
+
+	Width = dc_width;
+	Height = dc_height;
+
+	DC = CreateCompatibleDC(hdc);
+	Bitmap = CreateCompatibleBitmap(hdc, Width, Height);
+
+	SelectObject(DC, Bitmap);
+
+	AsTools::Rect(DC, rect, AsConfig::BG_Color);
+	return DC;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsFrame_DC::Delete_DC()
+{
+	DeleteObject(Bitmap);
+	DeleteObject(DC);
+}
+//------------------------------------------------------------------------------------------------------------
 
 
-	if (!InitInstance(hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
 
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_BOARDBALLGAME));
+//Windows.h
+//------------------------------------------------------------------------------------------------------------
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
+{
+	return Main_Window.Main(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+}
+//------------------------------------------------------------------------------------------------------------
 
+
+
+
+//AsMain_Window
+//------------------------------------------------------------------------------------------------------------
+AsMain_Window::AsMain_Window()
+: Instance(0), Engine(), Frame_DC(), szTitle{}, szWindowClass{}
+{
+	Window = this;
+}
+//------------------------------------------------------------------------------------------------------------
+int AsMain_Window::Main(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR command_line, int command_show)
+{
 	MSG msg;
+	HACCEL accel_table;
+
+	UNREFERENCED_PARAMETER(prev_instance);
+	UNREFERENCED_PARAMETER(command_line);
+
+	Instance = instance;
+
+	LoadStringW(instance, IDS_APP_TITLE, szTitle, Max_String_Size);
+	LoadStringW(instance, IDC_BOARDBALLGAME, szWindowClass, Max_String_Size);
+	Register_Class();
+
+	if (! Init_Instance(command_show) )
+		return FALSE;
+
+	accel_table = LoadAccelerators(instance, MAKEINTRESOURCE(IDC_BOARDBALLGAME));
+
 
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		if (!TranslateAccelerator(msg.hwnd, accel_table, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -46,18 +105,18 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	return (int)msg.wParam;
 }
 //------------------------------------------------------------------------------------------------------------
-ATOM MyRegisterClass(HINSTANCE hInstance)
+ATOM AsMain_Window::Register_Class()
 {
-	WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex {};
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
+	wcex.lpfnWndProc = Window_Proc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_BOARDBALLGAME));
+	wcex.hInstance = Instance;
+	wcex.hIcon = LoadIcon(Instance, MAKEINTRESOURCE(IDI_BOARDBALLGAME));
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = AsConfig::BG_Color.Get_Brush();
 	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_BOARDBALLGAME);
@@ -67,11 +126,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassExW(&wcex);
 }
 //------------------------------------------------------------------------------------------------------------
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+BOOL AsMain_Window::Init_Instance(int command_show)
 {
-	hInst = hInstance;
+	HWND hwnd;
+	RECT window_rect {};
 
-	RECT window_rect;
 	window_rect.left = 0;
 	window_rect.top = 0;
 	window_rect.right = 320 * 3;
@@ -79,25 +138,41 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, TRUE);
 
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		0, 0, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top, nullptr, nullptr, hInstance, nullptr);
+	hwnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+		0, 0, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top, nullptr, nullptr, Instance, nullptr);
 
-	if (hWnd == 0)
+	if (hwnd == 0)
 		return FALSE;
 
-	Engine.Init_Engine(hWnd);
+	Engine.Init_Engine(hwnd);
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	ShowWindow(hwnd, command_show);
+	UpdateWindow(hwnd);
 
 	return TRUE;
 }
 //------------------------------------------------------------------------------------------------------------
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void AsMain_Window::On_Paint(HWND hwnd)
+{
+	PAINTSTRUCT ps;
+	HDC hdc, frame_dc;
+
+	hdc = BeginPaint(hwnd, &ps);
+
+	frame_dc = Frame_DC.Get_DC(hwnd, hdc);
+	
+	Engine.Draw_Frame(frame_dc, ps.rcPaint);
+
+	BitBlt(hdc, 0, 0, Frame_DC.Width, Frame_DC.Height, frame_dc, 0, 0, SRCCOPY);
+
+	Frame_DC.Delete_DC();
+	
+	EndPaint(hwnd, &ps);
+}
+//------------------------------------------------------------------------------------------------------------
+LRESULT CALLBACK AsMain_Window::Window_Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId;
-	PAINTSTRUCT ps;
-	HDC hdc;
 
 	switch (message)
 	{
@@ -106,7 +181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			DialogBox(Window->Instance, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
@@ -117,10 +192,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code that uses hdc here...
-		Engine.Draw_Frame(hdc, ps.rcPaint);
-		EndPaint(hWnd, &ps);
+
+		Window->On_Paint(hWnd);
 		break;
 
 	case WM_DESTROY:
@@ -131,13 +204,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_LEFT:
-			return Engine.On_Key(AsEngine::EKey_Type::Left, true);
+			return Window->Engine.On_Key(AsEngine::EKey_Type::Left, true);
 
 		case VK_RIGHT:
-			return Engine.On_Key(AsEngine::EKey_Type::Right, true);
+			return Window->Engine.On_Key(AsEngine::EKey_Type::Right, true);
 
 		case VK_SPACE:
-			return Engine.On_Key(AsEngine::EKey_Type::Space, true);
+			return Window->Engine.On_Key(AsEngine::EKey_Type::Space, true);
 		}
 		break;
 
@@ -145,29 +218,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_LEFT:
-			return Engine.On_Key(AsEngine::EKey_Type::Left, false);
+			return Window->Engine.On_Key(AsEngine::EKey_Type::Left, false);
 
 		case VK_RIGHT:
-			return Engine.On_Key(AsEngine::EKey_Type::Right, false);
+			return Window->Engine.On_Key(AsEngine::EKey_Type::Right, false);
 
 		case VK_SPACE:
-			return Engine.On_Key(AsEngine::EKey_Type::Space, false);
+			return Window->Engine.On_Key(AsEngine::EKey_Type::Space, false);
 		}
 		break;
 
 	case WM_TIMER:
 		if (wParam == Timer_ID)
-			return Engine.On_Timer();
+			return Window->Engine.On_Timer();
 		break;
+
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK AsMain_Window::About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
+
 	switch (message)
 	{
 	case WM_INITDIALOG:
@@ -181,6 +256,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
+
 	return (INT_PTR)FALSE;
 }
 //------------------------------------------------------------------------------------------------------------

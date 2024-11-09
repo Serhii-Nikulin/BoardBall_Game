@@ -38,7 +38,7 @@ public:
 
 
 	void Activate(int x_pos, int y_pos, bool moving_right);
-	bool Is_Active();
+	bool Is_Active() const;
 	void Destroy();
 
 private:
