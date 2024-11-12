@@ -507,6 +507,60 @@ AMonster_Comet::AMonster_Comet()
 //------------------------------------------------------------------------------------------------------------
 void AMonster_Comet::Draw_Alive(HDC hdc)
 {
+	if (Monster_State == EMonster_State::Missing)
+		return;
+
+	int i;
+	const double &d_scale = AsConfig::D_Global_Scale;
+	const int &scale = AsConfig::Global_Scale;
+	double monster_radius = Width / 2.0;
+	double comet_size = 4.0 * d_scale - 1;
+	double comet_pos = 5.0 * d_scale + 1;
+	double rotation_angle;
+
+	RECT comet_rect;
+	XFORM xform{}, prev_xform{};
+
+	GetWorldTransform(hdc, &prev_xform);
+
+	rotation_angle = 2.0 * M_PI * 0 / (double)1.0;
+
+	for (i = 0; i < 2; i++)
+	{
+		xform.eM11 = (FLOAT)cos(rotation_angle); xform.eM12 = (FLOAT)-sin(rotation_angle);
+		xform.eM21 = (FLOAT)sin(rotation_angle); xform.eM22 = (FLOAT)cos(rotation_angle);
+		xform.eDx = (FLOAT)( (X_Pos + monster_radius) * d_scale - 1.0);
+		xform.eDy = (FLOAT)( (Y_Pos + monster_radius) * d_scale - 1.0);
+
+		SetWorldTransform(hdc, &xform);
+
+		AsConfig::Monster_Comet_Red_Color.Select(hdc);
+
+		comet_rect.left = -6 * scale + 1;
+		comet_rect.top = -6 * scale;
+		comet_rect.right = 4 * scale + scale / 3;
+		comet_rect.bottom = 4 * scale + scale / 3;
+
+		Arc(hdc, comet_rect.left, comet_rect.top, comet_rect.right, comet_rect.bottom, 0, int(-monster_radius * scale), int(-monster_radius * scale), 0);
+
+		comet_rect.left = -5 * scale - 1;
+		comet_rect.top = -6 * scale;
+		comet_rect.right = 7 * scale + scale;
+		comet_rect.bottom = 7 * scale + scale;
+
+		Arc(hdc, comet_rect.left, comet_rect.top, comet_rect.right, comet_rect.bottom, 0, int(-monster_radius * scale), int(-monster_radius * scale), 0);
+
+		comet_rect.left = int(0 - comet_pos - comet_size / 2.0);
+		comet_rect.top = int(0 - comet_size / 2.0);
+		comet_rect.right = comet_rect.left + int(comet_size);
+		comet_rect.bottom = comet_rect.top + int(comet_size);
+
+		AsTools::Ellipse(hdc, comet_rect, AsConfig::White_Color);
+
+		rotation_angle += M_PI;
+	}
+
+	SetWorldTransform(hdc, &prev_xform);
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster_Comet::Act_Alive()

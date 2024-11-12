@@ -51,6 +51,7 @@ protected:
 	double Direction;
 	int Direction_Switch_Tick; 
 	static const int Width = 16, Height = 16;
+	double X_Pos, Y_Pos;
 
 private:
 	void Change_Direction();
@@ -59,7 +60,6 @@ private:
 	void Act_Destroying();
 	void Redraw_Monster();
 	void Update_Rect(int x_pos, int y_pos, RECT &rect);
-	double X_Pos, Y_Pos;
 	double Speed;
 	int Alive_Timer_Tick;
 	static const int Explosive_Balls_Count = 20;
