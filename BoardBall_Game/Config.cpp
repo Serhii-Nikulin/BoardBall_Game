@@ -24,6 +24,8 @@ const AColor AsConfig::BG_Outline_Color(AsConfig::BG_Color, AsConfig::Global_Sca
 const AColor AsConfig::Explosion_Red_Color(AsConfig::White_Color, 0, AsConfig::Red_Color);
 const AColor AsConfig::Explosion_Blue_Color(AsConfig::White_Color, 0, AsConfig::Blue_Color);
 
+const AColor AsConfig::Monster_Comet_Red_Color(AsConfig::Red_Color, AsConfig::Global_Scale);
+
 const double AsConfig::Acceleration = 1.001;
 const double AsConfig::Ball_Normal_Speed = 3.0 * 2;
 

@@ -31,7 +31,7 @@ private:
 	bool Get_Next_Game_Object(int &index, AGame_Object **game_obj);
 	static const int Max_Monsters_Count = 10;
 
-	AMonster Monsters[Max_Monsters_Count];
+	AMonster *Monsters[Max_Monsters_Count];
 
 	EMonster_Set_State Monster_Set_State;
 
