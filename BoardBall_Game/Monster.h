@@ -52,6 +52,7 @@ protected:
 	int Direction_Switch_Tick; 
 	static const int Width = 16, Height = 16;
 	double X_Pos, Y_Pos;
+	int Alive_Timer_Tick;
 
 private:
 	void Change_Direction();
@@ -61,7 +62,6 @@ private:
 	void Redraw_Monster();
 	void Update_Rect(int x_pos, int y_pos, RECT &rect);
 	double Speed;
-	int Alive_Timer_Tick;
 	static const int Explosive_Balls_Count = 20;
 	AExplosive_Ball Explosive_Balls[Explosive_Balls_Count];
 };
@@ -99,6 +99,11 @@ private:
 	virtual void Act_Alive();
 	virtual void On_Activation();
 
+	double Current_Angle;
+	int Ticks_Per_Rotation;
+
+	static const int Min_Ticks_Per_Rotation = 3 * AsConfig::FPS;
+	static const int Max_Ticks_Per_Rotation = 7 * AsConfig::FPS;
 };
 //------------------------------------------------------------------------------------------------------------
 

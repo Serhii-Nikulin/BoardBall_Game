@@ -117,8 +117,11 @@ void AsMonster_Set::Emit_From_Gate(int gate_index)
 	{
 		if (Monsters[i] == 0)
 		{
-			monster = new AMonster_Comet();
-			//monster = new AMonster_Eye();
+			if (AsTools::Rand(2) )
+				monster = new AMonster_Comet();
+			else
+				monster = new AMonster_Eye();
+
 			Monsters[i] = monster;
 			break;
 		}

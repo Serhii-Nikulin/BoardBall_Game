@@ -109,6 +109,8 @@ void AMonster::Act()
 		return;
 
 	case EMonster_State::Emitting:
+		Act_Alive();
+
 		if (AsConfig::Current_Timer_Tick >= Alive_Timer_Tick)
 			Monster_State = EMonster_State::Alive;
 		break;
@@ -337,6 +339,19 @@ void AMonster::Destroy()
 	}
 }
 //------------------------------------------------------------------------------------------------------------
+void AMonster::Change_Direction()
+{
+	double direction_delta;
+
+	if (AsConfig::Current_Timer_Tick > Direction_Switch_Tick)
+	{
+		direction_delta = (45 - AsTools::Rand(90) ) * M_PI / 180.0;
+		Direction += direction_delta;
+		Direction_Switch_Tick += AsConfig::FPS + AsTools::Rand(AsConfig::FPS * 2);
+	}
+}
+//------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -467,18 +482,6 @@ void AMonster_Eye::Act_Alive()
 	}
 }
 //------------------------------------------------------------------------------------------------------------
-void AMonster::Change_Direction()
-{
-	double direction_delta;
-
-	if (AsConfig::Current_Timer_Tick > Direction_Switch_Tick)
-	{
-		direction_delta = (45 - AsTools::Rand(90) ) * M_PI / 180.0;
-		Direction += direction_delta;
-		Direction_Switch_Tick += AsConfig::FPS + AsTools::Rand(AsConfig::FPS * 2);
-	}
-}
-//------------------------------------------------------------------------------------------------------------
 void AMonster_Eye::On_Activation()
 {
 	int i;
@@ -502,7 +505,11 @@ void AMonster_Eye::On_Activation()
 //AMonster_Comet
 //------------------------------------------------------------------------------------------------------------
 AMonster_Comet::AMonster_Comet()
+: Current_Angle(0.0), Ticks_Per_Rotation(0)
 {
+	int total_ticks = Max_Ticks_Per_Rotation - Min_Ticks_Per_Rotation;
+
+	Ticks_Per_Rotation = Min_Ticks_Per_Rotation + AsTools::Rand(total_ticks);
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster_Comet::Draw_Alive(HDC hdc)
@@ -523,7 +530,7 @@ void AMonster_Comet::Draw_Alive(HDC hdc)
 
 	GetWorldTransform(hdc, &prev_xform);
 
-	rotation_angle = 2.0 * M_PI * 0 / (double)1.0;
+	rotation_angle = Current_Angle;
 
 	for (i = 0; i < 2; i++)
 	{
@@ -565,11 +572,19 @@ void AMonster_Comet::Draw_Alive(HDC hdc)
 //------------------------------------------------------------------------------------------------------------
 void AMonster_Comet::Act_Alive()
 {
+	if (Monster_State == EMonster_State::Missing)
+		return;
 
+	int time_offset;
+	double ratio;
+
+	time_offset = (AsConfig::Current_Timer_Tick - Alive_Timer_Tick) % Ticks_Per_Rotation;
+	ratio = (double)time_offset / Ticks_Per_Rotation;
+
+	Current_Angle = ratio * M_PI * 2.0;
 }
 //------------------------------------------------------------------------------------------------------------
 void AMonster_Comet::On_Activation()
 {
-
 }
 //------------------------------------------------------------------------------------------------------------
