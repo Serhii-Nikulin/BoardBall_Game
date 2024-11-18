@@ -42,6 +42,9 @@ HDC AsFrame_DC::Get_DC(HWND hwnd, HDC hdc)
 
 	SelectObject(DC, Bitmap);
 
+	++rect.right;
+	++rect.bottom;
+
 	AsTools::Rect(DC, rect, AsConfig::BG_Color);
 	return DC;
 }
@@ -229,13 +232,14 @@ LRESULT CALLBACK AsMain_Window::Window_Proc(HWND hWnd, UINT message, WPARAM wPar
 		break;
 
 	case WM_TIMER:
-		if (wParam == Timer_ID)
+		if (wParam == Window->Engine.Timer_ID)
 			return Window->Engine.On_Timer();
 		break;
 
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
+
 	return 0;
 }
 //------------------------------------------------------------------------------------------------------------

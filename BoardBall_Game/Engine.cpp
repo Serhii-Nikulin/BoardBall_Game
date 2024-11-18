@@ -1,8 +1,115 @@
 #include "Engine.h" 
+
+//AsInfo_Panel
+AsInfo_Panel::~AsInfo_Panel()
+{
+	DeleteObject(Logo_Font);
+}
+//------------------------------------------------------------------------------------------------------------
+AsInfo_Panel::AsInfo_Panel()
+: Logo_Font(0)
+{
+	LOGFONT log_font{};
+
+	log_font.lfHeight = -96;
+	log_font.lfWeight = 900L;
+	log_font.lfCharSet = 204;
+	log_font.lfOutPrecision = 3;
+	log_font.lfClipPrecision = 2;
+	log_font.lfQuality = 1;
+	log_font.lfPitchAndFamily = 34;
+	wcscpy_s(log_font.lfFaceName, L"Arial Black");
+
+	Logo_Font = CreateFontIndirect(&log_font);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Begin_Movement()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Finish_Movement()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Shift_Per_Step(double max_speed)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+double AsInfo_Panel::Get_Speed()
+{
+	return 0.0;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Act()
+{
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
+{
+	const int &scale = AsConfig::Global_Scale;
+
+	const wchar_t *board_str = L"Board";
+	const wchar_t *ball_str = L"Ball";
+
+	int logo_x_pos = 211 * scale;
+	int logo_y_pos = 11 * scale;
+	const int shadow_offset = 3 * scale;
+
+	//Logotype
+	AsTools::Rect(hdc, 208, 3, 110, 100, AsConfig::Blue_Color);
+
+	SelectObject(hdc, Logo_Font);
+
+	//Shadow
+	SetBkColor(hdc, AsConfig::Blue_Color.Get_RGB() );
+	SetTextColor(hdc, AsConfig::BG_Color.Get_RGB() );
+	SetBkMode(hdc, TRANSPARENT);
+
+	TextOut(hdc, logo_x_pos + shadow_offset, logo_y_pos + shadow_offset, board_str, 5);
+	TextOut(hdc, logo_x_pos + 18 * scale + shadow_offset, logo_y_pos + 37 * scale + shadow_offset, ball_str, 4);
+
+	//Strings
+	SetBkColor(hdc, AsConfig::Blue_Color.Get_RGB() );
+	SetTextColor(hdc, AsConfig::Red_Color.Get_RGB() );
+	SetBkMode(hdc, TRANSPARENT);
+
+	TextOut(hdc, logo_x_pos, logo_y_pos, board_str, 5);
+	TextOut(hdc, logo_x_pos + 18 * scale, logo_y_pos + 37 * scale, ball_str, 4);
+
+	//Score table
+	AsTools::Rect(hdc, 208, 106, 110, 92, AsConfig::Red_Color);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
+{
+}
+//------------------------------------------------------------------------------------------------------------
+bool AsInfo_Panel::Is_Finished()
+{
+	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Choose_Font()
+{
+	CHOOSEFONT cf{};
+	LOGFONT lf{};
+
+	cf.lStructSize = sizeof(CHOOSEFONT);
+	cf.lpLogFont = &lf;
+	cf.Flags = CF_SCREENFONTS;
+	cf.nFontType = SCREEN_FONTTYPE;
+
+	ChooseFont(&cf);
+	Logo_Font = CreateFontIndirect(cf.lpLogFont);
+}
+//------------------------------------------------------------------------------------------------------------
+
+
+
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set(), Monster_Set()
+	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set(), Monster_Set(), Timer_ID(WM_USER + 1)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -51,6 +158,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Add_Next_Module(index, &Ball_Set);
 	Add_Next_Module(index, &Laser_Beam_Set);
 	Add_Next_Module(index, &Monster_Set);
+	Add_Next_Module(index, &Info_Panel);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)

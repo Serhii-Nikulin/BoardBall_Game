@@ -13,7 +13,27 @@ enum class EGame_State: unsigned char
 	Restart_Level
 };
 //------------------------------------------------------------------------------------------------------------
-const int Timer_ID = WM_USER + 1;
+class AsInfo_Panel: public AGame_Object
+{
+public:
+	~AsInfo_Panel();
+	AsInfo_Panel();
+
+	virtual void Begin_Movement();
+	virtual void Finish_Movement();
+	virtual void Shift_Per_Step(double max_speed);
+	virtual double Get_Speed();
+
+	virtual void Act();
+	virtual void Draw(HDC HDC, RECT &paint_area);
+	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
+	virtual bool Is_Finished();
+
+private:
+	HFONT Logo_Font;
+
+	void Choose_Font();
+};
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
@@ -33,6 +53,8 @@ public:
 	int On_Timer();
 	void Play_Level();
 
+	const int Timer_ID = WM_USER + 1;
+
 private:
 	void Restart_Level();
 	void Act();
@@ -51,6 +73,8 @@ private:
 	AGame_Object *Modules[AsConfig::Max_Modules_Count];
 	double Rest_Distance;
 	int Life_Count;
+
+	AsInfo_Panel Info_Panel;
 };
 //------------------------------------------------------------------------------------------------------------
 
