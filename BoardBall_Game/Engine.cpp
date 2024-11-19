@@ -4,23 +4,17 @@
 AsInfo_Panel::~AsInfo_Panel()
 {
 	DeleteObject(Logo_Font);
+
+	delete White_Color_1_px;
+	delete Black_Color_1_px;
+
+	delete Blue_Black;
+	delete Red_Black;
 }
 //------------------------------------------------------------------------------------------------------------
 AsInfo_Panel::AsInfo_Panel()
-: Logo_Font(0)
+: Logo_Font(0), Name_Font(0), White_Color_1_px(0), Black_Color_1_px(0), Red_Black(0), Blue_Black(0)
 {
-	LOGFONT log_font{};
-
-	log_font.lfHeight = -96;
-	log_font.lfWeight = 900L;
-	log_font.lfCharSet = 204;
-	log_font.lfOutPrecision = 3;
-	log_font.lfClipPrecision = 2;
-	log_font.lfQuality = 1;
-	log_font.lfPitchAndFamily = 34;
-	wcscpy_s(log_font.lfFaceName, L"Arial Black");
-
-	Logo_Font = CreateFontIndirect(&log_font);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsInfo_Panel::Begin_Movement()
@@ -50,10 +44,15 @@ void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 
 	const wchar_t *board_str = L"Board";
 	const wchar_t *ball_str = L"Ball";
+	const wchar_t *name_str = L"Computer";
 
 	int logo_x_pos = 211 * scale;
 	int logo_y_pos = 11 * scale;
 	const int shadow_offset = 3 * scale;
+	int score_x_pos = 208;
+	int score_y_pos = 106;
+	int score_width = 110;
+	int score_height = 92;
 
 	//Logotype
 	AsTools::Rect(hdc, 208, 3, 110, 100, AsConfig::Blue_Color);
@@ -64,20 +63,53 @@ void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 	SetBkColor(hdc, AsConfig::Blue_Color.Get_RGB() );
 	SetTextColor(hdc, AsConfig::BG_Color.Get_RGB() );
 	SetBkMode(hdc, TRANSPARENT);
-
-	TextOut(hdc, logo_x_pos + shadow_offset, logo_y_pos + shadow_offset, board_str, 5);
-	TextOut(hdc, logo_x_pos + 18 * scale + shadow_offset, logo_y_pos + 37 * scale + shadow_offset, ball_str, 4);
+	
+	TextOut(hdc, logo_x_pos + shadow_offset, logo_y_pos + shadow_offset, board_str, wcslen(board_str) );
+	TextOut(hdc, logo_x_pos + 18 * scale + shadow_offset, logo_y_pos + 37 * scale + shadow_offset, ball_str, wcslen(ball_str) );
 
 	//Strings
 	SetBkColor(hdc, AsConfig::Blue_Color.Get_RGB() );
 	SetTextColor(hdc, AsConfig::Red_Color.Get_RGB() );
 	SetBkMode(hdc, TRANSPARENT);
 
-	TextOut(hdc, logo_x_pos, logo_y_pos, board_str, 5);
-	TextOut(hdc, logo_x_pos + 18 * scale, logo_y_pos + 37 * scale, ball_str, 4);
+	TextOut(hdc, logo_x_pos, logo_y_pos, board_str, wcslen(board_str));
+	TextOut(hdc, logo_x_pos + 18 * scale, logo_y_pos + 37 * scale, ball_str, wcslen(ball_str));
 
 	//Score table
-	AsTools::Rect(hdc, 208, 106, 110, 92, AsConfig::Red_Color);
+		//Red_Black board
+	AsTools::Rect(hdc, score_x_pos, score_y_pos, score_width, 2, *Red_Black);
+	AsTools::Rect(hdc, score_x_pos, score_y_pos + score_height - 2, score_width, 2, *Red_Black);
+	AsTools::Rect(hdc, score_x_pos, score_y_pos, 2, score_height, *Red_Black);
+	AsTools::Rect(hdc, score_x_pos + score_width - 2, score_y_pos, 2, score_height, *Red_Black);
+
+		//Blue_Black table
+	AsTools::Rect(hdc, score_x_pos + 2, score_y_pos + 2, score_width - 4, score_height - 3, *Blue_Black);
+
+	//AsTools::Rect(hdc, score_x_pos, score_y_pos, score_width, score_height, AsConfig::Red_Color);
+
+		//Light board
+	White_Color_1_px->Select_Pen(hdc);
+
+	MoveToEx(hdc, (score_x_pos + 2) * scale, (score_y_pos + score_height - 2) * scale, 0);
+	LineTo(hdc, (score_x_pos + 2) * scale, (score_y_pos + 2) * scale);
+	LineTo(hdc, (score_x_pos + score_width - 2) * scale, (score_y_pos + 2) * scale);
+
+		//Black board
+	Black_Color_1_px->Select_Pen(hdc);
+
+	LineTo(hdc, (score_x_pos + score_width - 2) * scale, (score_y_pos + 2) * scale);
+	LineTo(hdc, (score_x_pos + score_width - 2) * scale, (score_y_pos + score_height - 2) * scale);
+	LineTo(hdc, (score_x_pos + 2) * scale, (score_y_pos + score_height - 2) * scale);
+
+		//Gamer name
+	AsTools::Rect(hdc, score_x_pos + 5, score_y_pos + 5, score_width - 2 * 5, 16, *Red_Black);
+
+	SelectObject(hdc, Name_Font);
+	SetTextColor(hdc, AsConfig::Blue_Color.Get_RGB() );
+	TextOut(hdc, (score_x_pos + 5) * scale, (score_y_pos + 2) * scale, name_str, wcslen(name_str));
+
+		//Score number
+	AsTools::Rect(hdc, score_x_pos + 5, score_y_pos + 27, score_width - 2 * 5, 16, *Red_Black);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsInfo_Panel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
@@ -87,6 +119,38 @@ void AsInfo_Panel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 bool AsInfo_Panel::Is_Finished()
 {
 	return false;
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Init()
+{
+	LOGFONT log_font{};
+
+	log_font.lfHeight = -96;
+	log_font.lfWeight = 900L;
+	log_font.lfCharSet = 204;
+	log_font.lfOutPrecision = 3;
+	log_font.lfClipPrecision = 2;
+	log_font.lfQuality = 1;
+	log_font.lfPitchAndFamily = 34;
+	wcscpy_s(log_font.lfFaceName, L"Arial Black");
+
+	Logo_Font = CreateFontIndirect(&log_font);
+
+	log_font.lfHeight = -48;
+	log_font.lfWeight = 700L;
+	log_font.lfOutPrecision = 3;
+	log_font.lfClipPrecision = 2;
+	log_font.lfQuality = 1;
+	log_font.lfPitchAndFamily = 49;
+	wcscpy_s(log_font.lfFaceName, L"Consolas");
+
+	Name_Font = CreateFontIndirect(&log_font);
+
+	White_Color_1_px = new AColor(AsConfig::White_Color, AsConfig::Global_Scale);
+	Black_Color_1_px = new AColor(AsConfig::BG_Color, AsConfig::Global_Scale);
+
+	Blue_Black = new AColor(40, 45, 128);
+	Red_Black = new AColor(128, 21, 19);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsInfo_Panel::Choose_Font()
@@ -140,6 +204,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Level.Init();
 	Monster_Set.Init(&Border);
 	Level.Set_Current_Level(AsLevel::Level_01);
+	Info_Panel.Init();
 	/*Ball.Set_State(EBall_State::Normal);
 	Platform.Set_State(EPS_Normal); */
 	

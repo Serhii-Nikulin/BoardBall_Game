@@ -29,8 +29,16 @@ public:
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
+	void Init();
+
 private:
 	HFONT Logo_Font;
+	HFONT Name_Font;
+
+	AColor *White_Color_1_px;
+	AColor *Black_Color_1_px;
+	AColor *Blue_Black;
+	AColor *Red_Black;
 
 	void Choose_Font();
 };

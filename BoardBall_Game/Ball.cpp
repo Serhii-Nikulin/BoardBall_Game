@@ -103,7 +103,6 @@ void ABall::Set_Speed(double speed)
 //------------------------------------------------------------------------------------------------------------
 void ABall::Shift_Per_Step(double max_speed)
 {
-	int i;
 	double next_x_pos, next_y_pos;
 	double next_step;
 	bool got_hit = true;

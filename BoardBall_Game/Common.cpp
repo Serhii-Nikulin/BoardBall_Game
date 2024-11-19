@@ -21,6 +21,11 @@ AMover::~AMover()
 
 
 //AColor
+AColor::~AColor()
+{
+	DeleteObject(Pen);
+	DeleteObject(Brush);
+}
 //------------------------------------------------------------------------------------------------------------
 AColor::AColor():
 	R(0), G(0), B(0), Pen(0), Brush(0)
