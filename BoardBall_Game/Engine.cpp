@@ -110,6 +110,7 @@ void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 
 		//Score number
 	AsTools::Rect(hdc, score_x_pos + 5, score_y_pos + 27, score_width - 2 * 5, 16, *Red_Black);
+
 }
 //------------------------------------------------------------------------------------------------------------
 void AsInfo_Panel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
