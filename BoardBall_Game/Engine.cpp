@@ -40,11 +40,13 @@ void AsInfo_Panel::Act()
 //------------------------------------------------------------------------------------------------------------
 void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 {
+	RECT rect;
 	const int &scale = AsConfig::Global_Scale;
 
 	const wchar_t *board_str = L"Board";
 	const wchar_t *ball_str = L"Ball";
-	const wchar_t *name_str = L"Computer";
+	const wchar_t *gamer_name_str = L"Computer";
+	const wchar_t *score_str = L"score:000000";
 
 	int logo_x_pos = 211 * scale;
 	int logo_y_pos = 11 * scale;
@@ -64,16 +66,16 @@ void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 	SetTextColor(hdc, AsConfig::BG_Color.Get_RGB() );
 	SetBkMode(hdc, TRANSPARENT);
 	
-	TextOut(hdc, logo_x_pos + shadow_offset, logo_y_pos + shadow_offset, board_str, wcslen(board_str) );
-	TextOut(hdc, logo_x_pos + 18 * scale + shadow_offset, logo_y_pos + 37 * scale + shadow_offset, ball_str, wcslen(ball_str) );
+	TextOut(hdc, logo_x_pos + shadow_offset, logo_y_pos + shadow_offset, board_str, (int)wcslen(board_str) );
+	TextOut(hdc, logo_x_pos + 18 * scale + shadow_offset, logo_y_pos + 37 * scale + shadow_offset, ball_str, (int)wcslen(ball_str) );
 
 	//Strings
 	SetBkColor(hdc, AsConfig::Blue_Color.Get_RGB() );
 	SetTextColor(hdc, AsConfig::Red_Color.Get_RGB() );
 	SetBkMode(hdc, TRANSPARENT);
 
-	TextOut(hdc, logo_x_pos, logo_y_pos, board_str, wcslen(board_str));
-	TextOut(hdc, logo_x_pos + 18 * scale, logo_y_pos + 37 * scale, ball_str, wcslen(ball_str));
+	TextOut(hdc, logo_x_pos, logo_y_pos, board_str, (int)wcslen(board_str));
+	TextOut(hdc, logo_x_pos + 18 * scale, logo_y_pos + 37 * scale, ball_str, (int)wcslen(ball_str));
 
 	//Score table
 		//Red_Black board
@@ -84,8 +86,6 @@ void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 
 		//Blue_Black table
 	AsTools::Rect(hdc, score_x_pos + 2, score_y_pos + 2, score_width - 4, score_height - 3, *Blue_Black);
-
-	//AsTools::Rect(hdc, score_x_pos, score_y_pos, score_width, score_height, AsConfig::Red_Color);
 
 		//Light board
 	White_Color_1_px->Select_Pen(hdc);
@@ -102,15 +102,38 @@ void AsInfo_Panel::Draw(HDC hdc, RECT &paint_area)
 	LineTo(hdc, (score_x_pos + 2) * scale, (score_y_pos + score_height - 2) * scale);
 
 		//Gamer name
-	AsTools::Rect(hdc, score_x_pos + 5, score_y_pos + 5, score_width - 2 * 5, 16, *Red_Black);
+	rect.left = (score_x_pos + 5) * scale;
+	rect.top = (score_y_pos + 5) * scale;
+	rect.right = rect.left + (score_width - 2 * 5) * scale;
+	rect.bottom = rect.top + 16 * scale;
+	AsTools::Rect(hdc, rect, *Red_Black);
+
+	Draw_String(hdc, rect, gamer_name_str, AsConfig::White_Color);
+		
+		//Score number
+	rect.top += 22 * scale;
+	rect.bottom += 22 * scale;
+	AsTools::Rect(hdc, rect, *Red_Black);
+
+	Draw_String(hdc, rect, score_str, AsConfig::White_Color);
+}
+//------------------------------------------------------------------------------------------------------------
+void AsInfo_Panel::Draw_String(HDC hdc, RECT &rect, const wchar_t *string, const AColor &text_color)
+{
+	SIZE size;
+	int string_x_offset;
+	int string_y_offset;
+	const int &scale = AsConfig::Global_Scale;
 
 	SelectObject(hdc, Name_Font);
-	SetTextColor(hdc, AsConfig::Blue_Color.Get_RGB() );
-	TextOut(hdc, (score_x_pos + 5) * scale, (score_y_pos + 2) * scale, name_str, wcslen(name_str));
+	SetTextColor(hdc, text_color.Get_RGB() );
 
-		//Score number
-	AsTools::Rect(hdc, score_x_pos + 5, score_y_pos + 27, score_width - 2 * 5, 16, *Red_Black);
+	GetTextExtentPoint32(hdc, string, wcslen(string), &size);
 
+	string_x_offset = rect.left + (rect.right - rect.left) / 2 - size.cx / 2;
+	string_y_offset = rect.top + (rect.bottom - rect.top) / 2 - size.cy / 2 - scale;
+
+	TextOut(hdc, string_x_offset, string_y_offset, string, (int)wcslen(string) );
 }
 //------------------------------------------------------------------------------------------------------------
 void AsInfo_Panel::Clear_Prev_Animation(HDC hdc, RECT &paint_area)

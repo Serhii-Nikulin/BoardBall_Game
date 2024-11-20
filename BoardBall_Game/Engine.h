@@ -26,6 +26,8 @@ public:
 
 	virtual void Act();
 	virtual void Draw(HDC HDC, RECT &paint_area);
+	void Draw_String(HDC hdc, RECT &rect, const wchar_t *string, const AColor &text_color);
+
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
 
