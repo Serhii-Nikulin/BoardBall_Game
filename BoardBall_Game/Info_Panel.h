@@ -1,6 +1,7 @@
 #pragma once
 #include "Falling_Letter.h"
 
+//AsInfo_Panel
 //------------------------------------------------------------------------------------------------------------
 class AsInfo_Panel: public AGame_Object
 {
@@ -15,8 +16,8 @@ public:
 
 	virtual void Act();
 	virtual void Draw(HDC HDC, RECT &paint_area);
-	void Draw_Extra_Life(HDC hdc, int x, int y);
-	void Draw_String(HDC hdc, const RECT &rect, const wchar_t *string, HFONT font);
+	void Show_Extra_Lives(HDC hdc);
+	void Draw_String(HDC hdc, const RECT &rect, AString &string, HFONT font);
 
 	virtual void Clear_Prev_Animation(HDC hdc, RECT &paint_area);
 	virtual bool Is_Finished();
@@ -33,6 +34,7 @@ private:
 	AColor *Blue_Black;
 	AColor *Red_Black;
 
+	void Draw_Extra_Life(HDC hdc, int x, int y);
 	void Choose_Font();
 
 	static const int Score_X_Pos = 208;
@@ -45,5 +47,7 @@ private:
 	AFalling_Letter Floor_Table;
 	AFalling_Letter Lifes_Table;
 	AFalling_Letter Monster_Table;
+
+	AString Player_Name;
 };
 //------------------------------------------------------------------------------------------------------------

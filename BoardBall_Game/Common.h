@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <Windows.h>
+#include "string"
 
 //------------------------------------------------------------------------------------------------------------
 enum class EBall_State: unsigned char
@@ -81,5 +82,19 @@ public:
 
 protected:
 	virtual bool Get_Next_Game_Object(int &index, AGame_Object **game_obj) = 0;
+};
+//------------------------------------------------------------------------------------------------------------
+class AString
+{
+public:
+	AString();
+	AString(std::wstring string);
+
+	void Append(int value);
+	const wchar_t *Get_Content();
+	int Get_Length();
+
+private:
+	std::wstring Content;
 };
 //------------------------------------------------------------------------------------------------------------

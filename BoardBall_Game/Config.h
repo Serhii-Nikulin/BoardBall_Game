@@ -15,7 +15,10 @@ public:
 	static const double D_Global_Scale;
 	static const int FPS = 20;
 	static int Current_Timer_Tick;
+	static int Extra_Lives_Count;
 	
+	static int Score;
+
 	static const int Border_X_Offset = 6;//Min_X
 	static const int Border_Y_Offset = 4;//Min_Y
 	static const int Max_X_Pos = 200;
