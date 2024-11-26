@@ -1,8 +1,9 @@
 #include "Engine.h" 
+
 //AsEngine
 //------------------------------------------------------------------------------------------------------------
 AsEngine::AsEngine()
-	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set(), Monster_Set()
+	:Game_State(EGame_State::Lost_Ball), Rest_Distance(0.0), Life_Count(AsConfig::Initial_Life_Count), Modules{}, Ball_Set(), Laser_Beam_Set(), Monster_Set(), Timer_ID(WM_USER + 1)
 {
 }
 //------------------------------------------------------------------------------------------------------------
@@ -33,6 +34,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Level.Init();
 	Monster_Set.Init(&Border);
 	Level.Set_Current_Level(AsLevel::Level_01);
+	Info_Panel.Init();
 	/*Ball.Set_State(EBall_State::Normal);
 	Platform.Set_State(EPS_Normal); */
 	
@@ -51,6 +53,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 	Add_Next_Module(index, &Ball_Set);
 	Add_Next_Module(index, &Laser_Beam_Set);
 	Add_Next_Module(index, &Monster_Set);
+	Add_Next_Module(index, &Info_Panel);
 }
 //------------------------------------------------------------------------------------------------------------
 void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)

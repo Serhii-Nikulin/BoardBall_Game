@@ -1,6 +1,7 @@
 #pragma once
 #include "Active_Brick.h"
 
+//------------------------------------------------------------------------------------------------------------
 enum class ELetter_Type: unsigned char
 {
 //None,
@@ -28,9 +29,11 @@ enum class EFalling_Letter_State: unsigned char
 //------------------------------------------------------------------------------------------------------------
 class AFalling_Letter: public AGraphics_Object
 {
+private:
+
 	void Draw_Brick_Letter(HDC hdc);
 	void Set_Brick_Letter_Colors(bool is_switch_color, const AColor **front_color, const AColor **back_color);
-
+	
 	const EBrick_Type Brick_Type;
 	int Rotation_Step;
 	int X, Y;
@@ -52,6 +55,7 @@ public:
 	void Get_Letter_Cell(RECT &rect);
 	void Finalize();
 	void Test_Draw_All_Steps(HDC hdc);
+	void Show_Full_Size();
 
 	static void Init();
 	static ELetter_Type Get_Random_Letter_Type();

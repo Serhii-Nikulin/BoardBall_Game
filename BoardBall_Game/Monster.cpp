@@ -525,7 +525,7 @@ void AMonster_Comet::Draw_Alive(HDC hdc)
 	double comet_pos = 5.0 * d_scale + 1;
 	double rotation_angle;
 
-	RECT comet_rect;
+	RECT comet_rect{};
 	XFORM xform{}, prev_xform{};
 
 	GetWorldTransform(hdc, &prev_xform);

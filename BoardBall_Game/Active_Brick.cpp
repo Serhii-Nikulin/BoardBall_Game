@@ -245,7 +245,7 @@ void AActive_Brick_Multihit::Draw(HDC hdc, RECT &paint_rect)
 	const int scale = AsConfig::Global_Scale;
 	double x_delta;
 	double angle;
-	XFORM xform, prev_xform;
+	XFORM xform{}, prev_xform{};
 	RECT zero_rect{};
 
 	AsConfig::BG_Color.Select(hdc);
@@ -533,7 +533,7 @@ void AAdvertisement::Clear_Prev_Animation(HDC hdc, RECT &paint_area)
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Act()
 {
-	RECT rect;
+	RECT rect{};
 	int i, j;
 	
 	if(AsConfig::Current_Timer_Tick % 5 != 0)
@@ -611,7 +611,7 @@ void AAdvertisement::Draw(HDC hdc, RECT &paint_area)
 
 	shadow_width = Ball_Width - 4 * scale;
 	shadow_height = 4 * scale;
-	deformation = (1.0 - Deformation_Ratio) * scale * 2;
+	deformation = int( (1.0 - Deformation_Ratio) * scale * 2.0);
 	ball_width = shadow_width + deformation;
 	ball_height = shadow_height - deformation;
 	x = Ball_Center_X - ball_width / 2;
@@ -660,7 +660,7 @@ bool AAdvertisement::Is_Finished()
 //------------------------------------------------------------------------------------------------------------
 void AAdvertisement::Show_Under_Brick(int level_x, int level_y)
 {
-	RECT region_rect;
+	RECT region_rect{};
 
 	
 	const int &scale = AsConfig::Global_Scale;

@@ -1,6 +1,7 @@
 #pragma once
 #include "Config.h"
 
+//------------------------------------------------------------------------------------------------------------
 enum class EBrick_Type: unsigned char
 {
 	None, Red, Blue,

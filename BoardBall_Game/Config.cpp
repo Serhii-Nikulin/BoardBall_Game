@@ -1,5 +1,6 @@
 #include "Config.h"
 
+//------------------------------------------------------------------------------------------------------------
 const double AsConfig::D_Global_Scale = (double)Global_Scale;
 const AColor AsConfig::BG_Color(0, 0, 0);
 const AColor AsConfig::Red_Color(237, 38, 36);
@@ -35,6 +36,8 @@ HWND AsConfig::Hwnd;
 
 double AsConfig::Moving_Step_Size = 1.0 / AsConfig::Global_Scale;
 int AsConfig::Current_Timer_Tick = 0;
+int AsConfig::Extra_Lives_Count = 12;
+int AsConfig::Score = 0;
 bool AsConfig::Has_Floor = false;
 //------------------------------------------------------------------------------------------------------------
 void AsConfig::Create_Pen_Brush(const unsigned char r, const unsigned char g, const unsigned char b, HPEN &pen, HBRUSH &brush)

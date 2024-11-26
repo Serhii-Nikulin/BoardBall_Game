@@ -1,5 +1,6 @@
 #include "Falling_Letter.h"
 
+//------------------------------------------------------------------------------------------------------------
 int AFalling_Letter::All_Letters_Popularity;
 const int AFalling_Letter::Letters_Popularity[(char)ELetter_Type::Max] = {7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 1};
 //------------------------------------------------------------------------------------------------------------
@@ -327,6 +328,11 @@ void AFalling_Letter::Test_Draw_All_Steps(HDC hdc)
 		Letter_Cell.left += x_step;
 		Letter_Cell.right += x_step;		
 	}
+}
+//------------------------------------------------------------------------------------------------------------
+void AFalling_Letter::Show_Full_Size()
+{
+	Rotation_Step = 8;
 }
 //------------------------------------------------------------------------------------------------------------
 void AFalling_Letter::Init()

@@ -4,7 +4,9 @@
 #include "Platform.h"
 #include "Level.h"
 #include "Monster_Set.h"
+#include "Info_Panel.h"
 
+//------------------------------------------------------------------------------------------------------------
 enum class EGame_State: unsigned char
 {
 	Test_Ball,
@@ -12,8 +14,6 @@ enum class EGame_State: unsigned char
 	Lost_Ball, 
 	Restart_Level
 };
-//------------------------------------------------------------------------------------------------------------
-const int Timer_ID = WM_USER + 1;
 //------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
@@ -33,6 +33,8 @@ public:
 	int On_Timer();
 	void Play_Level();
 
+	const int Timer_ID = WM_USER + 1;
+
 private:
 	void Restart_Level();
 	void Act();
@@ -51,6 +53,8 @@ private:
 	AGame_Object *Modules[AsConfig::Max_Modules_Count];
 	double Rest_Distance;
 	int Life_Count;
+
+	AsInfo_Panel Info_Panel;
 };
 //------------------------------------------------------------------------------------------------------------
 
