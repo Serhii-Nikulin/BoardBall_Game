@@ -1,7 +1,7 @@
 #include "framework.h"
 #include "Main.h"
 
-#define MAX_LOADSTRING 100
+//#define MAX_LOADSTRING 100
 
 //------------------------------------------------------------------------------------------------------------
 AsMain_Window Main_Window;

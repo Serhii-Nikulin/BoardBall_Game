@@ -1,6 +1,7 @@
 #pragma once
 #include "Active_Brick.h"
 
+//------------------------------------------------------------------------------------------------------------
 enum class ELetter_Type: unsigned char
 {
 //None,
